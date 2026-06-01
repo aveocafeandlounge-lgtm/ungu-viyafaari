@@ -6,7 +6,6 @@ import {
   Clock, 
   Store, 
   TrendingUp,
-  Package,
   AlertCircle
 } from 'lucide-react';
 import { 
@@ -29,38 +28,38 @@ export default function Dashboard() {
 
   // Mock data - replace with real Firebase data
   const stats = {
-    totalSales: 45000,
-    totalCollections: 38000,
-    pendingPayments: 7000,
-    activeShops: 12,
+    totalSales: 0,
+    totalCollections: 0,
+    pendingPayments: 0,
+    activeShops: 0,
   };
 
   const salesData = [
-    { name: 'Jan', sales: 4000, collections: 3200 },
-    { name: 'Feb', sales: 4500, collections: 3800 },
-    { name: 'Mar', sales: 5200, collections: 4100 },
-    { name: 'Apr', sales: 4800, collections: 3900 },
-    { name: 'May', sales: 5500, collections: 4600 },
-    { name: 'Jun', sales: 6000, collections: 5200 },
+    { name: 'Jan', sales: 0, collections: 0 },
+    { name: 'Feb', sales: 0, collections: 0 },
+    { name: 'Mar', sales: 0, collections: 0 },
+    { name: 'Apr', sales: 0, collections: 0 },
+    { name: 'May', sales: 0, collections: 0 },
+    { name: 'Jun', sales: 0, collections: 0 },
   ];
 
   const shopPerformance = [
-    { name: 'Shop A', value: 12000 },
-    { name: 'Shop B', value: 9500 },
-    { name: 'Shop C', value: 8000 },
-    { name: 'Shop D', value: 6500 },
-    { name: 'Others', value: 9000 },
+    { name: 'Shop A', value: 0 },
+    { name: 'Shop B', value: 0 },
+    { name: 'Shop C', value: 0 },
+    { name: 'Shop D', value: 0 },
+    { name: 'Others', value: 0 },
   ];
 
   const productSales = [
-    { name: 'Hedhika', value: 35 },
-    { name: 'Meals', value: 25 },
-    { name: 'Snacks', value: 20 },
-    { name: 'Drinks', value: 15 },
-    { name: 'Others', value: 5 },
+    { name: 'Hedhika', value: 0 },
+    { name: 'Meals', value: 0 },
+    { name: 'Snacks', value: 0 },
+    { name: 'Drinks', value: 0 },
+    { name: 'Others', value: 0 },
   ];
 
-  const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'];
+  const COLORS = ['#6B46C1', '#0F766E', '#eab308', '#22c55e', '#3b82f6'];
 
   const StatCard = ({ 
     title, 
@@ -109,15 +108,13 @@ export default function Dashboard() {
           title={t.totalSales}
           value={`MVR ${stats.totalSales.toLocaleString()}`}
           icon={DollarSign}
-          color="bg-red-500"
-          trend="+12%"
+          color="bg-purple-600"
         />
         <StatCard
           title={t.totalCollections}
           value={`MVR ${stats.totalCollections.toLocaleString()}`}
           icon={ShoppingCart}
-          color="bg-green-500"
-          trend="+8%"
+          color="bg-teal-600"
         />
         <StatCard
           title={t.pendingPayments}
@@ -130,7 +127,6 @@ export default function Dashboard() {
           value={stats.activeShops}
           icon={Store}
           color="bg-blue-500"
-          trend="+2"
         />
       </div>
 
@@ -149,8 +145,8 @@ export default function Dashboard() {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Line type="monotone" dataKey="sales" stroke="#ef4444" strokeWidth={2} />
-              <Line type="monotone" dataKey="collections" stroke="#22c55e" strokeWidth={2} />
+              <Line type="monotone" dataKey="sales" stroke="#6B46C1" strokeWidth={2} />
+              <Line type="monotone" dataKey="collections" stroke="#0F766E" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </motion.div>
@@ -168,7 +164,7 @@ export default function Dashboard() {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="value" fill="#ef4444" />
+              <Bar dataKey="value" fill="#6B46C1" />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
@@ -212,22 +208,9 @@ export default function Dashboard() {
             {t.lowStockAlert}
           </h3>
           <div className="space-y-3">
-            {[
-              { name: 'Mas Huni', stock: 5, unit: 'packs' },
-              { name: 'Bis Keeku', stock: 8, unit: 'packs' },
-              { name: 'Gulha', stock: 12, unit: 'pieces' },
-            ].map((item) => (
-              <div key={item.name} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Package className="w-5 h-5 text-orange-500" />
-                  <div>
-                    <p className="font-medium text-gray-800">{item.name}</p>
-                    <p className="text-sm text-gray-600">{item.stock} {item.unit} remaining</p>
-                  </div>
-                </div>
-                <span className="text-orange-600 font-medium">Low Stock</span>
-              </div>
-            ))}
+            <div className="flex items-center justify-center p-8 text-gray-500">
+              No low stock alerts
+            </div>
           </div>
         </motion.div>
       </div>
