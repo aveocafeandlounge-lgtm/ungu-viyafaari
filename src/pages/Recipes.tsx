@@ -9,15 +9,23 @@ import {
   Clock, 
   Users,
   Loader2,
-  ChefHat
+  ChefHat,
+  Calculator
 } from 'lucide-react';
+
+interface Ingredient {
+  name: string;
+  quantity: number;
+  unit: string;
+  price: number;
+}
 
 interface Recipe {
   id: string;
   name: string;
   nameDv: string;
   category: string;
-  ingredients: string[];
+  ingredients: Ingredient[];
   steps: string[];
   cookingTime: number;
   servingSize: number;
@@ -31,7 +39,13 @@ export default function Recipes() {
       name: 'Mas Huni',
       nameDv: 'މަސް ހުނި',
       category: 'hedhika',
-      ingredients: ['Tuna (canned)', 'Onion', 'Coconut', 'Chili', 'Lime'],
+      ingredients: [
+        { name: 'Tuna (canned)', quantity: 200, unit: 'g', price: 25 },
+        { name: 'Onion', quantity: 1, unit: 'pc', price: 5 },
+        { name: 'Coconut', quantity: 1, unit: 'pc', price: 15 },
+        { name: 'Chili', quantity: 2, unit: 'pc', price: 3 },
+        { name: 'Lime', quantity: 1, unit: 'pc', price: 2 },
+      ],
       steps: ['Mix tuna with chopped onion', 'Add grated coconut', 'Mix in chili', 'Squeeze lime juice', 'Serve with roshi'],
       cookingTime: 15,
       servingSize: 4,
@@ -41,7 +55,13 @@ export default function Recipes() {
       name: 'Bis Keeku',
       nameDv: 'ބިސް ކީކު',
       category: 'hedhika',
-      ingredients: ['Flour', 'Sugar', 'Butter', 'Eggs', 'Cardamom'],
+      ingredients: [
+        { name: 'Flour', quantity: 500, unit: 'g', price: 20 },
+        { name: 'Sugar', quantity: 200, unit: 'g', price: 15 },
+        { name: 'Butter', quantity: 100, unit: 'g', price: 30 },
+        { name: 'Eggs', quantity: 2, unit: 'pc', price: 10 },
+        { name: 'Cardamom', quantity: 5, unit: 'g', price: 5 },
+      ],
       steps: ['Mix flour and sugar', 'Add butter and eggs', 'Knead dough', 'Roll and cut', 'Bake at 180°C for 20 minutes'],
       cookingTime: 30,
       servingSize: 12,
@@ -51,12 +71,19 @@ export default function Recipes() {
       name: 'Gulha',
       nameDv: 'ގުލްހާ',
       category: 'hedhika',
-      ingredients: ['Flour', 'Tuna', 'Onion', 'Chili', 'Oil for frying'],
+      ingredients: [
+        { name: 'Flour', quantity: 500, unit: 'g', price: 20 },
+        { name: 'Tuna', quantity: 200, unit: 'g', price: 30 },
+        { name: 'Onion', quantity: 2, unit: 'pc', price: 10 },
+        { name: 'Chili', quantity: 3, unit: 'pc', price: 5 },
+        { name: 'Oil for frying', quantity: 500, unit: 'ml', price: 25 },
+      ],
       steps: ['Make dough with flour', 'Prepare tuna filling', 'Fill dough balls', 'Deep fry until golden', 'Serve hot'],
       cookingTime: 45,
       servingSize: 20,
     },
   ]);
+  const [batchCalculator, setBatchCalculator] = useState<{ recipeId: string; multiplier: number } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -73,6 +100,20 @@ export default function Recipes() {
     recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     recipe.nameDv.includes(searchTerm)
   );
+
+  const calculateTotalCost = (recipe: Recipe) => {
+    return recipe.ingredients.reduce((total, ingredient) => total + ingredient.price, 0);
+  };
+
+  const calculateCostPerPortion = (recipe: Recipe) => {
+    const totalCost = calculateTotalCost(recipe);
+    return totalCost / recipe.servingSize;
+  };
+
+  const calculateBatchCost = (recipe: Recipe, batchMultiplier: number) => {
+    const totalCost = calculateTotalCost(recipe);
+    return totalCost * batchMultiplier;
+  };
 
   const handleSave = async (recipeData: Omit<Recipe, 'id'>) => {
     setLoading(true);
@@ -181,8 +222,26 @@ export default function Recipes() {
                 <div className="mb-3">
                   <p className="text-xs text-gray-500 mb-1">{t.ingredients}</p>
                   <p className="text-sm text-gray-600 line-clamp-2">
-                    {recipe.ingredients.join(', ')}
+                    {recipe.ingredients.map(i => `${i.quantity}${i.unit} ${i.name}`).join(', ')}
                   </p>
+                </div>
+
+                <div className="mb-3 p-3 bg-green-50 rounded-lg">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Total Cost:</span>
+                    <span className="font-semibold text-green-700">MVR {calculateTotalCost(recipe).toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm mt-1">
+                    <span className="text-gray-600">Cost/Portion:</span>
+                    <span className="font-semibold text-green-700">MVR {calculateCostPerPortion(recipe).toFixed(2)}</span>
+                  </div>
+                  <button
+                    onClick={() => setBatchCalculator({ recipeId: recipe.id, multiplier: 1 })}
+                    className="mt-2 w-full text-xs text-green-600 hover:text-green-700 font-medium flex items-center justify-center gap-1"
+                  >
+                    <Calculator className="w-3 h-3" />
+                    Calculate Batch Cost
+                  </button>
                 </div>
 
                 <div className="pt-3 border-t border-gray-100">
@@ -205,6 +264,17 @@ export default function Recipes() {
           onClose={() => { setShowModal(false); setEditingRecipe(null); }}
           t={t}
           isRTL={isRTL}
+        />
+      )}
+
+      {/* Batch Cost Calculator Modal */}
+      {batchCalculator && (
+        <BatchCostModal
+          recipe={recipes.find(r => r.id === batchCalculator.recipeId)!}
+          multiplier={batchCalculator.multiplier}
+          onMultiplierChange={(multiplier) => setBatchCalculator({ ...batchCalculator, multiplier })}
+          onClose={() => setBatchCalculator(null)}
+          calculateBatchCost={calculateBatchCost}
         />
       )}
     </div>
@@ -230,11 +300,31 @@ function RecipeModal({
     name: recipe?.name || '',
     nameDv: recipe?.nameDv || '',
     category: recipe?.category || '',
-    ingredients: recipe?.ingredients.join(', ') || '',
+    ingredients: recipe?.ingredients || [],
     steps: recipe?.steps.join('\n') || '',
     cookingTime: recipe?.cookingTime || '',
     servingSize: recipe?.servingSize || '',
   });
+
+  const addIngredient = () => {
+    setFormData({
+      ...formData,
+      ingredients: [...formData.ingredients, { name: '', quantity: 0, unit: 'g', price: 0 }],
+    });
+  };
+
+  const updateIngredient = (index: number, field: keyof Ingredient, value: string | number) => {
+    const updatedIngredients = [...formData.ingredients];
+    updatedIngredients[index] = { ...updatedIngredients[index], [field]: value };
+    setFormData({ ...formData, ingredients: updatedIngredients });
+  };
+
+  const removeIngredient = (index: number) => {
+    setFormData({
+      ...formData,
+      ingredients: formData.ingredients.filter((_, i) => i !== index),
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -242,7 +332,7 @@ function RecipeModal({
       name: formData.name,
       nameDv: formData.nameDv,
       category: formData.category,
-      ingredients: formData.ingredients.split(',').map(i => i.trim()).filter(i => i),
+      ingredients: formData.ingredients.filter(i => i.name),
       steps: formData.steps.split('\n').map(s => s.trim()).filter(s => s),
       cookingTime: Number(formData.cookingTime),
       servingSize: Number(formData.servingSize),
@@ -303,17 +393,67 @@ function RecipeModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.ingredients}
-            </label>
-            <textarea
-              value={formData.ingredients}
-              onChange={(e) => setFormData({ ...formData, ingredients: e.target.value })}
-              rows={3}
-              placeholder="Separate ingredients with commas"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              required
-            />
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                {t.ingredients}
+              </label>
+              <button
+                type="button"
+                onClick={addIngredient}
+                className="text-red-600 text-sm font-medium hover:text-red-700"
+              >
+                + Add Ingredient
+              </button>
+            </div>
+            {formData.ingredients.map((ingredient, index) => (
+              <div key={index} className="flex gap-2 mb-2 items-center">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={ingredient.name}
+                  onChange={(e) => updateIngredient(index, 'name', e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Qty"
+                  value={ingredient.quantity || ''}
+                  onChange={(e) => updateIngredient(index, 'quantity', Number(e.target.value))}
+                  className="w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  required
+                />
+                <select
+                  value={ingredient.unit}
+                  onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
+                  className="w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                >
+                  <option value="g">g</option>
+                  <option value="kg">kg</option>
+                  <option value="ml">ml</option>
+                  <option value="l">l</option>
+                  <option value="pc">pc</option>
+                  <option value="cup">cup</option>
+                  <option value="tbsp">tbsp</option>
+                  <option value="tsp">tsp</option>
+                </select>
+                <input
+                  type="number"
+                  placeholder="Price"
+                  value={ingredient.price || ''}
+                  onChange={(e) => updateIngredient(index, 'price', Number(e.target.value))}
+                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => removeIngredient(index)}
+                  className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4 text-red-600" />
+                </button>
+              </div>
+            ))}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -370,6 +510,98 @@ function RecipeModal({
             </button>
           </div>
         </form>
+      </motion.div>
+    </div>
+  );
+}
+
+function BatchCostModal({ 
+  recipe, 
+  multiplier, 
+  onMultiplierChange, 
+  onClose, 
+  calculateBatchCost 
+}: { 
+  recipe: Recipe;
+  multiplier: number;
+  onMultiplierChange: (multiplier: number) => void;
+  onClose: () => void;
+  calculateBatchCost: (recipe: Recipe, multiplier: number) => number;
+}) {
+  const batchCost = calculateBatchCost(recipe, multiplier);
+  const totalPortions = recipe.servingSize * multiplier;
+  const costPerPortion = batchCost / totalPortions;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-xl w-full max-w-md"
+      >
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <Calculator className="w-5 h-5 text-red-600" />
+            Batch Cost Calculator
+          </h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Recipe
+            </label>
+            <p className="text-lg font-semibold text-gray-800">{recipe.name}</p>
+            <p className="text-sm text-gray-600">{recipe.nameDv}</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Batch Multiplier (x{recipe.servingSize} servings per batch)
+            </label>
+            <input
+              type="number"
+              min="1"
+              step="0.5"
+              value={multiplier}
+              onChange={(e) => onMultiplierChange(Number(e.target.value))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <div className="bg-green-50 rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600">Base Recipe Cost:</span>
+              <span className="font-semibold text-gray-800">
+                MVR {recipe.ingredients.reduce((total, i) => total + i.price, 0).toFixed(2)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600">Total Batch Cost:</span>
+              <span className="font-bold text-green-700 text-lg">
+                MVR {batchCost.toFixed(2)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600">Total Portions:</span>
+              <span className="font-semibold text-gray-800">{totalPortions}</span>
+            </div>
+            <div className="flex items-center justify-between pt-2 border-t border-green-200">
+              <span className="text-gray-600">Cost per Portion:</span>
+              <span className="font-bold text-green-700">
+                MVR {costPerPortion.toFixed(2)}
+              </span>
+            </div>
+          </div>
+
+          <div className="pt-4">
+            <button
+              onClick={onClose}
+              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
