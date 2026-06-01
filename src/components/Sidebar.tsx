@@ -12,6 +12,7 @@ import {
   X
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -20,6 +21,18 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { t, isRTL } = useLanguage();
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: t.dashboard },
@@ -47,8 +60,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <motion.aside
-        initial={isRTL ? { x: '100%' } : { x: '-100%' }}
-        animate={isOpen ? { x: 0 } : isRTL ? { x: '100%' } : { x: '-100%' }}
+        initial={false}
+        animate={{
+          x: isLargeScreen ? 0 : (isOpen ? 0 : (isRTL ? '100%' : '-100%'))
+        }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         className={`fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-full w-64 bg-white border-r border-gray-200 z-50 lg:static lg:translate-x-0 lg:z-0`}
       >
