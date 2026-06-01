@@ -86,6 +86,27 @@ npm run dev
 3. Set up Storage rules
 4. Enable App Check (optional)
 
+#### Deploy Firebase Rules (Optional)
+
+To deploy Firestore and Storage rules automatically:
+
+1. Install Firebase CLI:
+```bash
+npm install -g firebase-tools
+```
+
+2. Login to Firebase:
+```bash
+firebase login
+```
+
+3. Deploy rules:
+```bash
+firebase deploy --only firestore:rules,storage:rules
+```
+
+The rules are defined in `firestore.rules` and `storage.rules` files.
+
 ## Project Structure 📁
 
 ```
