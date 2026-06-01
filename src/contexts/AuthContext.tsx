@@ -36,15 +36,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        const userData = userDoc.data();
-        const userWithRole: User = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          role: userData?.role as UserRole,
-        };
-        setUser(userWithRole);
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          const userData = userDoc.data();
+          const userWithRole: User = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            role: userData?.role as UserRole,
+          };
+          setUser(userWithRole);
+        } catch (error) {
+          // If Firestore read fails (e.g., rules block it), still set the user
+          const userWithRole: User = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            role: undefined,
+          };
+          setUser(userWithRole);
+        }
       } else {
         setUser(null);
       }
