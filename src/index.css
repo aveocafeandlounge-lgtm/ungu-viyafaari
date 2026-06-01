@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Dhivehi Font Support */
+@font-face {
+  font-family: 'Faseyha';
+  src: url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thaana&display=swap');
+}
+
+[dir="rtl"] {
+  font-family: 'Faseyha', 'Noto Sans Thaana', sans-serif;
+}

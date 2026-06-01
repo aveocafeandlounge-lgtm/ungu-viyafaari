@@ -1,0 +1,48 @@
+import { NavLink } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import { 
+  LayoutDashboard, 
+  Package, 
+  Store, 
+  Box, 
+  DollarSign, 
+  BookOpen, 
+  BarChart3
+} from 'lucide-react';
+
+export default function BottomNav() {
+  const { t } = useLanguage();
+
+  const navItems = [
+    { path: '/dashboard', icon: LayoutDashboard, label: t.dashboard },
+    { path: '/products', icon: Package, label: t.products },
+    { path: '/shops', icon: Store, label: t.shops },
+    { path: '/batches', icon: Box, label: t.batches },
+    { path: '/collections', icon: DollarSign, label: t.collections },
+    { path: '/recipes', icon: BookOpen, label: t.recipes },
+    { path: '/reports', icon: BarChart3, label: t.reports },
+  ];
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden z-50">
+      <div className="flex items-center justify-around py-2">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
+                isActive
+                  ? 'text-red-600'
+                  : 'text-gray-600'
+              }`
+            }
+          >
+            <item.icon className="w-5 h-5" />
+            <span className="text-xs">{item.label}</span>
+          </NavLink>
+        ))}
+      </div>
+    </nav>
+  );
+}
