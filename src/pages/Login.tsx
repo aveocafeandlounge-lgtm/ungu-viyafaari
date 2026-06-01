@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,9 +10,16 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user, loading: authLoading } = useAuth();
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
+
+  // Navigate to dashboard when user is authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate('/dashboard');
+    }
+  }, [user, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,10 +28,9 @@ export default function Login() {
 
     try {
       await signIn(email, password);
-      navigate('/dashboard');
+      setLoading(false);
     } catch (err: any) {
       setError(err.message || t.error);
-    } finally {
       setLoading(false);
     }
   };
