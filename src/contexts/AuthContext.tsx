@@ -1,18 +1,20 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { 
-  type User as FirebaseUser,
-  type UserCredential,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
+  type UserCredential,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 
 export type UserRole = 'admin' | 'staff';
 
-export interface User extends FirebaseUser {
+export interface User {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
   role?: UserRole;
 }
 
@@ -36,7 +38,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (firebaseUser) {
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         const userData = userDoc.data();
-        const userWithRole = { ...firebaseUser, role: userData?.role as UserRole };
+        const userWithRole: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          role: userData?.role as UserRole,
+        };
         setUser(userWithRole);
       } else {
         setUser(null);
