@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { db } from '../lib/firebase';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { 
   Plus, 
   Search, 
@@ -33,61 +35,32 @@ interface Recipe {
 
 export default function Recipes() {
   const { t, isRTL } = useLanguage();
-  const [recipes, setRecipes] = useState<Recipe[]>([
-    {
-      id: '1',
-      name: 'Mas Huni',
-      nameDv: 'މަސް ހުނި',
-      category: 'hedhika',
-      ingredients: [
-        { name: 'Tuna (canned)', quantity: 200, unit: 'g', price: 25 },
-        { name: 'Onion', quantity: 1, unit: 'pc', price: 5 },
-        { name: 'Coconut', quantity: 1, unit: 'pc', price: 15 },
-        { name: 'Chili', quantity: 2, unit: 'pc', price: 3 },
-        { name: 'Lime', quantity: 1, unit: 'pc', price: 2 },
-      ],
-      steps: ['Mix tuna with chopped onion', 'Add grated coconut', 'Mix in chili', 'Squeeze lime juice', 'Serve with roshi'],
-      cookingTime: 15,
-      servingSize: 4,
-    },
-    {
-      id: '2',
-      name: 'Bis Keeku',
-      nameDv: 'ބިސް ކީކު',
-      category: 'hedhika',
-      ingredients: [
-        { name: 'Flour', quantity: 500, unit: 'g', price: 20 },
-        { name: 'Sugar', quantity: 200, unit: 'g', price: 15 },
-        { name: 'Butter', quantity: 100, unit: 'g', price: 30 },
-        { name: 'Eggs', quantity: 2, unit: 'pc', price: 10 },
-        { name: 'Cardamom', quantity: 5, unit: 'g', price: 5 },
-      ],
-      steps: ['Mix flour and sugar', 'Add butter and eggs', 'Knead dough', 'Roll and cut', 'Bake at 180°C for 20 minutes'],
-      cookingTime: 30,
-      servingSize: 12,
-    },
-    {
-      id: '3',
-      name: 'Gulha',
-      nameDv: 'ގުލްހާ',
-      category: 'hedhika',
-      ingredients: [
-        { name: 'Flour', quantity: 500, unit: 'g', price: 20 },
-        { name: 'Tuna', quantity: 200, unit: 'g', price: 30 },
-        { name: 'Onion', quantity: 2, unit: 'pc', price: 10 },
-        { name: 'Chili', quantity: 3, unit: 'pc', price: 5 },
-        { name: 'Oil for frying', quantity: 500, unit: 'ml', price: 25 },
-      ],
-      steps: ['Make dough with flour', 'Prepare tuna filling', 'Fill dough balls', 'Deep fry until golden', 'Serve hot'],
-      cookingTime: 45,
-      servingSize: 20,
-    },
-  ]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [batchCalculator, setBatchCalculator] = useState<{ recipeId: string; multiplier: number } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load recipes from Firebase
+  useEffect(() => {
+    loadRecipes();
+  }, []);
+
+  const loadRecipes = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'recipes'));
+      const recipesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Recipe[];
+      setRecipes(recipesData);
+    } catch (error) {
+      console.error('Error loading recipes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = [
     { value: 'hedhika', label: t.hedhika },
@@ -117,27 +90,37 @@ export default function Recipes() {
 
   const handleSave = async (recipeData: Omit<Recipe, 'id'>) => {
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (editingRecipe) {
-      setRecipes(recipes.map(r => 
-        r.id === editingRecipe.id ? { ...recipeData, id: editingRecipe.id } : r
-      ));
-    } else {
-      setRecipes([...recipes, { ...recipeData, id: Date.now().toString() }]);
+    try {
+      if (editingRecipe) {
+        await updateDoc(doc(db, 'recipes', editingRecipe.id), recipeData);
+        setRecipes(recipes.map(r => 
+          r.id === editingRecipe.id ? { ...recipeData, id: editingRecipe.id } : r
+        ));
+      } else {
+        const docRef = await addDoc(collection(db, 'recipes'), recipeData);
+        setRecipes([...recipes, { ...recipeData, id: docRef.id }]);
+      }
+      
+      setShowModal(false);
+      setEditingRecipe(null);
+    } catch (error) {
+      console.error('Error saving recipe:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    setShowModal(false);
-    setEditingRecipe(null);
-    setLoading(false);
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this recipe?')) {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setRecipes(recipes.filter(r => r.id !== id));
-      setLoading(false);
+      try {
+        await deleteDoc(doc(db, 'recipes', id));
+        setRecipes(recipes.filter(r => r.id !== id));
+      } catch (error) {
+        console.error('Error deleting recipe:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -344,14 +327,15 @@ function RecipeModal({
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-xl w-full max-w-lg"
       >
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
           <h2 className="text-xl font-bold text-gray-800">
             {recipe ? t.editRecipe : t.addRecipe}
           </h2>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <div className="max-h-[70vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t.recipeName}
@@ -510,6 +494,7 @@ function RecipeModal({
             </button>
           </div>
         </form>
+        </div>
       </motion.div>
     </div>
   );

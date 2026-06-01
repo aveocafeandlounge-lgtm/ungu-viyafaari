@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { db } from '../lib/firebase';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { 
   Plus, 
   Search, 
@@ -24,39 +26,31 @@ interface Product {
 
 export default function Products() {
   const { t, isRTL } = useLanguage();
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: '1',
-      name: 'Mas Huni',
-      nameDv: 'މަސް ހުނި',
-      price: 25,
-      description: 'Traditional Maldivian breakfast with tuna and coconut',
-      category: 'hedhika',
-      stock: 50,
-    },
-    {
-      id: '2',
-      name: 'Bis Keeku',
-      nameDv: 'ބިސް ކީކު',
-      price: 15,
-      description: 'Sweet biscuit rolls',
-      category: 'hedhika',
-      stock: 35,
-    },
-    {
-      id: '3',
-      name: 'Gulha',
-      nameDv: 'ގުލްހާ',
-      price: 10,
-      description: 'Fish-filled pastry balls',
-      category: 'hedhika',
-      stock: 80,
-    },
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load products from Firebase
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'products'));
+      const productsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Product[];
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = [
     { value: 'traditionalFood', label: t.traditionalFood },
@@ -73,29 +67,37 @@ export default function Products() {
 
   const handleSave = async (productData: Omit<Product, 'id'>) => {
     setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (editingProduct) {
-      setProducts(products.map(p => 
-        p.id === editingProduct.id ? { ...productData, id: editingProduct.id } : p
-      ));
-    } else {
-      setProducts([...products, { ...productData, id: Date.now().toString() }]);
+    try {
+      if (editingProduct) {
+        await updateDoc(doc(db, 'products', editingProduct.id), productData);
+        setProducts(products.map(p => 
+          p.id === editingProduct.id ? { ...productData, id: editingProduct.id } : p
+        ));
+      } else {
+        const docRef = await addDoc(collection(db, 'products'), productData);
+        setProducts([...products, { ...productData, id: docRef.id }]);
+      }
+      
+      setShowModal(false);
+      setEditingProduct(null);
+    } catch (error) {
+      console.error('Error saving product:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    setShowModal(false);
-    setEditingProduct(null);
-    setLoading(false);
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       setLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setProducts(products.filter(p => p.id !== id));
-      setLoading(false);
+      try {
+        await deleteDoc(doc(db, 'products', id));
+        setProducts(products.filter(p => p.id !== id));
+      } catch (error) {
+        console.error('Error deleting product:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

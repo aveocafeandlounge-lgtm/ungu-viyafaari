@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { db } from '../lib/firebase';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { 
   Plus, 
   Search, 
@@ -28,54 +30,31 @@ interface Batch {
 
 export default function Batches() {
   const { t, isRTL } = useLanguage();
-  const [batches, setBatches] = useState<Batch[]>([
-    {
-      id: '1',
-      batchNumber: 'B-001',
-      productId: '1',
-      productName: 'Mas Huni',
-      shopId: '1',
-      shopName: 'Majeedhiyya Store',
-      quantity: 50,
-      remaining: 5,
-      productionDate: '2024-01-15',
-      expiryDate: '2024-02-15',
-      cost: 500,
-      status: 'low-stock',
-    },
-    {
-      id: '2',
-      batchNumber: 'B-002',
-      productId: '2',
-      productName: 'Bis Keeku',
-      shopId: '2',
-      shopName: 'Hulhumale Supermarket',
-      quantity: 100,
-      remaining: 80,
-      productionDate: '2024-01-20',
-      expiryDate: '2024-03-20',
-      cost: 800,
-      status: 'active',
-    },
-    {
-      id: '3',
-      batchNumber: 'B-003',
-      productId: '3',
-      productName: 'Gulha',
-      shopId: '3',
-      shopName: 'Villingili Mart',
-      quantity: 75,
-      remaining: 75,
-      productionDate: '2024-01-25',
-      expiryDate: '2024-02-25',
-      cost: 600,
-      status: 'active',
-    },
-  ]);
+  const [batches, setBatches] = useState<Batch[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingBatch, setEditingBatch] = useState<Batch | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load batches from Firebase
+  useEffect(() => {
+    loadBatches();
+  }, []);
+
+  const loadBatches = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'batches'));
+      const batchesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Batch[];
+      setBatches(batchesData);
+    } catch (error) {
+      console.error('Error loading batches:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredBatches = batches.filter(batch =>
     batch.batchNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,30 +63,40 @@ export default function Batches() {
 
   const handleSave = async (batchData: Omit<Batch, 'id' | 'status'>) => {
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const status = batchData.remaining === 0 ? 'expired' : 
-                   batchData.remaining < batchData.quantity * 0.2 ? 'low-stock' : 'active';
-    
-    if (editingBatch) {
-      setBatches(batches.map(b => 
-        b.id === editingBatch.id ? { ...batchData, id: editingBatch.id, status } : b
-      ));
-    } else {
-      setBatches([...batches, { ...batchData, id: Date.now().toString(), status }]);
+    try {
+      const status = batchData.remaining === 0 ? 'expired' : 
+                     batchData.remaining < batchData.quantity * 0.2 ? 'low-stock' : 'active';
+      
+      if (editingBatch) {
+        await updateDoc(doc(db, 'batches', editingBatch.id), { ...batchData, status });
+        setBatches(batches.map(b => 
+          b.id === editingBatch.id ? { ...batchData, id: editingBatch.id, status } : b
+        ));
+      } else {
+        const docRef = await addDoc(collection(db, 'batches'), { ...batchData, status });
+        setBatches([...batches, { ...batchData, id: docRef.id, status }]);
+      }
+      
+      setShowModal(false);
+      setEditingBatch(null);
+    } catch (error) {
+      console.error('Error saving batch:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    setShowModal(false);
-    setEditingBatch(null);
-    setLoading(false);
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this batch?')) {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setBatches(batches.filter(b => b.id !== id));
-      setLoading(false);
+      try {
+        await deleteDoc(doc(db, 'batches', id));
+        setBatches(batches.filter(b => b.id !== id));
+      } catch (error) {
+        console.error('Error deleting batch:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

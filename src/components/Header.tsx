@@ -25,7 +25,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold text-red-600">{t.appName}</h1>
+          <img src="/logo.png" alt="Ungu Viyafaari" className="h-8 w-auto" />
+          <h1 className="text-xl font-bold text-red-600 hidden sm:block">{t.appName}</h1>
         </div>
 
         <div className="flex items-center gap-2">

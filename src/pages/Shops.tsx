@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { db } from '../lib/firebase';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { 
   Plus, 
   Search, 
@@ -25,39 +27,31 @@ interface Shop {
 
 export default function Shops() {
   const { t, isRTL } = useLanguage();
-  const [shops, setShops] = useState<Shop[]>([
-    {
-      id: '1',
-      name: 'Majeedhiyya Store',
-      address: 'Male, Maldives',
-      phone: '+960 1234567',
-      email: 'majeedhiyya@example.com',
-      totalPurchases: 15000,
-      outstandingBalance: 2000,
-    },
-    {
-      id: '2',
-      name: 'Hulhumale Supermarket',
-      address: 'Hulhumale, Maldives',
-      phone: '+960 2345678',
-      email: 'hulhumale@example.com',
-      totalPurchases: 22000,
-      outstandingBalance: 3500,
-    },
-    {
-      id: '3',
-      name: 'Villingili Mart',
-      address: 'Villingili, Maldives',
-      phone: '+960 3456789',
-      email: 'villingili@example.com',
-      totalPurchases: 8000,
-      outstandingBalance: 0,
-    },
-  ]);
+  const [shops, setShops] = useState<Shop[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load shops from Firebase
+  useEffect(() => {
+    loadShops();
+  }, []);
+
+  const loadShops = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'shops'));
+      const shopsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Shop[];
+      setShops(shopsData);
+    } catch (error) {
+      console.error('Error loading shops:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredShops = shops.filter(shop =>
     shop.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -65,29 +59,39 @@ export default function Shops() {
 
   const handleSave = async (shopData: Omit<Shop, 'id' | 'totalPurchases' | 'outstandingBalance'>) => {
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (editingShop) {
-      setShops(shops.map(s => 
-        s.id === editingShop.id 
-          ? { ...shopData, id: editingShop.id, totalPurchases: editingShop.totalPurchases, outstandingBalance: editingShop.outstandingBalance }
-          : s
-      ));
-    } else {
-      setShops([...shops, { ...shopData, id: Date.now().toString(), totalPurchases: 0, outstandingBalance: 0 }]);
+    try {
+      if (editingShop) {
+        await updateDoc(doc(db, 'shops', editingShop.id), shopData);
+        setShops(shops.map(s => 
+          s.id === editingShop.id 
+            ? { ...shopData, id: editingShop.id, totalPurchases: editingShop.totalPurchases, outstandingBalance: editingShop.outstandingBalance }
+            : s
+        ));
+      } else {
+        const docRef = await addDoc(collection(db, 'shops'), { ...shopData, totalPurchases: 0, outstandingBalance: 0 });
+        setShops([...shops, { ...shopData, id: docRef.id, totalPurchases: 0, outstandingBalance: 0 }]);
+      }
+      
+      setShowModal(false);
+      setEditingShop(null);
+    } catch (error) {
+      console.error('Error saving shop:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    setShowModal(false);
-    setEditingShop(null);
-    setLoading(false);
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this shop?')) {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setShops(shops.filter(s => s.id !== id));
-      setLoading(false);
+      try {
+        await deleteDoc(doc(db, 'shops', id));
+        setShops(shops.filter(s => s.id !== id));
+      } catch (error) {
+        console.error('Error deleting shop:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

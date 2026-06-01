@@ -119,6 +119,11 @@ export default function Login() {
             {t.register}
           </button>
         </div>
+
+        <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col items-center">
+          <img src="/logo.png" alt="Ungu Viyafaari" className="h-12 w-auto mb-2" />
+          <p className="text-xs text-gray-500">© 2024 Ungu Viyafaari. All rights reserved.</p>
+        </div>
       </motion.div>
     </div>
   );

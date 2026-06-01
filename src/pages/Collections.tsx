@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { db } from '../lib/firebase';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { 
   Plus, 
   Search, 
@@ -24,36 +26,31 @@ interface Collection {
 
 export default function Collections() {
   const { t, isRTL } = useLanguage();
-  const [collections, setCollections] = useState<Collection[]>([
-    {
-      id: '1',
-      shopId: '1',
-      shopName: 'Majeedhiyya Store',
-      amount: 5000,
-      date: '2024-01-20',
-      notes: 'Monthly payment',
-    },
-    {
-      id: '2',
-      shopId: '2',
-      shopName: 'Hulhumale Supermarket',
-      amount: 8000,
-      date: '2024-01-22',
-      notes: 'Partial payment',
-    },
-    {
-      id: '3',
-      shopId: '3',
-      shopName: 'Villingili Mart',
-      amount: 3000,
-      date: '2024-01-25',
-      notes: 'Weekly collection',
-    },
-  ]);
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load collections from Firebase
+  useEffect(() => {
+    loadCollections();
+  }, []);
+
+  const loadCollections = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'collections'));
+      const collectionsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Collection[];
+      setCollections(collectionsData);
+    } catch (error) {
+      console.error('Error loading collections:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const totalCollected = collections.reduce((sum, c) => sum + c.amount, 0);
   const filteredCollections = collections.filter(collection =>
@@ -62,27 +59,37 @@ export default function Collections() {
 
   const handleSave = async (collectionData: Omit<Collection, 'id'>) => {
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (editingCollection) {
-      setCollections(collections.map(c => 
-        c.id === editingCollection.id ? { ...collectionData, id: editingCollection.id } : c
-      ));
-    } else {
-      setCollections([...collections, { ...collectionData, id: Date.now().toString() }]);
+    try {
+      if (editingCollection) {
+        await updateDoc(doc(db, 'collections', editingCollection.id), collectionData);
+        setCollections(collections.map(c => 
+          c.id === editingCollection.id ? { ...collectionData, id: editingCollection.id } : c
+        ));
+      } else {
+        const docRef = await addDoc(collection(db, 'collections'), collectionData);
+        setCollections([...collections, { ...collectionData, id: docRef.id }]);
+      }
+      
+      setShowModal(false);
+      setEditingCollection(null);
+    } catch (error) {
+      console.error('Error saving collection:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    setShowModal(false);
-    setEditingCollection(null);
-    setLoading(false);
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this collection?')) {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setCollections(collections.filter(c => c.id !== id));
-      setLoading(false);
+      try {
+        await deleteDoc(doc(db, 'collections', id));
+        setCollections(collections.filter(c => c.id !== id));
+      } catch (error) {
+        console.error('Error deleting collection:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
