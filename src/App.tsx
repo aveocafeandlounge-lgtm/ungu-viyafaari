@@ -12,6 +12,7 @@ import Collections from './pages/Collections';
 import Recipes from './pages/Recipes';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import Purchases from './pages/Purchases';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -51,6 +52,7 @@ function App() {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="products" element={<Products />} />
               <Route path="shops" element={<Shops />} />
+              <Route path="purchases" element={<Purchases />} />
               <Route path="batches" element={<Batches />} />
               <Route path="collections" element={<Collections />} />
               <Route path="recipes" element={<Recipes />} />
