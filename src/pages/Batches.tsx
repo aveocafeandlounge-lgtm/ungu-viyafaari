@@ -165,14 +165,15 @@ export default function Batches() {
         </motion.div>
       )}
 
-      {/* Batches Table */}
+      {/* Batches List */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-red-600" />
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="space-y-4">
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -264,6 +265,74 @@ export default function Batches() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4">
+            {filteredBatches.map((batch) => (
+              <motion.div
+                key={batch.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Box className="w-5 h-5 text-gray-400" />
+                    <span className="font-semibold text-gray-900">{batch.batchNumber}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(batch.status)}`}>
+                      {batch.status.replace('-', ' ')}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">{t.productName}</span>
+                    <span className="font-medium text-gray-900">{batch.productName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">{t.shopName}</span>
+                    <span className="text-gray-900">{batch.shopName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">{t.quantity}</span>
+                    <span className="text-gray-900">{batch.quantity}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">{t.remaining}</span>
+                    <span className={`font-medium ${batch.remaining < batch.quantity * 0.2 ? 'text-orange-600' : 'text-gray-900'}`}>
+                      {batch.remaining}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">{t.productionDate}</span>
+                    <span className="text-gray-900">{batch.productionDate}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">{t.expiryDate}</span>
+                    <span className="text-gray-900">{batch.expiryDate}</span>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                  <button
+                    onClick={() => { setEditingBatch(batch); setShowModal(true); }}
+                    className="flex-1 p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center gap-1"
+                  >
+                    <Edit className="w-4 h-4 text-gray-600" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(batch.id)}
+                    className="flex-1 p-2 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                    Delete
+                  </button>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       )}

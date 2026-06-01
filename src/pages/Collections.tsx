@@ -163,14 +163,15 @@ export default function Collections() {
         />
       </div>
 
-      {/* Collections Table */}
+      {/* Collections List */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-red-600" />
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="space-y-4">
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -237,6 +238,57 @@ export default function Collections() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4">
+            {filteredCollections.map((collection) => (
+              <motion.div
+                key={collection.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Store className="w-5 h-5 text-gray-400" />
+                    <span className="font-semibold text-gray-900">{collection.shopName}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setEditingCollection(collection); setShowModal(true); }}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Edit className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(collection.id)}
+                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">{t.amount}</span>
+                    <span className="font-semibold text-green-600">MVR {collection.amount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600 flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {t.date}
+                    </span>
+                    <span className="text-sm text-gray-900">{collection.date}</span>
+                  </div>
+                  {collection.notes && (
+                    <div className="pt-2 border-t border-gray-100">
+                      <p className="text-sm text-gray-600">{collection.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       )}

@@ -149,32 +149,68 @@ function SalesReport() {
           <p className="text-2xl font-bold text-gray-800">MVR 288</p>
         </div>
       </div>
-      <table className="w-full">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revenue</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          <tr>
-            <td className="px-4 py-3">Mas Huni</td>
-            <td className="px-4 py-3">50</td>
-            <td className="px-4 py-3">MVR 1,250</td>
-          </tr>
-          <tr>
-            <td className="px-4 py-3">Bis Keeku</td>
-            <td className="px-4 py-3">80</td>
-            <td className="px-4 py-3">MVR 1,200</td>
-          </tr>
-          <tr>
-            <td className="px-4 py-3">Gulha</td>
-            <td className="px-4 py-3">100</td>
-            <td className="px-4 py-3">MVR 1,000</td>
-          </tr>
-        </tbody>
-      </table>
+      {/* Desktop Table View */}
+      <div className="hidden md:block">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revenue</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            <tr>
+              <td className="px-4 py-3">Mas Huni</td>
+              <td className="px-4 py-3">50</td>
+              <td className="px-4 py-3">MVR 1,250</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-3">Bis Keeku</td>
+              <td className="px-4 py-3">80</td>
+              <td className="px-4 py-3">MVR 1,200</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-3">Gulha</td>
+              <td className="px-4 py-3">100</td>
+              <td className="px-4 py-3">MVR 1,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-semibold text-gray-800">Mas Huni</span>
+            <span className="text-sm text-gray-600">50 units</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Revenue</span>
+            <span className="font-bold text-green-600">MVR 1,250</span>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-semibold text-gray-800">Bis Keeku</span>
+            <span className="text-sm text-gray-600">80 units</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Revenue</span>
+            <span className="font-bold text-green-600">MVR 1,200</span>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-semibold text-gray-800">Gulha</span>
+            <span className="text-sm text-gray-600">100 units</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Revenue</span>
+            <span className="font-bold text-green-600">MVR 1,000</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -196,32 +232,77 @@ function CollectionsReport() {
           <p className="text-2xl font-bold text-green-600">84%</p>
         </div>
       </div>
-      <table className="w-full">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shop</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Collected</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Outstanding</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          <tr>
-            <td className="px-4 py-3">Majeedhiyya Store</td>
-            <td className="px-4 py-3 text-green-600">MVR 5,000</td>
-            <td className="px-4 py-3 text-orange-600">MVR 2,000</td>
-          </tr>
-          <tr>
-            <td className="px-4 py-3">Hulhumale Supermarket</td>
-            <td className="px-4 py-3 text-green-600">MVR 8,000</td>
-            <td className="px-4 py-3 text-orange-600">MVR 3,500</td>
-          </tr>
-          <tr>
-            <td className="px-4 py-3">Villingili Mart</td>
-            <td className="px-4 py-3 text-green-600">MVR 3,000</td>
-            <td className="px-4 py-3 text-green-600">MVR 0</td>
-          </tr>
-        </tbody>
-      </table>
+      {/* Desktop Table View */}
+      <div className="hidden md:block">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shop</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Collected</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Outstanding</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            <tr>
+              <td className="px-4 py-3">Majeedhiyya Store</td>
+              <td className="px-4 py-3 text-green-600">MVR 5,000</td>
+              <td className="px-4 py-3 text-orange-600">MVR 2,000</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-3">Hulhumale Supermarket</td>
+              <td className="px-4 py-3 text-green-600">MVR 8,000</td>
+              <td className="px-4 py-3 text-orange-600">MVR 3,500</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-3">Villingili Mart</td>
+              <td className="px-4 py-3 text-green-600">MVR 3,000</td>
+              <td className="px-4 py-3 text-green-600">MVR 0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-semibold text-gray-800">Majeedhiyya Store</span>
+          </div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm text-gray-600">Collected</span>
+            <span className="font-bold text-green-600">MVR 5,000</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Outstanding</span>
+            <span className="font-bold text-orange-600">MVR 2,000</span>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-semibold text-gray-800">Hulhumale Supermarket</span>
+          </div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm text-gray-600">Collected</span>
+            <span className="font-bold text-green-600">MVR 8,000</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Outstanding</span>
+            <span className="font-bold text-orange-600">MVR 3,500</span>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-semibold text-gray-800">Villingili Mart</span>
+          </div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm text-gray-600">Collected</span>
+            <span className="font-bold text-green-600">MVR 3,000</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Outstanding</span>
+            <span className="font-bold text-green-600">MVR 0</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -243,32 +324,68 @@ function InventoryReport() {
           <p className="text-2xl font-bold text-gray-800">MVR 12,500</p>
         </div>
       </div>
-      <table className="w-full">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          <tr>
-            <td className="px-4 py-3">Mas Huni</td>
-            <td className="px-4 py-3">5</td>
-            <td className="px-4 py-3"><span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">Low Stock</span></td>
-          </tr>
-          <tr>
-            <td className="px-4 py-3">Bis Keeku</td>
-            <td className="px-4 py-3">35</td>
-            <td className="px-4 py-3"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span></td>
-          </tr>
-          <tr>
-            <td className="px-4 py-3">Gulha</td>
-            <td className="px-4 py-3">80</td>
-            <td className="px-4 py-3"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span></td>
-          </tr>
-        </tbody>
-      </table>
+      {/* Desktop Table View */}
+      <div className="hidden md:block">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            <tr>
+              <td className="px-4 py-3">Mas Huni</td>
+              <td className="px-4 py-3">5</td>
+              <td className="px-4 py-3"><span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">Low Stock</span></td>
+            </tr>
+            <tr>
+              <td className="px-4 py-3">Bis Keeku</td>
+              <td className="px-4 py-3">35</td>
+              <td className="px-4 py-3"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span></td>
+            </tr>
+            <tr>
+              <td className="px-4 py-3">Gulha</td>
+              <td className="px-4 py-3">80</td>
+              <td className="px-4 py-3"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-semibold text-gray-800">Mas Huni</span>
+            <span className="text-sm text-gray-600">5 units</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Status</span>
+            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">Low Stock</span>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-semibold text-gray-800">Bis Keeku</span>
+            <span className="text-sm text-gray-600">35 units</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Status</span>
+            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-semibold text-gray-800">Gulha</span>
+            <span className="text-sm text-gray-600">80 units</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Status</span>
+            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
