@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { db } from '../lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import { 
   FileText, 
   Download, 
@@ -225,20 +227,54 @@ function CollectionsReport() {
 }
 
 function InventoryReport() {
+  const [purchases, setPurchases] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadPurchases();
+  }, []);
+
+  const loadPurchases = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'purchases'));
+      const purchasesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setPurchases(purchasesData);
+    } catch (error) {
+      console.error('Error loading purchases:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalProducts = purchases.length;
+  const totalStockValue = purchases.reduce((sum, p) => sum + (p.totalCost || 0), 0);
+  const lowStockItems = purchases.filter(p => p.usableQuantity < 10).length;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Products</p>
-          <p className="text-2xl font-bold text-gray-800">0</p>
+          <p className="text-2xl font-bold text-gray-800">{totalProducts}</p>
         </div>
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Low Stock Items</p>
-          <p className="text-2xl font-bold text-orange-600">0</p>
+          <p className="text-2xl font-bold text-orange-600">{lowStockItems}</p>
         </div>
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Stock Value</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
+          <p className="text-2xl font-bold text-gray-800">MVR {totalStockValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
       </div>
       {/* Desktop Table View */}
@@ -247,24 +283,74 @@ function InventoryReport() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usable Stock</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Effective Cost</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Value</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            <tr>
-              <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
-                No inventory data available
-              </td>
-            </tr>
+            {purchases.map((purchase) => (
+              <tr key={purchase.id}>
+                <td className="px-4 py-3">
+                  <div>
+                    <div className="font-medium text-gray-800">{purchase.itemName}</div>
+                    <div className="text-sm text-gray-500">{purchase.itemNameDv}</div>
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-gray-600">
+                  <span className={purchase.usableQuantity < 10 ? 'text-orange-600 font-medium' : ''}>
+                    {purchase.usableQuantity.toFixed(2)} {purchase.usableUnit}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-gray-600">
+                  MVR {purchase.effectiveCostPerUnit.toFixed(2)}/{purchase.usableUnit}
+                </td>
+                <td className="px-4 py-3 font-medium text-gray-800">
+                  MVR {purchase.totalCost.toFixed(2)}
+                </td>
+              </tr>
+            ))}
+            {purchases.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                  No inventory data available
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
       {/* Mobile Card View */}
       <div className="md:hidden space-y-3">
-        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
-          No inventory data available
-        </div>
+        {purchases.map((purchase) => (
+          <div key={purchase.id} className="bg-gray-50 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-semibold text-gray-800">{purchase.itemName}</span>
+              <span className={purchase.usableQuantity < 10 ? 'px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs' : 'px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs'}>
+                {purchase.usableQuantity < 10 ? 'Low Stock' : 'In Stock'}
+              </span>
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Usable Stock:</span>
+                <span className="font-medium text-gray-800">{purchase.usableQuantity.toFixed(2)} {purchase.usableUnit}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Effective Cost:</span>
+                <span className="font-medium text-gray-800">MVR {purchase.effectiveCostPerUnit.toFixed(2)}/{purchase.usableUnit}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Total Value:</span>
+                <span className="font-bold text-gray-900">MVR {purchase.totalCost.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+        {purchases.length === 0 && (
+          <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+            No inventory data available
+          </div>
+        )}
       </div>
     </div>
   );

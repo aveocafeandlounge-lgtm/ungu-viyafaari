@@ -39,6 +39,7 @@ export default function Purchases() {
   const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [suppliers, setSuppliers] = useState<string[]>([]);
 
   // Load purchases from Firebase
   useEffect(() => {
@@ -53,6 +54,10 @@ export default function Purchases() {
         ...doc.data()
       })) as Purchase[];
       setPurchases(purchasesData);
+      
+      // Extract unique suppliers
+      const uniqueSuppliers = Array.from(new Set(purchasesData.map(p => p.supplier).filter(Boolean)));
+      setSuppliers(uniqueSuppliers);
     } catch (error) {
       console.error('Error loading purchases:', error);
     } finally {
@@ -113,14 +118,21 @@ export default function Purchases() {
 
       if (editingPurchase) {
         await updateDoc(doc(db, 'purchases', editingPurchase.id), purchaseWithCalculations);
-        setPurchases(purchases.map(p => 
+        setPurchases(purchases.map(p =>
           p.id === editingPurchase.id ? { ...purchaseWithCalculations, id: editingPurchase.id } : p
         ));
       } else {
         const docRef = await addDoc(collection(db, 'purchases'), purchaseWithCalculations);
         setPurchases([...purchases, { ...purchaseWithCalculations, id: docRef.id }]);
       }
-      
+
+      // Reload suppliers to include any new ones
+      const updatedPurchases = editingPurchase
+        ? purchases.map(p => p.id === editingPurchase.id ? { ...purchaseWithCalculations, id: editingPurchase.id } : p)
+        : [...purchases, purchaseWithCalculations];
+      const uniqueSuppliers = Array.from(new Set(updatedPurchases.map(p => p.supplier).filter(Boolean)));
+      setSuppliers(uniqueSuppliers);
+
       setShowModal(false);
       setEditingPurchase(null);
     } catch (error) {
@@ -314,6 +326,7 @@ export default function Purchases() {
         <PurchaseModal
           purchase={editingPurchase}
           categories={categories}
+          suppliers={suppliers}
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingPurchase(null); }}
           isRTL={isRTL}
@@ -326,12 +339,14 @@ export default function Purchases() {
 function PurchaseModal({ 
   purchase, 
   categories, 
+  suppliers,
   onSave, 
   onClose, 
   isRTL 
 }: { 
   purchase: Purchase | null;
   categories: { value: string; label: string }[];
+  suppliers: string[];
   onSave: (data: Omit<Purchase, 'id' | 'usableQuantity' | 'effectiveCostPerUnit' | 'totalCost'>) => void;
   onClose: () => void;
   isRTL: boolean;
@@ -528,12 +543,25 @@ function PurchaseModal({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Supplier
               </label>
-              <input
-                type="text"
-                value={formData.supplier}
-                onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
+              <div className="flex gap-2">
+                <select
+                  value={formData.supplier}
+                  onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="">Select or type new supplier</option>
+                  {suppliers.map((supplier) => (
+                    <option key={supplier} value={supplier}>{supplier}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  placeholder="Or add new"
+                  value={formData.supplier && !suppliers.includes(formData.supplier) ? formData.supplier : ''}
+                  onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
