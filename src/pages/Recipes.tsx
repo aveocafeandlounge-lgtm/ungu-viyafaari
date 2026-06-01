@@ -133,7 +133,7 @@ export default function Recipes() {
         </div>
         <button
           onClick={() => { setEditingRecipe(null); setShowModal(true); }}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center gap-2 self-start"
+          className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
         >
           <Plus className="w-5 h-5" />
           {t.addRecipe}
@@ -148,14 +148,14 @@ export default function Recipes() {
           placeholder={t.search}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${isRTL ? 'pr-10 pl-4' : ''}`}
+          className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isRTL ? 'pr-10 pl-4' : ''}`}
         />
       </div>
 
       {/* Recipes Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-purple-700" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -184,9 +184,9 @@ export default function Recipes() {
                     </button>
                     <button
                       onClick={() => handleDelete(recipe.id)}
-                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 hover:bg-purple-50 rounded-lg transition-colors"
                     >
-                      <Trash2 className="w-4 h-4 text-red-600" />
+                      <Trash2 className="w-4 h-4 text-purple-700" />
                     </button>
                   </div>
                 </div>
@@ -228,7 +228,7 @@ export default function Recipes() {
                 </div>
 
                 <div className="pt-3 border-t border-gray-100">
-                  <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">
+                  <span className="text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-full">
                     {categories.find(c => c.value === recipe.category)?.label}
                   </span>
                 </div>
@@ -384,7 +384,7 @@ function RecipeModal({
               <button
                 type="button"
                 onClick={addIngredient}
-                className="text-red-600 text-sm font-medium hover:text-red-700"
+                className="text-purple-700 text-sm font-medium hover:text-purple-800"
               >
                 + Add Ingredient
               </button>
@@ -488,7 +488,7 @@ function RecipeModal({
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="flex-1 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
             >
               {t.save}
             </button>
@@ -526,7 +526,7 @@ function BatchCostModal({
       >
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <Calculator className="w-5 h-5 text-red-600" />
+            <Calculator className="w-5 h-5 text-purple-700" />
             Batch Cost Calculator
           </h2>
         </div>
@@ -581,7 +581,7 @@ function BatchCostModal({
           <div className="pt-4">
             <button
               onClick={onClose}
-              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="w-full px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
             >
               Close
             </button>

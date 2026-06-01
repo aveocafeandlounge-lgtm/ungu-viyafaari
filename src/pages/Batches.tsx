@@ -118,7 +118,7 @@ export default function Batches() {
         </div>
         <button
           onClick={() => { setEditingBatch(null); setShowModal(true); }}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center gap-2 self-start"
+          className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
         >
           <Plus className="w-5 h-5" />
           {t.addBatch}
@@ -133,7 +133,7 @@ export default function Batches() {
           placeholder={t.search}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${isRTL ? 'pr-10 pl-4' : ''}`}
+          className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isRTL ? 'pr-10 pl-4' : ''}`}
         />
       </div>
 
@@ -157,7 +157,7 @@ export default function Batches() {
       {/* Batches List */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-purple-700" />
         </div>
       ) : (
         <div className="space-y-4">
@@ -244,9 +244,9 @@ export default function Batches() {
                         </button>
                         <button
                           onClick={() => handleDelete(batch.id)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 hover:bg-purple-50 rounded-lg transition-colors"
                         >
-                          <Trash2 className="w-4 h-4 text-red-600" />
+                          <Trash2 className="w-4 h-4 text-purple-700" />
                         </button>
                       </div>
                     </td>
@@ -502,7 +502,7 @@ function BatchModal({
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="flex-1 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
             >
               {t.save}
             </button>

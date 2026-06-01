@@ -26,7 +26,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <Menu className="w-6 h-6" />
           </button>
           <img src="/logo.png" alt="Ungu Viyafaari" className="h-8 w-auto" />
-          <h1 className="text-xl font-bold text-red-600 hidden sm:block">{t.appName}</h1>
+          <h1 className="text-xl font-bold text-purple-700 hidden sm:block">{t.appName}</h1>
         </div>
 
         <div className="flex items-center gap-2">
@@ -42,7 +42,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={signOut}
-            className="flex items-center gap-2 px-3 py-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-2 hover:bg-purple-50 text-purple-700 rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
             <span className="hidden sm:inline font-medium">{t.logout}</span>

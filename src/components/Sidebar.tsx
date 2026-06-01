@@ -70,7 +70,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex flex-col h-full">
           {/* Close button for mobile */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 lg:hidden">
-            <h2 className="text-lg font-bold text-red-600">{t.appName}</h2>
+            <h2 className="text-lg font-bold text-purple-700">{t.appName}</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -89,7 +89,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-red-50 text-red-600 font-medium'
+                      ? 'bg-purple-50 text-purple-700 font-medium'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`
                 }

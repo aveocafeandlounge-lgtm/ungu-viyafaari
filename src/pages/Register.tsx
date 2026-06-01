@@ -48,7 +48,7 @@ export default function Register() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6"
+            className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg mb-6"
           >
             {error}
           </motion.div>
@@ -127,7 +127,7 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-purple-700 text-white py-3 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -146,7 +146,7 @@ export default function Register() {
         <div className="mt-6 text-center">
           <button
             onClick={() => navigate('/login')}
-            className="text-red-600 hover:text-red-700 font-medium"
+            className="text-purple-700 hover:text-purple-800 font-medium"
           >
             {t.login}
           </button>

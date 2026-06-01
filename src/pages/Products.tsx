@@ -110,7 +110,7 @@ export default function Products() {
         </div>
         <button
           onClick={() => { setEditingProduct(null); setShowModal(true); }}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center gap-2 self-start"
+          className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
         >
           <Plus className="w-5 h-5" />
           {t.addProduct}
@@ -138,7 +138,7 @@ export default function Products() {
       {/* Products Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-purple-700" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -162,7 +162,7 @@ export default function Products() {
                     <h3 className="font-semibold text-gray-800">{product.name}</h3>
                     <p className="text-sm text-gray-600">{product.nameDv}</p>
                   </div>
-                  <span className="text-lg font-bold text-red-600">MVR {product.price}</span>
+                  <span className="text-lg font-bold text-purple-700">MVR {product.price}</span>
                 </div>
                 <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between">
@@ -178,9 +178,9 @@ export default function Products() {
                     </button>
                     <button
                       onClick={() => handleDelete(product.id)}
-                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 hover:bg-purple-50 rounded-lg transition-colors"
                     >
-                      <Trash2 className="w-4 h-4 text-red-600" />
+                      <Trash2 className="w-4 h-4 text-purple-700" />
                     </button>
                   </div>
                 </div>
@@ -342,7 +342,7 @@ function ProductModal({
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="flex-1 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
             >
               {t.save}
             </button>

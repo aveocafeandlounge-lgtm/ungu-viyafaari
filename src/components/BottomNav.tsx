@@ -33,7 +33,7 @@ export default function BottomNav() {
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
                 isActive
-                  ? 'text-red-600'
+                  ? 'text-purple-700'
                   : 'text-gray-600'
               }`
             }

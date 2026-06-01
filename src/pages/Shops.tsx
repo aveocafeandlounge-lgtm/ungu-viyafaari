@@ -104,7 +104,7 @@ export default function Shops() {
         </div>
         <button
           onClick={() => { setEditingShop(null); setShowModal(true); }}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center gap-2 self-start"
+          className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
         >
           <Plus className="w-5 h-5" />
           {t.addShop}
@@ -119,14 +119,14 @@ export default function Shops() {
           placeholder={t.search}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${isRTL ? 'pr-10 pl-4' : ''}`}
+          className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isRTL ? 'pr-10 pl-4' : ''}`}
         />
       </div>
 
       {/* Shops Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-purple-700" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -138,8 +138,8 @@ export default function Shops() {
               className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-red-50 rounded-lg">
-                  <Store className="w-6 h-6 text-red-600" />
+                <div className="p-3 bg-purple-50 rounded-lg">
+                  <Store className="w-6 h-6 text-purple-700" />
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -150,9 +150,9 @@ export default function Shops() {
                   </button>
                   <button
                     onClick={() => handleDelete(shop.id)}
-                    className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 hover:bg-purple-50 rounded-lg transition-colors"
                   >
-                    <Trash2 className="w-4 h-4 text-red-600" />
+                    <Trash2 className="w-4 h-4 text-purple-700" />
                   </button>
                 </div>
               </div>
@@ -298,7 +298,7 @@ function ShopModal({
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="flex-1 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
             >
               {t.save}
             </button>

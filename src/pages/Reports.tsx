@@ -50,12 +50,12 @@ export default function Reports() {
             onClick={() => setSelectedReport(report.id)}
             className={`p-6 rounded-xl border-2 transition-all ${
               selectedReport === report.id
-                ? 'border-red-500 bg-red-50'
-                : 'border-gray-200 bg-white hover:border-red-300'
+                ? 'border-purple-500 bg-purple-50'
+                : 'border-gray-200 bg-white hover:border-purple-300'
             }`}
           >
             <report.icon className={`w-8 h-8 mb-3 ${
-              selectedReport === report.id ? 'text-red-600' : 'text-gray-400'
+              selectedReport === report.id ? 'text-purple-700' : 'text-gray-400'
             }`} />
             <h3 className="font-semibold text-gray-800 mb-1">{report.name}</h3>
             <p className="text-sm text-gray-600">{report.description}</p>
@@ -112,7 +112,7 @@ export default function Reports() {
             </button>
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
             >
               <Download className="w-4 h-4" />
               {t.exportCSV}
@@ -138,15 +138,15 @@ function SalesReport() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Sales</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 45,000</p>
+          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
         </div>
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Orders</p>
-          <p className="text-2xl font-bold text-gray-800">156</p>
+          <p className="text-2xl font-bold text-gray-800">0</p>
         </div>
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Average Order</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 288</p>
+          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
         </div>
       </div>
       {/* Desktop Table View */}
@@ -161,54 +161,17 @@ function SalesReport() {
           </thead>
           <tbody className="divide-y divide-gray-200">
             <tr>
-              <td className="px-4 py-3">Mas Huni</td>
-              <td className="px-4 py-3">50</td>
-              <td className="px-4 py-3">MVR 1,250</td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3">Bis Keeku</td>
-              <td className="px-4 py-3">80</td>
-              <td className="px-4 py-3">MVR 1,200</td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3">Gulha</td>
-              <td className="px-4 py-3">100</td>
-              <td className="px-4 py-3">MVR 1,000</td>
+              <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
+                No sales data available
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
       {/* Mobile Card View */}
       <div className="md:hidden space-y-3">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-gray-800">Mas Huni</span>
-            <span className="text-sm text-gray-600">50 units</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Revenue</span>
-            <span className="font-bold text-green-600">MVR 1,250</span>
-          </div>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-gray-800">Bis Keeku</span>
-            <span className="text-sm text-gray-600">80 units</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Revenue</span>
-            <span className="font-bold text-green-600">MVR 1,200</span>
-          </div>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-gray-800">Gulha</span>
-            <span className="text-sm text-gray-600">100 units</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Revenue</span>
-            <span className="font-bold text-green-600">MVR 1,000</span>
-          </div>
+        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+          No sales data available
         </div>
       </div>
     </div>
@@ -221,15 +184,15 @@ function CollectionsReport() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Collected</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 38,000</p>
+          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
         </div>
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Pending</p>
-          <p className="text-2xl font-bold text-orange-600">MVR 7,000</p>
+          <p className="text-2xl font-bold text-orange-600">MVR 0</p>
         </div>
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Collection Rate</p>
-          <p className="text-2xl font-bold text-green-600">84%</p>
+          <p className="text-2xl font-bold text-green-600">0%</p>
         </div>
       </div>
       {/* Desktop Table View */}
@@ -244,63 +207,17 @@ function CollectionsReport() {
           </thead>
           <tbody className="divide-y divide-gray-200">
             <tr>
-              <td className="px-4 py-3">Majeedhiyya Store</td>
-              <td className="px-4 py-3 text-green-600">MVR 5,000</td>
-              <td className="px-4 py-3 text-orange-600">MVR 2,000</td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3">Hulhumale Supermarket</td>
-              <td className="px-4 py-3 text-green-600">MVR 8,000</td>
-              <td className="px-4 py-3 text-orange-600">MVR 3,500</td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3">Villingili Mart</td>
-              <td className="px-4 py-3 text-green-600">MVR 3,000</td>
-              <td className="px-4 py-3 text-green-600">MVR 0</td>
+              <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
+                No collection data available
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
       {/* Mobile Card View */}
       <div className="md:hidden space-y-3">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-gray-800">Majeedhiyya Store</span>
-          </div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-gray-600">Collected</span>
-            <span className="font-bold text-green-600">MVR 5,000</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Outstanding</span>
-            <span className="font-bold text-orange-600">MVR 2,000</span>
-          </div>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-gray-800">Hulhumale Supermarket</span>
-          </div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-gray-600">Collected</span>
-            <span className="font-bold text-green-600">MVR 8,000</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Outstanding</span>
-            <span className="font-bold text-orange-600">MVR 3,500</span>
-          </div>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-gray-800">Villingili Mart</span>
-          </div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-gray-600">Collected</span>
-            <span className="font-bold text-green-600">MVR 3,000</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Outstanding</span>
-            <span className="font-bold text-green-600">MVR 0</span>
-          </div>
+        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+          No collection data available
         </div>
       </div>
     </div>
@@ -313,15 +230,15 @@ function InventoryReport() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Products</p>
-          <p className="text-2xl font-bold text-gray-800">25</p>
+          <p className="text-2xl font-bold text-gray-800">0</p>
         </div>
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Low Stock Items</p>
-          <p className="text-2xl font-bold text-orange-600">3</p>
+          <p className="text-2xl font-bold text-orange-600">0</p>
         </div>
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Stock Value</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 12,500</p>
+          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
         </div>
       </div>
       {/* Desktop Table View */}
@@ -336,54 +253,17 @@ function InventoryReport() {
           </thead>
           <tbody className="divide-y divide-gray-200">
             <tr>
-              <td className="px-4 py-3">Mas Huni</td>
-              <td className="px-4 py-3">5</td>
-              <td className="px-4 py-3"><span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">Low Stock</span></td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3">Bis Keeku</td>
-              <td className="px-4 py-3">35</td>
-              <td className="px-4 py-3"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span></td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3">Gulha</td>
-              <td className="px-4 py-3">80</td>
-              <td className="px-4 py-3"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span></td>
+              <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
+                No inventory data available
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
       {/* Mobile Card View */}
       <div className="md:hidden space-y-3">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-gray-800">Mas Huni</span>
-            <span className="text-sm text-gray-600">5 units</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Status</span>
-            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">Low Stock</span>
-          </div>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-gray-800">Bis Keeku</span>
-            <span className="text-sm text-gray-600">35 units</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Status</span>
-            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span>
-          </div>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-gray-800">Gulha</span>
-            <span className="text-sm text-gray-600">80 units</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Status</span>
-            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">In Stock</span>
-          </div>
+        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+          No inventory data available
         </div>
       </div>
     </div>
@@ -396,20 +276,20 @@ function ProfitReport() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 45,000</p>
+          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
         </div>
         <div className="bg-gray-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Cost</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 28,000</p>
+          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
         </div>
         <div className="bg-green-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Net Profit</p>
-          <p className="text-2xl font-bold text-green-600">MVR 17,000</p>
+          <p className="text-2xl font-bold text-green-600">MVR 0</p>
         </div>
       </div>
       <div className="bg-gray-50 rounded-lg p-4">
         <p className="text-sm text-gray-600 mb-2">Profit Margin</p>
-        <p className="text-3xl font-bold text-green-600">37.8%</p>
+        <p className="text-3xl font-bold text-green-600">0%</p>
       </div>
     </div>
   );
