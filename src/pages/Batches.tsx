@@ -25,6 +25,8 @@ interface Batch {
   productionDate: string;
   expiryDate: string;
   cost: number;
+  portionSellingPrice: number;
+  totalRevenue: number;
   status: 'active' | 'expired' | 'low-stock';
   ingredientsUsed?: Array<{
     purchaseId: string;
@@ -394,6 +396,7 @@ export default function Batches() {
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingBatch(null); }}
           t={t}
+          existingBatches={batches}
         />
       )}
     </div>
@@ -406,7 +409,8 @@ function BatchModal({
   shops,
   onSave, 
   onClose, 
-  t
+  t,
+  existingBatches
 }: { 
   batch: Batch | null;
   recipes: any[];
@@ -414,9 +418,10 @@ function BatchModal({
   onSave: (data: Omit<Batch, 'id' | 'status'>) => void;
   onClose: () => void;
   t: any;
+  existingBatches: Batch[];
 }) {
   const [formData, setFormData] = useState({
-    batchNumber: batch?.batchNumber || '',
+    batchNumber: batch?.batchNumber || `BATCH-${String(existingBatches.length + 1).padStart(3, '0')}`,
     recipeId: batch?.recipeId || '',
     recipeName: batch?.recipeName || '',
     shopId: batch?.shopId || '',
@@ -426,8 +431,15 @@ function BatchModal({
     productionDate: batch?.productionDate || '',
     expiryDate: batch?.expiryDate || '',
     cost: batch?.cost || '',
+    portionSellingPrice: batch?.portionSellingPrice || '',
+    totalRevenue: batch?.totalRevenue || '',
     ingredientsUsed: batch?.ingredientsUsed || [],
   });
+
+  const selectedRecipe = recipes.find(r => r.id === formData.recipeId);
+  const recipeCost = selectedRecipe?.totalCost || 0;
+  const calculatedCost = recipeCost * Number(formData.quantity || 0);
+  const calculatedRevenue = Number(formData.quantity || 0) * Number(formData.portionSellingPrice || 0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -438,10 +450,12 @@ function BatchModal({
       shopId: formData.shopId,
       shopName: formData.shopName,
       quantity: Number(formData.quantity),
-      remaining: Number(formData.remaining),
+      remaining: Number(formData.quantity),
       productionDate: formData.productionDate,
       expiryDate: formData.expiryDate,
-      cost: Number(formData.cost),
+      cost: calculatedCost,
+      portionSellingPrice: Number(formData.portionSellingPrice),
+      totalRevenue: calculatedRevenue,
       ingredientsUsed: formData.ingredientsUsed,
     });
   };
@@ -461,19 +475,19 @@ function BatchModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.batchNumber}
+              Batch Number
             </label>
             <input
               type="text"
               value={formData.batchNumber}
-              onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              readOnly
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
               required
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.recipeName}
+              Recipe
             </label>
             <select
               value={formData.recipeId}
@@ -502,7 +516,7 @@ function BatchModal({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.shopName}
+              Shop
             </label>
             <select
               value={formData.shopId}
@@ -523,36 +537,35 @@ function BatchModal({
               ))}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t.quantity}
-              </label>
-              <input
-                type="number"
-                value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t.remaining}
-              </label>
-              <input
-                type="number"
-                value={formData.remaining}
-                onChange={(e) => setFormData({ ...formData, remaining: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Number of Portions
+            </label>
+            <input
+              type="number"
+              value={formData.quantity}
+              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Portion Selling Price (MVR)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={formData.portionSellingPrice}
+              onChange={(e) => setFormData({ ...formData, portionSellingPrice: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              required
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t.productionDate}
+                Production Date
               </label>
               <input
                 type="date"
@@ -564,7 +577,7 @@ function BatchModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t.expiryDate}
+                Expiry Date
               </label>
               <input
                 type="date"
@@ -575,18 +588,29 @@ function BatchModal({
               />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.cost}
-            </label>
-            <input
-              type="number"
-              value={formData.cost}
-              onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              required
-            />
+          
+          {/* Cost and Revenue Preview */}
+          <div className="bg-purple-50 rounded-lg p-4 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Recipe Cost per Portion:</span>
+              <span className="text-sm font-semibold text-gray-900">MVR {recipeCost.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Total Cost ({formData.quantity || 0} portions):</span>
+              <span className="text-sm font-semibold text-gray-900">MVR {calculatedCost.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">Total Revenue ({formData.quantity || 0} × MVR {formData.portionSellingPrice || 0}):</span>
+              <span className="text-sm font-bold text-purple-700">MVR {calculatedRevenue.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-purple-200">
+              <span className="text-sm font-medium text-gray-700">Profit:</span>
+              <span className={`text-sm font-bold ${calculatedRevenue - calculatedCost >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                MVR {(calculatedRevenue - calculatedCost).toFixed(2)}
+              </span>
+            </div>
           </div>
+          
           {formData.ingredientsUsed.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -613,13 +637,13 @@ function BatchModal({
               onClick={onClose}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              {t.cancel}
+              Cancel
             </button>
             <button
               type="submit"
               className="flex-1 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
             >
-              {t.save}
+              Save
             </button>
           </div>
         </form>
