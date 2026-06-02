@@ -122,8 +122,35 @@ export default function Purchases() {
           p.id === editingPurchase.id ? { ...purchaseWithCalculations, id: editingPurchase.id } : p
         ));
       } else {
-        const docRef = await addDoc(collection(db, 'purchases'), purchaseWithCalculations);
-        setPurchases([...purchases, { ...purchaseWithCalculations, id: docRef.id }]);
+        // Check if there's an existing purchase with same item name and same effective cost
+        const existingPurchase = purchases.find(p => 
+          p.itemName === purchaseData.itemName && 
+          p.usableUnit === purchaseData.usableUnit &&
+          Math.abs(p.effectiveCostPerUnit - effectiveCostPerUnit) < 0.01
+        );
+
+        if (existingPurchase) {
+          // Update existing purchase by adding quantities
+          const updatedRawQuantity = existingPurchase.rawQuantity + purchaseData.rawQuantity;
+          const updatedUsableQuantity = existingPurchase.usableQuantity + usableQuantity;
+          const updatedTotalCost = existingPurchase.totalCost + totalCost;
+          
+          await updateDoc(doc(db, 'purchases', existingPurchase.id), {
+            rawQuantity: updatedRawQuantity,
+            usableQuantity: updatedUsableQuantity,
+            totalCost: updatedTotalCost,
+          });
+          
+          setPurchases(purchases.map(p =>
+            p.id === existingPurchase.id 
+              ? { ...p, rawQuantity: updatedRawQuantity, usableQuantity: updatedUsableQuantity, totalCost: updatedTotalCost }
+              : p
+          ));
+        } else {
+          // Create new purchase record
+          const docRef = await addDoc(collection(db, 'purchases'), purchaseWithCalculations);
+          setPurchases([...purchases, { ...purchaseWithCalculations, id: docRef.id }]);
+        }
       }
 
       // Reload suppliers to include any new ones
