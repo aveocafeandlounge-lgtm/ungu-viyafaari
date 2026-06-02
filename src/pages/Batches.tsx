@@ -26,19 +26,29 @@ interface Batch {
   expiryDate: string;
   cost: number;
   status: 'active' | 'expired' | 'low-stock';
+  ingredientsUsed?: Array<{
+    purchaseId: string;
+    itemName: string;
+    quantityUsed: number;
+    unit: string;
+  }>;
 }
 
 export default function Batches() {
   const { t, isRTL } = useLanguage();
   const [batches, setBatches] = useState<Batch[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [shops, setShops] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingBatch, setEditingBatch] = useState<Batch | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Load batches from Firebase
+  // Load batches, products, and shops from Firebase
   useEffect(() => {
     loadBatches();
+    loadProducts();
+    loadShops();
   }, []);
 
   const loadBatches = async () => {
@@ -53,6 +63,32 @@ export default function Batches() {
       console.error('Error loading batches:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadProducts = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'products'));
+      const productsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    }
+  };
+
+  const loadShops = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'shops'));
+      const shopsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setShops(shopsData);
+    } catch (error) {
+      console.error('Error loading shops:', error);
     }
   };
 
@@ -330,6 +366,8 @@ export default function Batches() {
       {showModal && (
         <BatchModal
           batch={editingBatch}
+          products={products}
+          shops={shops}
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingBatch(null); }}
           t={t}
@@ -341,11 +379,15 @@ export default function Batches() {
 
 function BatchModal({ 
   batch, 
+  products,
+  shops,
   onSave, 
   onClose, 
   t
 }: { 
   batch: Batch | null;
+  products: any[];
+  shops: any[];
   onSave: (data: Omit<Batch, 'id' | 'status'>) => void;
   onClose: () => void;
   t: any;
@@ -361,6 +403,7 @@ function BatchModal({
     productionDate: batch?.productionDate || '',
     expiryDate: batch?.expiryDate || '',
     cost: batch?.cost || '',
+    ingredientsUsed: batch?.ingredientsUsed || [],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -376,6 +419,7 @@ function BatchModal({
       productionDate: formData.productionDate,
       expiryDate: formData.expiryDate,
       cost: Number(formData.cost),
+      ingredientsUsed: formData.ingredientsUsed,
     });
   };
 
@@ -408,25 +452,53 @@ function BatchModal({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t.productName}
             </label>
-            <input
-              type="text"
-              value={formData.productName}
-              onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+            <select
+              value={formData.productId}
+              onChange={(e) => {
+                const selectedProduct = products.find(p => p.id === e.target.value);
+                setFormData({
+                  ...formData,
+                  productId: e.target.value,
+                  productName: selectedProduct?.name || '',
+                  ingredientsUsed: selectedProduct?.ingredients?.map((ing: any) => ({
+                    purchaseId: ing.purchaseId,
+                    itemName: ing.itemName,
+                    quantityUsed: ing.quantity,
+                    unit: ing.unit,
+                  })) || [],
+                });
+              }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
-            />
+            >
+              <option value="">Select product</option>
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>{product.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t.shopName}
             </label>
-            <input
-              type="text"
-              value={formData.shopName}
-              onChange={(e) => setFormData({ ...formData, shopName: e.target.value })}
+            <select
+              value={formData.shopId}
+              onChange={(e) => {
+                const selectedShop = shops.find(s => s.id === e.target.value);
+                setFormData({
+                  ...formData,
+                  shopId: e.target.value,
+                  shopName: selectedShop?.name || '',
+                });
+              }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
-            />
+            >
+              <option value="">Select shop</option>
+              {shops.map((shop) => (
+                <option key={shop.id} value={shop.id}>{shop.name}</option>
+              ))}
+            </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -492,6 +564,26 @@ function BatchModal({
               required
             />
           </div>
+          {formData.ingredientsUsed.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ingredients Used (Inventory Deduction)
+              </label>
+              <div className="bg-purple-50 rounded-lg p-4 space-y-2">
+                {formData.ingredientsUsed.map((ingredient: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <span className="text-gray-700">{ingredient.itemName}</span>
+                    <span className="font-medium text-purple-700">
+                      {ingredient.quantityUsed} {ingredient.unit}
+                    </span>
+                  </div>
+                ))}
+                <div className="pt-2 border-t border-purple-200 text-xs text-gray-600">
+                  These ingredients will be deducted from inventory when batch is created
+                </div>
+              </div>
+            </div>
+          )}
           <div className="flex gap-3 pt-4">
             <button
               type="button"
