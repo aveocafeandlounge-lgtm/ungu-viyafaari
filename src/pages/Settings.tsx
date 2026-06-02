@@ -46,7 +46,7 @@ export default function Settings() {
           <button
             onClick={() => setLanguage('en')}
             className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-              language === 'en' ? 'border-red-500 bg-red-50' : 'border-gray-200'
+              language === 'en' ? 'border-purple-500 bg-purple-50' : 'border-gray-200'
             }`}
           >
             <p className="font-medium">English</p>
@@ -55,7 +55,7 @@ export default function Settings() {
           <button
             onClick={() => setLanguage('dv')}
             className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-              language === 'dv' ? 'border-red-500 bg-red-50' : 'border-gray-200'
+              language === 'dv' ? 'border-purple-500 bg-purple-50' : 'border-gray-200'
             }`}
           >
             <p className="font-medium">ދިވެހި</p>
@@ -73,15 +73,15 @@ export default function Settings() {
         <div className="space-y-4">
           <label className="flex items-center justify-between cursor-pointer">
             <span className="text-gray-700">Low stock alerts</span>
-            <input type="checkbox" defaultChecked className="w-5 h-5 text-red-600 rounded" />
+            <input type="checkbox" defaultChecked className="w-5 h-5 text-purple-600 rounded" />
           </label>
           <label className="flex items-center justify-between cursor-pointer">
             <span className="text-gray-700">Payment reminders</span>
-            <input type="checkbox" defaultChecked className="w-5 h-5 text-red-600 rounded" />
+            <input type="checkbox" defaultChecked className="w-5 h-5 text-purple-600 rounded" />
           </label>
           <label className="flex items-center justify-between cursor-pointer">
             <span className="text-gray-700">Batch expiry alerts</span>
-            <input type="checkbox" defaultChecked className="w-5 h-5 text-red-600 rounded" />
+            <input type="checkbox" defaultChecked className="w-5 h-5 text-purple-600 rounded" />
           </label>
         </div>
       </div>

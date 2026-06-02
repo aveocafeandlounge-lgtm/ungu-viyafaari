@@ -314,9 +314,9 @@ export default function Batches() {
                   </button>
                   <button
                     onClick={() => handleDelete(batch.id)}
-                    className="flex-1 p-2 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                    className="flex-1 p-2 hover:bg-purple-50 rounded-lg transition-colors flex items-center justify-center gap-1"
                   >
-                    <Trash2 className="w-4 h-4 text-red-600" />
+                    <Trash2 className="w-4 h-4 text-purple-600" />
                     Delete
                   </button>
                 </div>
@@ -400,7 +400,7 @@ function BatchModal({
               type="text"
               value={formData.batchNumber}
               onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
             />
           </div>
@@ -412,7 +412,7 @@ function BatchModal({
               type="text"
               value={formData.productName}
               onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
             />
           </div>
@@ -424,7 +424,7 @@ function BatchModal({
               type="text"
               value={formData.shopName}
               onChange={(e) => setFormData({ ...formData, shopName: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
             />
           </div>
@@ -437,7 +437,7 @@ function BatchModal({
                 type="number"
                 value={formData.quantity}
                 onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 required
               />
             </div>
@@ -449,7 +449,7 @@ function BatchModal({
                 type="number"
                 value={formData.remaining}
                 onChange={(e) => setFormData({ ...formData, remaining: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 required
               />
             </div>
@@ -463,7 +463,7 @@ function BatchModal({
                 type="date"
                 value={formData.productionDate}
                 onChange={(e) => setFormData({ ...formData, productionDate: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 required
               />
             </div>
@@ -475,7 +475,7 @@ function BatchModal({
                 type="date"
                 value={formData.expiryDate}
                 onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 required
               />
             </div>
@@ -488,7 +488,7 @@ function BatchModal({
               type="number"
               value={formData.cost}
               onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
             />
           </div>
