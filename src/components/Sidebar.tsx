@@ -2,7 +2,6 @@ import { NavLink } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { 
   LayoutDashboard, 
-  Package, 
   Store, 
   ShoppingCart,
   Box, 
