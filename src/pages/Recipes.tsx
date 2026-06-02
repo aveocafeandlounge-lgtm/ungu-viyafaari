@@ -448,6 +448,7 @@ function RecipeModal({
                 </select>
                 <input
                   type="number"
+                  step="0.01"
                   placeholder="Qty"
                   value={ingredient.quantity || ''}
                   onChange={(e) => updateIngredient(index, 'quantity', Number(e.target.value))}
