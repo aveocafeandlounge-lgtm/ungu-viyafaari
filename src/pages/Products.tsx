@@ -22,19 +22,32 @@ interface Product {
   category: string;
   stock: number;
   image?: string;
+  ingredients?: Array<{
+    purchaseId: string;
+    itemName: string;
+    quantity: number;
+    unit: string;
+    cost: number;
+  }>;
+  recipeId?: string;
+  costPrice?: number;
 }
 
 export default function Products() {
   const { t, isRTL } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
+  const [purchases, setPurchases] = useState<any[]>([]);
+  const [recipes, setRecipes] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Load products from Firebase
+  // Load products, purchases, and recipes from Firebase
   useEffect(() => {
     loadProducts();
+    loadPurchases();
+    loadRecipes();
   }, []);
 
   const loadProducts = async () => {
@@ -49,6 +62,32 @@ export default function Products() {
       console.error('Error loading products:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPurchases = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'purchases'));
+      const purchasesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setPurchases(purchasesData);
+    } catch (error) {
+      console.error('Error loading purchases:', error);
+    }
+  };
+
+  const loadRecipes = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'recipes'));
+      const recipesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setRecipes(recipesData);
+    } catch (error) {
+      console.error('Error loading recipes:', error);
     }
   };
 
@@ -195,6 +234,8 @@ export default function Products() {
         <ProductModal
           product={editingProduct}
           categories={categories}
+          purchases={purchases}
+          recipes={recipes}
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingProduct(null); }}
           t={t}
@@ -208,6 +249,8 @@ export default function Products() {
 function ProductModal({ 
   product, 
   categories, 
+  purchases,
+  recipes,
   onSave, 
   onClose, 
   t,
@@ -215,6 +258,8 @@ function ProductModal({
 }: { 
   product: Product | null;
   categories: { value: string; label: string }[];
+  purchases: any[];
+  recipes: any[];
   onSave: (data: Omit<Product, 'id'>) => void;
   onClose: () => void;
   t: any;
@@ -227,10 +272,13 @@ function ProductModal({
     description: product?.description || '',
     category: product?.category || '',
     stock: product?.stock || '',
+    ingredients: product?.ingredients || [],
+    recipeId: product?.recipeId || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const costPrice = formData.ingredients.reduce((sum: number, ing: any) => sum + (ing.cost || 0), 0);
     onSave({
       name: formData.name,
       nameDv: formData.nameDv,
@@ -238,6 +286,9 @@ function ProductModal({
       description: formData.description,
       category: formData.category,
       stock: Number(formData.stock),
+      ingredients: formData.ingredients,
+      recipeId: formData.recipeId,
+      costPrice,
     });
   };
 
@@ -331,6 +382,110 @@ function ProductModal({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Recipe (Optional)
+            </label>
+            <select
+              value={formData.recipeId}
+              onChange={(e) => {
+                const selectedRecipe = recipes.find(r => r.id === e.target.value);
+                setFormData({
+                  ...formData,
+                  recipeId: e.target.value,
+                  ingredients: selectedRecipe?.ingredients || [],
+                });
+              }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="">Select recipe</option>
+              {recipes.map((recipe) => (
+                <option key={recipe.id} value={recipe.id}>{recipe.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Ingredients
+              </label>
+              <button
+                type="button"
+                onClick={() => setFormData({
+                  ...formData,
+                  ingredients: [...formData.ingredients, { purchaseId: '', itemName: '', quantity: 0, unit: 'g', cost: 0 }],
+                })}
+                className="text-purple-700 text-sm font-medium hover:text-purple-800"
+              >
+                + Add Ingredient
+              </button>
+            </div>
+            {formData.ingredients.map((ingredient: any, index: number) => (
+              <div key={index} className="flex gap-2 mb-2 items-center">
+                <select
+                  value={ingredient.purchaseId}
+                  onChange={(e) => {
+                    const selectedPurchase = purchases.find(p => p.id === e.target.value);
+                    const updatedIngredients = [...formData.ingredients];
+                    updatedIngredients[index] = {
+                      ...ingredient,
+                      purchaseId: e.target.value,
+                      itemName: selectedPurchase?.itemName || '',
+                      unit: selectedPurchase?.usableUnit || 'g',
+                      cost: (selectedPurchase?.effectiveCostPerUnit || 0) * (ingredient.quantity || 0),
+                    };
+                    setFormData({ ...formData, ingredients: updatedIngredients });
+                  }}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                >
+                  <option value="">Select ingredient</option>
+                  {purchases.map((purchase) => (
+                    <option key={purchase.id} value={purchase.id}>
+                      {purchase.itemName} ({purchase.itemNameDv})
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  placeholder="Qty"
+                  value={ingredient.quantity || ''}
+                  onChange={(e) => {
+                    const selectedPurchase = purchases.find(p => p.id === ingredient.purchaseId);
+                    const updatedIngredients = [...formData.ingredients];
+                    updatedIngredients[index] = {
+                      ...ingredient,
+                      quantity: Number(e.target.value),
+                      cost: (selectedPurchase?.effectiveCostPerUnit || 0) * Number(e.target.value),
+                    };
+                    setFormData({ ...formData, ingredients: updatedIngredients });
+                  }}
+                  className="w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                />
+                <span className="text-sm text-gray-600">{ingredient.unit}</span>
+                <span className="text-sm text-gray-600 w-20">MVR {(ingredient.cost || 0).toFixed(2)}</span>
+                <button
+                  type="button"
+                  onClick={() => setFormData({
+                    ...formData,
+                    ingredients: formData.ingredients.filter((_, i) => i !== index),
+                  })}
+                  className="p-2 hover:bg-purple-50 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4 text-purple-600" />
+                </button>
+              </div>
+            ))}
+            {formData.ingredients.length > 0 && (
+              <div className="mt-2 p-3 bg-purple-50 rounded-lg">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Total Cost:</span>
+                  <span className="font-semibold text-purple-700">
+                    MVR {formData.ingredients.reduce((sum: number, ing: any) => sum + (ing.cost || 0), 0).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex gap-3 pt-4">
             <button
