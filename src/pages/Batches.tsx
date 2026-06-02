@@ -73,6 +73,7 @@ export default function Batches() {
         id: doc.id,
         ...doc.data()
       }));
+      console.log('Loaded products:', productsData);
       setProducts(productsData);
     } catch (error) {
       console.error('Error loading products:', error);
