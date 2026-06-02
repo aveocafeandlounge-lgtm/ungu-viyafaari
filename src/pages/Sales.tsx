@@ -17,8 +17,8 @@ interface Sale {
   saleNumber: string;
   batchId: string;
   batchNumber: string;
-  productId: string;
-  productName: string;
+  recipeId: string;
+  recipeName: string;
   shopId: string;
   shopName: string;
   quantity: number;
@@ -90,7 +90,7 @@ export default function Sales() {
 
   const filteredSales = sales.filter(sale =>
     sale.saleNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sale.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sale.recipeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     sale.shopName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -195,7 +195,7 @@ export default function Sales() {
                 {filteredSales.map((sale) => (
                   <tr key={sale.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{sale.saleNumber}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.productName}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.recipeName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.shopName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.quantity}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">MVR {sale.unitPrice.toFixed(2)}</td>
@@ -254,8 +254,8 @@ export default function Sales() {
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Product</span>
-                    <span className="font-medium text-gray-900">{sale.productName}</span>
+                    <span className="text-gray-600">Recipe</span>
+                    <span className="font-medium text-gray-900">{sale.recipeName}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Shop</span>
@@ -328,8 +328,8 @@ function SaleModal({
     saleNumber: sale?.saleNumber || `SALE-${Date.now()}`,
     batchId: sale?.batchId || '',
     batchNumber: sale?.batchNumber || '',
-    productId: sale?.productId || '',
-    productName: sale?.productName || '',
+    recipeId: sale?.recipeId || '',
+    recipeName: sale?.recipeName || '',
     shopId: sale?.shopId || '',
     shopName: sale?.shopName || '',
     quantity: sale?.quantity || '',
@@ -346,8 +346,8 @@ function SaleModal({
       saleNumber: formData.saleNumber,
       batchId: formData.batchId,
       batchNumber: formData.batchNumber,
-      productId: formData.productId,
-      productName: formData.productName,
+      recipeId: formData.recipeId,
+      recipeName: formData.recipeName,
       shopId: formData.shopId,
       shopName: formData.shopName,
       quantity: Number(formData.quantity),
@@ -392,8 +392,8 @@ function SaleModal({
                   ...formData,
                   batchId: e.target.value,
                   batchNumber: selectedBatch?.batchNumber || '',
-                  productId: selectedBatch?.productId || '',
-                  productName: selectedBatch?.productName || '',
+                  recipeId: selectedBatch?.recipeId || '',
+                  recipeName: selectedBatch?.recipeName || '',
                 });
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -401,7 +401,7 @@ function SaleModal({
             >
               <option value="">Select batch</option>
               {batches.map((batch) => (
-                <option key={batch.id} value={batch.id}>{batch.batchNumber} - {batch.productName}</option>
+                <option key={batch.id} value={batch.id}>{batch.batchNumber} - {batch.recipeName}</option>
               ))}
             </select>
           </div>

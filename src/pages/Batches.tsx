@@ -16,8 +16,8 @@ import {
 interface Batch {
   id: string;
   batchNumber: string;
-  productId: string;
-  productName: string;
+  recipeId: string;
+  recipeName: string;
   shopId: string;
   shopName: string;
   quantity: number;
@@ -37,17 +37,17 @@ interface Batch {
 export default function Batches() {
   const { t, isRTL } = useLanguage();
   const [batches, setBatches] = useState<Batch[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [recipes, setRecipes] = useState<any[]>([]);
   const [shops, setShops] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingBatch, setEditingBatch] = useState<Batch | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Load batches, products, and shops from Firebase
+  // Load batches, recipes, and shops from Firebase
   useEffect(() => {
     loadBatches();
-    loadProducts();
+    loadRecipes();
     loadShops();
   }, []);
 
@@ -66,16 +66,16 @@ export default function Batches() {
     }
   };
 
-  const loadProducts = async () => {
+  const loadRecipes = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'products'));
-      const productsData = querySnapshot.docs.map(doc => ({
+      const querySnapshot = await getDocs(collection(db, 'recipes'));
+      const recipesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setProducts(productsData);
+      setRecipes(recipesData);
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error('Error loading recipes:', error);
     }
   };
 
@@ -94,7 +94,7 @@ export default function Batches() {
 
   const filteredBatches = batches.filter(batch =>
     batch.batchNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    batch.productName.toLowerCase().includes(searchTerm.toLowerCase())
+    batch.recipeName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSave = async (batchData: Omit<Batch, 'id' | 'status'>) => {
@@ -269,7 +269,7 @@ export default function Batches() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                      {batch.productName}
+                      {batch.recipeName}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">
                       {batch.shopName}
@@ -337,8 +337,8 @@ export default function Batches() {
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">{t.productName}</span>
-                    <span className="font-medium text-gray-900">{batch.productName}</span>
+                    <span className="text-gray-600">{t.recipeName}</span>
+                    <span className="font-medium text-gray-900">{batch.recipeName}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">{t.shopName}</span>
@@ -389,7 +389,7 @@ export default function Batches() {
       {showModal && (
         <BatchModal
           batch={editingBatch}
-          products={products}
+          recipes={recipes}
           shops={shops}
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingBatch(null); }}
@@ -402,14 +402,14 @@ export default function Batches() {
 
 function BatchModal({ 
   batch, 
-  products,
+  recipes,
   shops,
   onSave, 
   onClose, 
   t
 }: { 
   batch: Batch | null;
-  products: any[];
+  recipes: any[];
   shops: any[];
   onSave: (data: Omit<Batch, 'id' | 'status'>) => void;
   onClose: () => void;
@@ -417,8 +417,8 @@ function BatchModal({
 }) {
   const [formData, setFormData] = useState({
     batchNumber: batch?.batchNumber || '',
-    productId: batch?.productId || '',
-    productName: batch?.productName || '',
+    recipeId: batch?.recipeId || '',
+    recipeName: batch?.recipeName || '',
     shopId: batch?.shopId || '',
     shopName: batch?.shopName || '',
     quantity: batch?.quantity || '',
@@ -433,8 +433,8 @@ function BatchModal({
     e.preventDefault();
     onSave({
       batchNumber: formData.batchNumber,
-      productId: formData.productId,
-      productName: formData.productName,
+      recipeId: formData.recipeId,
+      recipeName: formData.recipeName,
       shopId: formData.shopId,
       shopName: formData.shopName,
       quantity: Number(formData.quantity),
@@ -473,30 +473,30 @@ function BatchModal({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.productName}
+              {t.recipeName}
             </label>
             <select
-              value={formData.productId}
+              value={formData.recipeId}
               onChange={(e) => {
-                const selectedProduct = products.find(p => p.id === e.target.value);
+                const selectedRecipe = recipes.find(r => r.id === e.target.value);
                 setFormData({
                   ...formData,
-                  productId: e.target.value,
-                  productName: selectedProduct?.name || '',
-                  ingredientsUsed: selectedProduct?.ingredients?.map((ing: any) => ({
-                    purchaseId: ing.purchaseId,
-                    itemName: ing.itemName,
-                    quantityUsed: ing.quantity,
-                    unit: ing.unit,
+                  recipeId: e.target.value,
+                  recipeName: selectedRecipe?.name || '',
+                  ingredientsUsed: selectedRecipe?.ingredients?.map((ing: any) => ({
+                    purchaseId: ing.purchaseId || '',
+                    itemName: ing.name || ing.itemName || '',
+                    quantityUsed: ing.quantity || 0,
+                    unit: ing.unit || 'g',
                   })) || [],
                 });
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
             >
-              <option value="">Select product</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>{product.name}</option>
+              <option value="">Select recipe</option>
+              {recipes.map((recipe) => (
+                <option key={recipe.id} value={recipe.id}>{recipe.name}</option>
               ))}
             </select>
           </div>

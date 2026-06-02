@@ -38,13 +38,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: t.dashboard },
-    { path: '/products', icon: Package, label: t.products },
     { path: '/shops', icon: Store, label: t.shops },
     { path: '/purchases', icon: ShoppingCart, label: 'Purchases' },
-    { path: '/sales', icon: Receipt, label: 'Sales' },
-    { path: '/batches', icon: Box, label: t.batches },
-    { path: '/collections', icon: DollarSign, label: t.collections },
     { path: '/recipes', icon: BookOpen, label: t.recipes },
+    { path: '/batches', icon: Box, label: t.batches },
+    { path: '/sales', icon: Receipt, label: 'Sales' },
+    { path: '/collections', icon: DollarSign, label: t.collections },
     { path: '/reports', icon: BarChart3, label: t.reports },
     { path: '/settings', icon: Settings, label: t.settings },
   ];
