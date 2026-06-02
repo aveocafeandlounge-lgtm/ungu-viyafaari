@@ -455,7 +455,7 @@ function CollectionModal({
             >
               <option value="">Select sale</option>
               {sales.filter(s => s.status !== 'paid').map((sale) => (
-                <option key={sale.id} value={sale.id}>{sale.saleNumber} - {sale.productName} ({sale.shopName})</option>
+                <option key={sale.id} value={sale.id}>{sale.saleNumber} - {sale.recipeName || sale.productName} ({sale.shopName})</option>
               ))}
             </select>
           </div>

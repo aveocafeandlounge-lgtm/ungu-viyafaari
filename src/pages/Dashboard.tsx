@@ -9,7 +9,6 @@ import {
   Clock, 
   Store, 
   TrendingUp,
-  AlertCircle,
   Plus,
   Wallet
 } from 'lucide-react';
@@ -21,8 +20,6 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell
@@ -53,6 +50,14 @@ export default function Dashboard() {
     pendingPayments: 0,
     activeShops: 0,
     availableFunds: 0,
+    totalPurchases: 0,
+    purchasesMTD: 0,
+    purchasesYTD: 0,
+    totalRecipeCost: 0,
+    totalBatchCost: 0,
+    totalBatchRevenue: 0,
+    profit: 0,
+    profitMargin: 0,
   });
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
@@ -100,6 +105,35 @@ export default function Dashboard() {
       const moneyData = moneySnapshot.docs.map(doc => doc.data());
       const availableFunds = moneyData.reduce((sum, m) => sum + (m.amount || 0), 0);
 
+      // Load purchases
+      const purchasesSnapshot = await getDocs(collection(db, 'purchases'));
+      const purchasesData = purchasesSnapshot.docs.map(doc => doc.data());
+      const totalPurchases = purchasesData.reduce((sum, p) => sum + (p.totalCost || 0), 0);
+      const purchasesMTD = purchasesData
+        .filter(p => p.purchaseDate >= mtdDate)
+        .reduce((sum, p) => sum + (p.totalCost || 0), 0);
+      const purchasesYTD = purchasesData
+        .filter(p => p.purchaseDate >= ytdDate)
+        .reduce((sum, p) => sum + (p.totalCost || 0), 0);
+
+      // Load recipes
+      const recipesSnapshot = await getDocs(collection(db, 'recipes'));
+      const recipesData = recipesSnapshot.docs.map(doc => doc.data());
+      const totalRecipeCost = recipesData.reduce((sum, r) => {
+        const ingredientsCost = r.ingredients?.reduce((is: number, i: any) => is + (i.price || 0), 0) || 0;
+        return sum + ingredientsCost;
+      }, 0);
+
+      // Load batches
+      const batchesSnapshot = await getDocs(collection(db, 'batches'));
+      const batchesData = batchesSnapshot.docs.map(doc => doc.data());
+      const totalBatchCost = batchesData.reduce((sum, b) => sum + (b.cost || 0), 0);
+      const totalBatchRevenue = batchesData.reduce((sum, b) => sum + (b.totalRevenue || 0), 0);
+
+      // Calculate profit and profit margin
+      const profit = totalBatchRevenue - totalBatchCost;
+      const profitMargin = totalBatchRevenue > 0 ? (profit / totalBatchRevenue) * 100 : 0;
+
       setStats({
         totalSales,
         salesMTD,
@@ -110,6 +144,14 @@ export default function Dashboard() {
         pendingPayments,
         activeShops,
         availableFunds,
+        totalPurchases,
+        purchasesMTD,
+        purchasesYTD,
+        totalRecipeCost,
+        totalBatchCost,
+        totalBatchRevenue,
+        profit,
+        profitMargin,
       });
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -133,29 +175,18 @@ export default function Dashboard() {
     }
   };
 
-  const salesData = [
-    { name: 'Jan', sales: 0, collections: 0 },
-    { name: 'Feb', sales: 0, collections: 0 },
-    { name: 'Mar', sales: 0, collections: 0 },
-    { name: 'Apr', sales: 0, collections: 0 },
-    { name: 'May', sales: 0, collections: 0 },
-    { name: 'Jun', sales: 0, collections: 0 },
+  const comparisonData = [
+    { name: 'Sales', value: stats.totalSales },
+    { name: 'Purchases', value: stats.totalPurchases },
+    { name: 'Recipe Cost', value: stats.totalRecipeCost },
+    { name: 'Batch Revenue', value: stats.totalBatchRevenue },
+    { name: 'Batch Cost', value: stats.totalBatchCost },
   ];
 
-  const shopPerformance = [
-    { name: 'Shop A', value: 0 },
-    { name: 'Shop B', value: 0 },
-    { name: 'Shop C', value: 0 },
-    { name: 'Shop D', value: 0 },
-    { name: 'Others', value: 0 },
-  ];
-
-  const productSales = [
-    { name: 'Hedhika', value: 0 },
-    { name: 'Meals', value: 0 },
-    { name: 'Snacks', value: 0 },
-    { name: 'Drinks', value: 0 },
-    { name: 'Others', value: 0 },
+  const profitData = [
+    { name: 'Revenue', value: stats.totalBatchRevenue },
+    { name: 'Cost', value: stats.totalBatchCost },
+    { name: 'Profit', value: stats.profit },
   ];
 
   const COLORS = ['#6B46C1', '#0F766E', '#eab308', '#22c55e', '#3b82f6'];
@@ -216,7 +247,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title={t.totalSales}
           value={`MVR ${stats.totalSales.toLocaleString()}`}
@@ -225,6 +256,61 @@ export default function Dashboard() {
           icon={DollarSign}
           color="bg-purple-600"
         />
+        <StatCard
+          title="Total Purchases"
+          value={`MVR ${stats.totalPurchases.toLocaleString()}`}
+          mtd={stats.purchasesMTD}
+          ytd={stats.purchasesYTD}
+          icon={ShoppingCart}
+          color="bg-blue-600"
+        />
+        <StatCard
+          title="Total Recipe Cost"
+          value={`MVR ${stats.totalRecipeCost.toLocaleString()}`}
+          icon={Wallet}
+          color="bg-orange-500"
+        />
+        <StatCard
+          title="Total Batch Revenue"
+          value={`MVR ${stats.totalBatchRevenue.toLocaleString()}`}
+          icon={TrendingUp}
+          color="bg-green-600"
+        />
+      </div>
+
+      {/* Comparison Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <h3 className="text-gray-600 text-sm mb-2">Sales vs Purchases</h3>
+          <p className="text-2xl font-bold text-gray-800 mb-2">
+            {stats.totalSales > stats.totalPurchases ? '+' : ''}MVR {(stats.totalSales - stats.totalPurchases).toLocaleString()}
+          </p>
+          <p className={`text-sm ${stats.totalSales > stats.totalPurchases ? 'text-green-600' : 'text-red-600'}`}>
+            {stats.totalPurchases > 0 ? ((stats.totalSales - stats.totalPurchases) / stats.totalPurchases * 100).toFixed(1) : 0}% difference
+          </p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <h3 className="text-gray-600 text-sm mb-2">Sales vs Recipe Cost</h3>
+          <p className="text-2xl font-bold text-gray-800 mb-2">
+            {stats.totalSales > stats.totalRecipeCost ? '+' : ''}MVR {(stats.totalSales - stats.totalRecipeCost).toLocaleString()}
+          </p>
+          <p className={`text-sm ${stats.totalSales > stats.totalRecipeCost ? 'text-green-600' : 'text-red-600'}`}>
+            {stats.totalRecipeCost > 0 ? ((stats.totalSales - stats.totalRecipeCost) / stats.totalRecipeCost * 100).toFixed(1) : 0}% difference
+          </p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <h3 className="text-gray-600 text-sm mb-2">Profit Margin</h3>
+          <p className="text-2xl font-bold text-gray-800 mb-2">
+            {stats.profitMargin.toFixed(1)}%
+          </p>
+          <p className={`text-sm ${stats.profitMargin > 0 ? 'text-green-600' : 'text-red-600'}`}>
+            MVR {stats.profit.toLocaleString()} profit
+          </p>
+        </div>
+      </div>
+
+      {/* Additional Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title={t.totalCollections}
           value={`MVR ${stats.totalCollections.toLocaleString()}`}
@@ -266,34 +352,15 @@ export default function Dashboard() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Sales Over Time */}
+        {/* Sales vs Purchases Comparison */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.salesOverTime}</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Sales vs Purchases</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={salesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="sales" stroke="#6B46C1" strokeWidth={2} />
-              <Line type="monotone" dataKey="collections" stroke="#0F766E" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </motion.div>
-
-        {/* Shop Performance */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
-        >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.shopPerformance}</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={shopPerformance}>
+            <BarChart data={comparisonData.slice(0, 2)}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
@@ -303,17 +370,35 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Product Sales Distribution */}
+        {/* Profit Analysis */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.productPerformance}</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Profit Analysis</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={profitData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#22c55e" />
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+
+        {/* Cost Breakdown */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+        >
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Cost Breakdown</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={productSales}
+                data={comparisonData.slice(1, 3)}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -322,7 +407,7 @@ export default function Dashboard() {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {productSales.map((_, index) => (
+                {comparisonData.slice(1, 3).map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -331,21 +416,22 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Low Stock Alerts */}
+        {/* Revenue vs Cost */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-orange-500" />
-            {t.lowStockAlert}
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-center p-8 text-gray-500">
-              No low stock alerts
-            </div>
-          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Revenue vs Cost</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={comparisonData.slice(3, 5)}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#3b82f6" />
+            </BarChart>
+          </ResponsiveContainer>
         </motion.div>
       </div>
 
