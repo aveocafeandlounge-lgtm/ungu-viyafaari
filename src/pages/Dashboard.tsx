@@ -1,12 +1,17 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
+import { db } from '../lib/firebase';
+import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { 
   DollarSign, 
   ShoppingCart, 
   Clock, 
   Store, 
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Plus,
+  Wallet
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -25,13 +30,74 @@ import {
 
 export default function Dashboard() {
   const { t } = useLanguage();
-
-  // Mock data - replace with real Firebase data
-  const stats = {
+  const [stats, setStats] = useState({
     totalSales: 0,
     totalCollections: 0,
     pendingPayments: 0,
     activeShops: 0,
+    availableFunds: 0,
+  });
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      // Load sales
+      const salesSnapshot = await getDocs(collection(db, 'sales'));
+      const salesData = salesSnapshot.docs.map(doc => doc.data());
+      const totalSales = salesData.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+      const pendingPayments = salesData
+        .filter(s => s.status === 'pending' || s.status === 'partial')
+        .reduce((sum, s) => sum + ((s.totalAmount || 0) - (s.paidAmount || 0)), 0);
+
+      // Load collections
+      const collectionsSnapshot = await getDocs(collection(db, 'collections'));
+      const collectionsData = collectionsSnapshot.docs.map(doc => doc.data());
+      const totalCollections = collectionsData.reduce((sum, c) => sum + (c.amount || 0), 0);
+
+      // Load shops
+      const shopsSnapshot = await getDocs(collection(db, 'shops'));
+      const activeShops = shopsSnapshot.size;
+
+      // Load money transactions
+      const moneySnapshot = await getDocs(collection(db, 'money'));
+      const moneyData = moneySnapshot.docs.map(doc => doc.data());
+      const availableFunds = moneyData.reduce((sum, m) => sum + (m.amount || 0), 0);
+
+      setStats({
+        totalSales,
+        totalCollections,
+        pendingPayments,
+        activeShops,
+        availableFunds,
+      });
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTopUp = async () => {
+    if (!topUpAmount) return;
+    try {
+      await addDoc(collection(db, 'money'), {
+        amount: Number(topUpAmount),
+        type: 'top-up',
+        date: new Date().toISOString(),
+        notes: 'Personal money top-up for inventory',
+      });
+      setTopUpAmount('');
+      setShowTopUpModal(false);
+      loadDashboardData();
+    } catch (error) {
+      console.error('Error adding top-up:', error);
+    }
   };
 
   const salesData = [
@@ -103,7 +169,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           title={t.totalSales}
           value={`MVR ${stats.totalSales.toLocaleString()}`}
@@ -128,6 +194,23 @@ export default function Dashboard() {
           icon={Store}
           color="bg-blue-500"
         />
+        <StatCard
+          title="Available Funds"
+          value={`MVR ${stats.availableFunds.toLocaleString()}`}
+          icon={Wallet}
+          color="bg-green-600"
+        />
+      </div>
+
+      {/* Top Up Button */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowTopUpModal(true)}
+          className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          Top Up Inventory Funds
+        </button>
       </div>
 
       {/* Charts */}
@@ -214,6 +297,52 @@ export default function Dashboard() {
           </div>
         </motion.div>
       </div>
+
+      {/* Top Up Modal */}
+      {showTopUpModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-xl w-full max-w-md"
+          >
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-800">Top Up Inventory Funds</h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Amount (MVR)</label>
+                <input
+                  type="number"
+                  value={topUpAmount}
+                  onChange={(e) => setTopUpAmount(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter amount"
+                />
+              </div>
+              <div className="bg-purple-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600">
+                  This will add personal money to your available funds for inventory purchases.
+                </p>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setShowTopUpModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleTopUp}
+                  className="flex-1 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
+                >
+                  Add Funds
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

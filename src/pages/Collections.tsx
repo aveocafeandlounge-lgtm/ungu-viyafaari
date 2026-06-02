@@ -86,6 +86,29 @@ export default function Collections() {
         const docRef = await addDoc(collection(db, 'collections'), collectionData);
         setCollections([...collections, { ...collectionData, id: docRef.id }]);
       }
+
+      // Update sale status if collection is linked to a sale
+      if (collectionData.saleId) {
+        const saleRef = doc(db, 'sales', collectionData.saleId);
+        const currentSale = sales.find(s => s.id === collectionData.saleId);
+        if (currentSale) {
+          const totalPaid = collections
+            .filter(c => c.saleId === collectionData.saleId)
+            .reduce((sum, c) => sum + c.amount, 0) + collectionData.amount;
+          
+          let newStatus = currentSale.status;
+          if (totalPaid >= currentSale.totalAmount) {
+            newStatus = 'paid';
+          } else if (totalPaid > 0) {
+            newStatus = 'partial';
+          }
+          
+          await updateDoc(saleRef, {
+            paidAmount: totalPaid,
+            status: newStatus,
+          });
+        }
+      }
       
       setShowModal(false);
       setEditingCollection(null);
