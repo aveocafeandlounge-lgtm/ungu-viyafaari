@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { 
   Plus, 
   Search, 
@@ -100,8 +100,31 @@ export default function Batches() {
   const handleSave = async (batchData: Omit<Batch, 'id' | 'status'>) => {
     setLoading(true);
     try {
-      const status = batchData.remaining === 0 ? 'expired' : 
+      const status = batchData.remaining === 0 ? 'expired' :
                      batchData.remaining < batchData.quantity * 0.2 ? 'low-stock' : 'active';
+
+      // Deduct inventory from purchases when creating a new batch
+      if (!editingBatch && batchData.ingredientsUsed && batchData.ingredientsUsed.length > 0) {
+        for (const ingredient of batchData.ingredientsUsed) {
+          const purchaseQuery = query(collection(db, 'purchases'), where('itemName', '==', ingredient.itemName));
+          const purchaseSnapshot = await getDocs(purchaseQuery);
+          
+          if (!purchaseSnapshot.empty) {
+            const purchaseDoc = purchaseSnapshot.docs[0];
+            const purchaseData = purchaseDoc.data();
+            const currentUsableQuantity = purchaseData.usableQuantity || 0;
+            const newUsableQuantity = currentUsableQuantity - ingredient.quantityUsed;
+            
+            if (newUsableQuantity >= 0) {
+              await updateDoc(doc(db, 'purchases', purchaseDoc.id), {
+                usableQuantity: newUsableQuantity,
+              });
+            } else {
+              console.warn(`Insufficient inventory for ${ingredient.itemName}. Required: ${ingredient.quantityUsed}, Available: ${currentUsableQuantity}`);
+            }
+          }
+        }
+      }
       
       if (editingBatch) {
         await updateDoc(doc(db, 'batches', editingBatch.id), { ...batchData, status });
