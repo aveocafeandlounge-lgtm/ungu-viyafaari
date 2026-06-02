@@ -17,6 +17,8 @@ import {
 
 interface Collection {
   id: string;
+  saleId: string;
+  saleNumber: string;
   shopId: string;
   shopName: string;
   amount: number;
@@ -27,14 +29,16 @@ interface Collection {
 export default function Collections() {
   const { t, isRTL } = useLanguage();
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [sales, setSales] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Load collections from Firebase
+  // Load collections and sales from Firebase
   useEffect(() => {
     loadCollections();
+    loadSales();
   }, []);
 
   const loadCollections = async () => {
@@ -49,6 +53,19 @@ export default function Collections() {
       console.error('Error loading collections:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSales = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'sales'));
+      const salesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setSales(salesData);
+    } catch (error) {
+      console.error('Error loading sales:', error);
     }
   };
 
@@ -304,6 +321,7 @@ export default function Collections() {
       {showModal && (
         <CollectionModal
           collection={editingCollection}
+          sales={sales}
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingCollection(null); }}
           t={t}
@@ -315,16 +333,20 @@ export default function Collections() {
 
 function CollectionModal({ 
   collection, 
+  sales,
   onSave, 
   onClose, 
   t
 }: { 
   collection: Collection | null;
+  sales: any[];
   onSave: (data: Omit<Collection, 'id'>) => void;
   onClose: () => void;
   t: any;
 }) {
   const [formData, setFormData] = useState({
+    saleId: collection?.saleId || '',
+    saleNumber: collection?.saleNumber || '',
     shopId: collection?.shopId || '',
     shopName: collection?.shopName || '',
     amount: collection?.amount || '',
@@ -335,6 +357,8 @@ function CollectionModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
+      saleId: formData.saleId,
+      saleNumber: formData.saleNumber,
       shopId: formData.shopId,
       shopName: formData.shopName,
       amount: Number(formData.amount),
@@ -356,6 +380,31 @@ function CollectionModal({
           </h2>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Sale (Optional)
+            </label>
+            <select
+              value={formData.saleId}
+              onChange={(e) => {
+                const selectedSale = sales.find(s => s.id === e.target.value);
+                setFormData({
+                  ...formData,
+                  saleId: e.target.value,
+                  saleNumber: selectedSale?.saleNumber || '',
+                  shopId: selectedSale?.shopId || '',
+                  shopName: selectedSale?.shopName || '',
+                  amount: selectedSale?.totalAmount || formData.amount,
+                });
+              }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="">Select sale</option>
+              {sales.filter(s => s.status !== 'paid').map((sale) => (
+                <option key={sale.id} value={sale.id}>{sale.saleNumber} - {sale.productName} ({sale.shopName})</option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t.shopName}

@@ -8,7 +8,8 @@ import {
   Box, 
   DollarSign, 
   BookOpen, 
-  BarChart3
+  BarChart3,
+  Receipt
 } from 'lucide-react';
 
 export default function BottomNav() {
@@ -19,6 +20,7 @@ export default function BottomNav() {
     { path: '/products', icon: Package, label: t.products },
     { path: '/shops', icon: Store, label: t.shops },
     { path: '/purchases', icon: ShoppingCart, label: 'Purchases' },
+    { path: '/sales', icon: Receipt, label: 'Sales' },
     { path: '/batches', icon: Box, label: t.batches },
     { path: '/collections', icon: DollarSign, label: t.collections },
     { path: '/recipes', icon: BookOpen, label: t.recipes },

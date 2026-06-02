@@ -10,7 +10,8 @@ import {
   BookOpen, 
   BarChart3,
   Settings,
-  X
+  X,
+  Receipt
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -40,6 +41,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     { path: '/products', icon: Package, label: t.products },
     { path: '/shops', icon: Store, label: t.shops },
     { path: '/purchases', icon: ShoppingCart, label: 'Purchases' },
+    { path: '/sales', icon: Receipt, label: 'Sales' },
     { path: '/batches', icon: Box, label: t.batches },
     { path: '/collections', icon: DollarSign, label: t.collections },
     { path: '/recipes', icon: BookOpen, label: t.recipes },
