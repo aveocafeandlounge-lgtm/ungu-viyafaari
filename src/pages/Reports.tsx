@@ -17,6 +17,75 @@ export default function Reports() {
   const { t } = useLanguage();
   const [selectedReport, setSelectedReport] = useState<string>('sales');
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [reportData, setReportData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadReportData();
+  }, [selectedReport, dateRange]);
+
+  const loadReportData = async () => {
+    setLoading(true);
+    try {
+      let data = null;
+      
+      if (selectedReport === 'sales') {
+        const salesSnapshot = await getDocs(collection(db, 'sales'));
+        const salesData = salesSnapshot.docs.map(doc => doc.data());
+        data = {
+          totalSales: salesData.reduce((sum, s) => sum + (s.totalAmount || 0), 0),
+          totalQuantity: salesData.reduce((sum, s) => sum + (s.quantity || 0), 0),
+          salesByShop: {},
+          salesByProduct: {},
+          sales: salesData,
+        };
+      } else if (selectedReport === 'collections') {
+        const collectionsSnapshot = await getDocs(collection(db, 'collections'));
+        const collectionsData = collectionsSnapshot.docs.map(doc => doc.data());
+        data = {
+          totalCollected: collectionsData.reduce((sum, c) => sum + (c.amount || 0), 0),
+          collectionsByShop: {},
+          collections: collectionsData,
+        };
+      } else if (selectedReport === 'inventory') {
+        const purchasesSnapshot = await getDocs(collection(db, 'purchases'));
+        const purchasesData = purchasesSnapshot.docs.map(doc => doc.data());
+        data = {
+          totalInventory: purchasesData.reduce((sum, p) => sum + (p.usableQuantity || 0), 0),
+          totalValue: purchasesData.reduce((sum, p) => sum + ((p.usableQuantity || 0) * (p.effectiveCostPerUnit || 0)), 0),
+          inventoryByItem: {},
+          purchases: purchasesData,
+        };
+      } else if (selectedReport === 'profit') {
+        const salesSnapshot = await getDocs(collection(db, 'sales'));
+        const collectionsSnapshot = await getDocs(collection(db, 'collections'));
+        const purchasesSnapshot = await getDocs(collection(db, 'purchases'));
+        
+        const salesData = salesSnapshot.docs.map(doc => doc.data());
+        const collectionsData = collectionsSnapshot.docs.map(doc => doc.data());
+        const purchasesData = purchasesSnapshot.docs.map(doc => doc.data());
+        
+        const totalRevenue = salesData.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+        const totalCollected = collectionsData.reduce((sum, c) => sum + (c.amount || 0), 0);
+        const totalCost = purchasesData.reduce((sum, p) => sum + ((p.totalCost || 0)), 0);
+        
+        data = {
+          totalRevenue,
+          totalCollected,
+          totalCost,
+          grossProfit: totalRevenue - totalCost,
+          netProfit: totalCollected - totalCost,
+          profitMargin: totalRevenue > 0 ? ((totalRevenue - totalCost) / totalRevenue * 100).toFixed(2) : 0,
+        };
+      }
+      
+      setReportData(data);
+    } catch (error) {
+      console.error('Error loading report data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const reports = [
     { id: 'sales', name: t.salesSummary, icon: DollarSign, description: 'View total sales and revenue' },
@@ -122,260 +191,160 @@ export default function Reports() {
           </div>
         </div>
 
-        {/* Mock Report Data */}
+        {/* Report Data */}
         <div className="space-y-4">
-          {selectedReport === 'sales' && <SalesReport />}
-          {selectedReport === 'collections' && <CollectionsReport />}
-          {selectedReport === 'inventory' && <InventoryReport />}
-          {selectedReport === 'profit' && <ProfitReport />}
+          {loading ? (
+            <div className="text-center py-8 text-gray-500">Loading report data...</div>
+          ) : (
+            <>
+              {selectedReport === 'sales' && <SalesReport data={reportData} />}
+              {selectedReport === 'collections' && <CollectionsReport data={reportData} />}
+              {selectedReport === 'inventory' && <InventoryReport data={reportData} />}
+              {selectedReport === 'profit' && <ProfitReport data={reportData} />}
+            </>
+          )}
         </div>
       </motion.div>
     </div>
   );
 }
 
-function SalesReport() {
+function SalesReport({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-purple-50 rounded-lg p-4">
           <p className="text-sm text-gray-600 mb-1">Total Sales</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
+          <p className="text-2xl font-bold text-purple-700">MVR {data?.totalSales?.toLocaleString() || 0}</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Total Orders</p>
-          <p className="text-2xl font-bold text-gray-800">0</p>
+        <div className="bg-teal-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Total Quantity</p>
+          <p className="text-2xl font-bold text-teal-700">{data?.totalQuantity || 0}</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Average Order</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
-        </div>
-      </div>
-      {/* Desktop Table View */}
-      <div className="hidden md:block">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revenue</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            <tr>
-              <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
-                No sales data available
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      {/* Mobile Card View */}
-      <div className="md:hidden space-y-3">
-        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
-          No sales data available
+        <div className="bg-blue-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Total Transactions</p>
+          <p className="text-2xl font-bold text-blue-700">{data?.sales?.length || 0}</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function CollectionsReport() {
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Total Collected</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Pending</p>
-          <p className="text-2xl font-bold text-orange-600">MVR 0</p>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Collection Rate</p>
-          <p className="text-2xl font-bold text-green-600">0%</p>
-        </div>
-      </div>
-      {/* Desktop Table View */}
-      <div className="hidden md:block">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shop</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Collected</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Outstanding</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            <tr>
-              <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
-                No collection data available
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      {/* Mobile Card View */}
-      <div className="md:hidden space-y-3">
-        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
-          No collection data available
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function InventoryReport() {
-  const [purchases, setPurchases] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadPurchases();
-  }, []);
-
-  const loadPurchases = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, 'purchases'));
-      const purchasesData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setPurchases(purchasesData);
-    } catch (error) {
-      console.error('Error loading purchases:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const totalProducts = purchases.length;
-  const totalStockValue = purchases.reduce((sum, p) => sum + (p.totalCost || 0), 0);
-  const lowStockItems = purchases.filter(p => p.usableQuantity < 10).length;
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Total Products</p>
-          <p className="text-2xl font-bold text-gray-800">{totalProducts}</p>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Low Stock Items</p>
-          <p className="text-2xl font-bold text-orange-600">{lowStockItems}</p>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Total Stock Value</p>
-          <p className="text-2xl font-bold text-gray-800">MVR {totalStockValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-        </div>
-      </div>
-      {/* Desktop Table View */}
-      <div className="hidden md:block">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usable Stock</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Effective Cost</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Value</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {purchases.map((purchase) => (
-              <tr key={purchase.id}>
-                <td className="px-4 py-3">
-                  <div>
-                    <div className="font-medium text-gray-800">{purchase.itemName}</div>
-                    <div className="text-sm text-gray-500">{purchase.itemNameDv}</div>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-gray-600">
-                  <span className={purchase.usableQuantity < 10 ? 'text-orange-600 font-medium' : ''}>
-                    {purchase.usableQuantity.toFixed(2)} {purchase.usableUnit}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-gray-600">
-                  MVR {purchase.effectiveCostPerUnit.toFixed(2)}/{purchase.usableUnit}
-                </td>
-                <td className="px-4 py-3 font-medium text-gray-800">
-                  MVR {purchase.totalCost.toFixed(2)}
-                </td>
-              </tr>
+      <div className="border-t border-gray-200 pt-4">
+        <h4 className="font-semibold text-gray-800 mb-3">Recent Sales</h4>
+        {data?.sales?.length > 0 ? (
+          <div className="space-y-2">
+            {data.sales.slice(0, 5).map((sale: any, index: number) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="font-medium text-gray-900">{sale.productName}</p>
+                  <p className="text-sm text-gray-600">{sale.shopName} - {sale.saleDate}</p>
+                </div>
+                <p className="font-semibold text-purple-700">MVR {sale.totalAmount?.toFixed(2)}</p>
+              </div>
             ))}
-            {purchases.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
-                  No inventory data available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-      {/* Mobile Card View */}
-      <div className="md:hidden space-y-3">
-        {purchases.map((purchase) => (
-          <div key={purchase.id} className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-gray-800">{purchase.itemName}</span>
-              <span className={purchase.usableQuantity < 10 ? 'px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs' : 'px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs'}>
-                {purchase.usableQuantity < 10 ? 'Low Stock' : 'In Stock'}
-              </span>
-            </div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Usable Stock:</span>
-                <span className="font-medium text-gray-800">{purchase.usableQuantity.toFixed(2)} {purchase.usableUnit}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Effective Cost:</span>
-                <span className="font-medium text-gray-800">MVR {purchase.effectiveCostPerUnit.toFixed(2)}/{purchase.usableUnit}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total Value:</span>
-                <span className="font-bold text-gray-900">MVR {purchase.totalCost.toFixed(2)}</span>
-              </div>
-            </div>
           </div>
-        ))}
-        {purchases.length === 0 && (
-          <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
-            No inventory data available
-          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">No sales data available</p>
         )}
       </div>
     </div>
   );
 }
 
-function ProfitReport() {
+function CollectionsReport({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
+      <div className="bg-teal-50 rounded-lg p-4">
+        <p className="text-sm text-gray-600 mb-1">Total Collected</p>
+        <p className="text-2xl font-bold text-teal-700">MVR {data?.totalCollected?.toLocaleString() || 0}</p>
+      </div>
+      <div className="border-t border-gray-200 pt-4">
+        <h4 className="font-semibold text-gray-800 mb-3">Recent Collections</h4>
+        {data?.collections?.length > 0 ? (
+          <div className="space-y-2">
+            {data.collections.slice(0, 5).map((collection: any, index: number) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="font-medium text-gray-900">{collection.shopName}</p>
+                  <p className="text-sm text-gray-600">{collection.date}</p>
+                </div>
+                <p className="font-semibold text-teal-700">MVR {collection.amount?.toFixed(2)}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">No collection data available</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function InventoryReport({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-purple-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Total Inventory</p>
+          <p className="text-2xl font-bold text-purple-700">{data?.totalInventory || 0} units</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Total Cost</p>
-          <p className="text-2xl font-bold text-gray-800">MVR 0</p>
-        </div>
-        <div className="bg-green-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-1">Net Profit</p>
-          <p className="text-2xl font-bold text-green-600">MVR 0</p>
+        <div className="bg-blue-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Total Value</p>
+          <p className="text-2xl font-bold text-blue-700">MVR {data?.totalValue?.toFixed(2) || 0}</p>
         </div>
       </div>
-      <div className="bg-gray-50 rounded-lg p-4">
-        <p className="text-sm text-gray-600 mb-2">Profit Margin</p>
-        <p className="text-3xl font-bold text-green-600">0%</p>
+      <div className="border-t border-gray-200 pt-4">
+        <h4 className="font-semibold text-gray-800 mb-3">Inventory Items</h4>
+        {data?.purchases?.length > 0 ? (
+          <div className="space-y-2">
+            {data.purchases.slice(0, 5).map((purchase: any, index: number) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="font-medium text-gray-900">{purchase.itemName}</p>
+                  <p className="text-sm text-gray-600">{purchase.supplier}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-purple-700">{purchase.usableQuantity} {purchase.usableUnit}</p>
+                  <p className="text-sm text-gray-600">MVR {purchase.effectiveCostPerUnit?.toFixed(2)}/unit</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">No inventory data available</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProfitReport({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-purple-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
+          <p className="text-2xl font-bold text-purple-700">MVR {data?.totalRevenue?.toFixed(2) || 0}</p>
+        </div>
+        <div className="bg-teal-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Total Collected</p>
+          <p className="text-2xl font-bold text-teal-700">MVR {data?.totalCollected?.toFixed(2) || 0}</p>
+        </div>
+        <div className="bg-red-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Total Cost</p>
+          <p className="text-2xl font-bold text-red-700">MVR {data?.totalCost?.toFixed(2) || 0}</p>
+        </div>
+        <div className="bg-green-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Gross Profit</p>
+          <p className="text-2xl font-bold text-green-700">MVR {data?.grossProfit?.toFixed(2) || 0}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-blue-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Net Profit</p>
+          <p className="text-2xl font-bold text-blue-700">MVR {data?.netProfit?.toFixed(2) || 0}</p>
+        </div>
+        <div className="bg-orange-50 rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Profit Margin</p>
+          <p className="text-2xl font-bold text-orange-700">{data?.profitMargin || 0}%</p>
+        </div>
       </div>
     </div>
   );

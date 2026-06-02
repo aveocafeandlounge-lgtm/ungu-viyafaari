@@ -9,7 +9,6 @@ import {
   Edit, 
   Trash2, 
   DollarSign,
-  Store,
   Loader2
 } from 'lucide-react';
 
@@ -32,7 +31,7 @@ interface Sale {
 }
 
 export default function Sales() {
-  const { t, isRTL } = useLanguage();
+  const { isRTL } = useLanguage();
   const [sales, setSales] = useState<Sale[]>([]);
   const [batches, setBatches] = useState<any[]>([]);
   const [shops, setShops] = useState<any[]>([]);
@@ -464,7 +463,7 @@ function SaleModal({
             <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
             <select
               value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value as 'pending' | 'partial' | 'paid' })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="pending">Pending</option>

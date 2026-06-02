@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { 
   DollarSign, 
   ShoppingCart, 
@@ -39,7 +39,6 @@ export default function Dashboard() {
   });
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadDashboardData();
@@ -78,8 +77,6 @@ export default function Dashboard() {
       });
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
