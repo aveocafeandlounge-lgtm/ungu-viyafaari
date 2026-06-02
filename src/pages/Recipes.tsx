@@ -316,7 +316,17 @@ function RecipeModal({
 
   const updateIngredient = (index: number, field: keyof Ingredient, value: string | number) => {
     const updatedIngredients = [...formData.ingredients];
-    updatedIngredients[index] = { ...updatedIngredients[index], [field]: value };
+    const ingredient = { ...updatedIngredients[index], [field]: value };
+    
+    // Recalculate price when quantity changes
+    if (field === 'quantity') {
+      const purchase = purchases.find(p => p.itemName === ingredient.name);
+      if (purchase) {
+        ingredient.price = Number(value) * purchase.effectiveCostPerUnit;
+      }
+    }
+    
+    updatedIngredients[index] = ingredient;
     setFormData({ ...formData, ingredients: updatedIngredients });
   };
 
@@ -414,9 +424,14 @@ function RecipeModal({
                   onChange={(e) => {
                     const selectedPurchase = purchases.find(p => p.itemName === e.target.value);
                     if (selectedPurchase) {
-                      updateIngredient(index, 'name', e.target.value);
-                      updateIngredient(index, 'unit', selectedPurchase.usableUnit);
-                      updateIngredient(index, 'price', selectedPurchase.effectiveCostPerUnit);
+                      const updatedIngredients = [...formData.ingredients];
+                      updatedIngredients[index] = {
+                        ...updatedIngredients[index],
+                        name: e.target.value,
+                        unit: selectedPurchase.usableUnit,
+                        price: (updatedIngredients[index].quantity || 0) * selectedPurchase.effectiveCostPerUnit,
+                      };
+                      setFormData({ ...formData, ingredients: updatedIngredients });
                     } else {
                       updateIngredient(index, 'name', e.target.value);
                     }
@@ -456,10 +471,9 @@ function RecipeModal({
                 <input
                   type="number"
                   placeholder="Price"
-                  value={ingredient.price || ''}
-                  onChange={(e) => updateIngredient(index, 'price', Number(e.target.value))}
-                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                  required
+                  value={ingredient.price ? ingredient.price.toFixed(2) : ''}
+                  readOnly
+                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
                 />
                 <button
                   type="button"
