@@ -12,7 +12,8 @@ import {
   Users,
   Loader2,
   ChefHat,
-  Calculator
+  Calculator,
+  BookOpen
 } from 'lucide-react';
 
 interface Ingredient {
@@ -153,6 +154,28 @@ export default function Recipes() {
           <Plus className="w-5 h-5" />
           {t.addRecipe}
         </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-purple-600">
+              <BookOpen className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Recipes</h3>
+          <p className="text-2xl font-bold text-gray-800">{recipes.length}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-teal-600">
+              <Calculator className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Recipe Cost</h3>
+          <p className="text-2xl font-bold text-gray-800">MVR {recipes.reduce((sum, r) => sum + (r.ingredients?.reduce((is: number, i: any) => is + (i.price || 0), 0) || 0), 0).toLocaleString()}</p>
+        </div>
       </div>
 
       {/* Search */}

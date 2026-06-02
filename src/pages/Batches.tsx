@@ -10,7 +10,8 @@ import {
   Trash2, 
   Box, 
   AlertTriangle,
-  Loader2
+  Loader2,
+  DollarSign
 } from 'lucide-react';
 
 interface Batch {
@@ -184,6 +185,46 @@ export default function Batches() {
           <Plus className="w-5 h-5" />
           {t.addBatch}
         </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-purple-600">
+              <Box className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Batches</h3>
+          <p className="text-2xl font-bold text-gray-800">{batches.length}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-teal-600">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Revenue</h3>
+          <p className="text-2xl font-bold text-gray-800">MVR {batches.reduce((sum, b) => sum + (b.totalRevenue || 0), 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-orange-500">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Low Stock</h3>
+          <p className="text-2xl font-bold text-gray-800">{batches.filter(b => b.status === 'low-stock').length}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-red-500">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Expired</h3>
+          <p className="text-2xl font-bold text-gray-800">{batches.filter(b => b.status === 'expired').length}</p>
+        </div>
       </div>
 
       {/* Search */}

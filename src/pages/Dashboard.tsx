@@ -28,11 +28,28 @@ import {
   Cell
 } from 'recharts';
 
+// Helper functions for MTD/YTD calculations
+const getMTDDate = () => {
+  const now = new Date();
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  return firstDayOfMonth.toISOString().split('T')[0];
+};
+
+const getYTDDate = () => {
+  const now = new Date();
+  const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
+  return firstDayOfYear.toISOString().split('T')[0];
+};
+
 export default function Dashboard() {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
     totalSales: 0,
+    salesMTD: 0,
+    salesYTD: 0,
     totalCollections: 0,
+    collectionsMTD: 0,
+    collectionsYTD: 0,
     pendingPayments: 0,
     activeShops: 0,
     availableFunds: 0,
@@ -46,10 +63,19 @@ export default function Dashboard() {
 
   const loadDashboardData = async () => {
     try {
+      const mtdDate = getMTDDate();
+      const ytdDate = getYTDDate();
+
       // Load sales
       const salesSnapshot = await getDocs(collection(db, 'sales'));
       const salesData = salesSnapshot.docs.map(doc => doc.data());
       const totalSales = salesData.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+      const salesMTD = salesData
+        .filter(s => s.saleDate >= mtdDate)
+        .reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+      const salesYTD = salesData
+        .filter(s => s.saleDate >= ytdDate)
+        .reduce((sum, s) => sum + (s.totalAmount || 0), 0);
       const pendingPayments = salesData
         .filter(s => s.status === 'pending' || s.status === 'partial')
         .reduce((sum, s) => sum + ((s.totalAmount || 0) - (s.paidAmount || 0)), 0);
@@ -58,6 +84,12 @@ export default function Dashboard() {
       const collectionsSnapshot = await getDocs(collection(db, 'collections'));
       const collectionsData = collectionsSnapshot.docs.map(doc => doc.data());
       const totalCollections = collectionsData.reduce((sum, c) => sum + (c.amount || 0), 0);
+      const collectionsMTD = collectionsData
+        .filter(c => c.collectionDate >= mtdDate)
+        .reduce((sum, c) => sum + (c.amount || 0), 0);
+      const collectionsYTD = collectionsData
+        .filter(c => c.collectionDate >= ytdDate)
+        .reduce((sum, c) => sum + (c.amount || 0), 0);
 
       // Load shops
       const shopsSnapshot = await getDocs(collection(db, 'shops'));
@@ -70,7 +102,11 @@ export default function Dashboard() {
 
       setStats({
         totalSales,
+        salesMTD,
+        salesYTD,
         totalCollections,
+        collectionsMTD,
+        collectionsYTD,
         pendingPayments,
         activeShops,
         availableFunds,
@@ -127,12 +163,16 @@ export default function Dashboard() {
   const StatCard = ({ 
     title, 
     value, 
+    mtd, 
+    ytd,
     icon: Icon, 
     color, 
     trend 
   }: { 
     title: string; 
     value: string | number; 
+    mtd?: string | number;
+    ytd?: string | number;
     icon: any; 
     color: string; 
     trend?: string;
@@ -155,6 +195,16 @@ export default function Dashboard() {
       </div>
       <h3 className="text-gray-600 text-sm mb-1">{title}</h3>
       <p className="text-2xl font-bold text-gray-800">{value}</p>
+      {(mtd !== undefined || ytd !== undefined) && (
+        <div className="mt-2 space-y-1">
+          {mtd !== undefined && (
+            <p className="text-xs text-gray-500">MTD: {typeof mtd === 'number' ? `MVR ${mtd.toLocaleString()}` : mtd}</p>
+          )}
+          {ytd !== undefined && (
+            <p className="text-xs text-gray-500">YTD: {typeof ytd === 'number' ? `MVR ${ytd.toLocaleString()}` : ytd}</p>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 
@@ -170,12 +220,16 @@ export default function Dashboard() {
         <StatCard
           title={t.totalSales}
           value={`MVR ${stats.totalSales.toLocaleString()}`}
+          mtd={stats.salesMTD}
+          ytd={stats.salesYTD}
           icon={DollarSign}
           color="bg-purple-600"
         />
         <StatCard
           title={t.totalCollections}
           value={`MVR ${stats.totalCollections.toLocaleString()}`}
+          mtd={stats.collectionsMTD}
+          ytd={stats.collectionsYTD}
           icon={ShoppingCart}
           color="bg-teal-600"
         />

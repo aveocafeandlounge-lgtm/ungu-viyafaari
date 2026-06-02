@@ -183,6 +183,29 @@ export default function Purchases() {
     }
   };
 
+  // Calculate MTD/YTD stats
+  const getMTDDate = () => {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    return firstDayOfMonth.toISOString().split('T')[0];
+  };
+
+  const getYTDDate = () => {
+    const now = new Date();
+    const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
+    return firstDayOfYear.toISOString().split('T')[0];
+  };
+
+  const mtdDate = getMTDDate();
+  const ytdDate = getYTDDate();
+
+  const totalPurchases = purchases.length;
+  const purchasesMTD = purchases.filter(p => p.purchaseDate >= mtdDate).length;
+  const purchasesYTD = purchases.filter(p => p.purchaseDate >= ytdDate).length;
+  const totalCost = purchases.reduce((sum, p) => sum + (p.totalCost || 0), 0);
+  const costMTD = purchases.filter(p => p.purchaseDate >= mtdDate).reduce((sum, p) => sum + (p.totalCost || 0), 0);
+  const costYTD = purchases.filter(p => p.purchaseDate >= ytdDate).reduce((sum, p) => sum + (p.totalCost || 0), 0);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -197,6 +220,30 @@ export default function Purchases() {
           <Plus className="w-5 h-5" />
           Add Purchase
         </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-purple-600">
+              <Package className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Purchases</h3>
+          <p className="text-2xl font-bold text-gray-800">{totalPurchases}</p>
+          <p className="text-xs text-gray-500 mt-2">MTD: {purchasesMTD} | YTD: {purchasesYTD}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-teal-600">
+              <Calculator className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Cost</h3>
+          <p className="text-2xl font-bold text-gray-800">MVR {totalCost.toLocaleString()}</p>
+          <p className="text-xs text-gray-500 mt-2">MTD: MVR {costMTD.toLocaleString()} | YTD: MVR {costYTD.toLocaleString()}</p>
+        </div>
       </div>
 
       {/* Search */}

@@ -12,7 +12,10 @@ import {
   Phone, 
   Mail, 
   MapPin,
-  Loader2
+  Loader2,
+  DollarSign,
+  Clock,
+  TrendingUp
 } from 'lucide-react';
 
 interface Shop {
@@ -109,6 +112,46 @@ export default function Shops() {
           <Plus className="w-5 h-5" />
           {t.addShop}
         </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-purple-600">
+              <Store className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Shops</h3>
+          <p className="text-2xl font-bold text-gray-800">{shops.length}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-teal-600">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Purchases</h3>
+          <p className="text-2xl font-bold text-gray-800">MVR {shops.reduce((sum, s) => sum + (s.totalPurchases || 0), 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-orange-500">
+              <Clock className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Outstanding Balance</h3>
+          <p className="text-2xl font-bold text-gray-800">MVR {shops.reduce((sum, s) => sum + (s.outstandingBalance || 0), 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-green-500">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Active Shops</h3>
+          <p className="text-2xl font-bold text-gray-800">{shops.length}</p>
+        </div>
       </div>
 
       {/* Search */}

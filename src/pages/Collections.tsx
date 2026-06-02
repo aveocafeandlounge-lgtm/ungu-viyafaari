@@ -12,7 +12,8 @@ import {
   Calendar, 
   TrendingUp,
   Loader2,
-  Store
+  Store,
+  Clock
 } from 'lucide-react';
 
 interface Collection {
@@ -25,6 +26,19 @@ interface Collection {
   date: string;
   notes: string;
 }
+
+// Helper functions for MTD/YTD calculations
+const getMTDDate = () => {
+  const now = new Date();
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  return firstDayOfMonth.toISOString().split('T')[0];
+};
+
+const getYTDDate = () => {
+  const now = new Date();
+  const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
+  return firstDayOfYear.toISOString().split('T')[0];
+};
 
 export default function Collections() {
   const { t, isRTL } = useLanguage();
@@ -150,7 +164,7 @@ export default function Collections() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -161,8 +175,9 @@ export default function Collections() {
               <DollarSign className="w-6 h-6 text-white" />
             </div>
           </div>
-          <p className="text-sm text-gray-600 mb-1">{t.totalCollections}</p>
+          <p className="text-sm text-gray-600 mb-1">Total Collected</p>
           <p className="text-2xl font-bold text-gray-800">MVR {totalCollected.toLocaleString()}</p>
+          <p className="text-xs text-gray-500 mt-2">MTD: MVR {collections.filter(c => c.date >= getMTDDate()).reduce((sum, c) => sum + (c.amount || 0), 0).toLocaleString()} | YTD: MVR {collections.filter(c => c.date >= getYTDDate()).reduce((sum, c) => sum + (c.amount || 0), 0).toLocaleString()}</p>
         </motion.div>
 
         <motion.div
@@ -178,6 +193,7 @@ export default function Collections() {
           </div>
           <p className="text-sm text-gray-600 mb-1">Total Collections</p>
           <p className="text-2xl font-bold text-gray-800">{collections.length}</p>
+          <p className="text-xs text-gray-500 mt-2">MTD: {collections.filter(c => c.date >= getMTDDate()).length} | YTD: {collections.filter(c => c.date >= getYTDDate()).length}</p>
         </motion.div>
 
         <motion.div
@@ -195,6 +211,21 @@ export default function Collections() {
           <p className="text-2xl font-bold text-gray-800">
             MVR {collections.length > 0 ? Math.round(totalCollected / collections.length).toLocaleString() : 0}
           </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-3 bg-purple-500 rounded-lg">
+              <Clock className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Outstanding</p>
+          <p className="text-2xl font-bold text-gray-800">MVR {sales.reduce((sum, s) => sum + ((s.totalAmount || 0) - (s.paidAmount || 0)), 0).toLocaleString()}</p>
         </motion.div>
       </div>
 

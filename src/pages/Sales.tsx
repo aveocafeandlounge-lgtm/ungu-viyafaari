@@ -9,7 +9,10 @@ import {
   Edit, 
   Trash2, 
   DollarSign,
-  Loader2
+  Loader2,
+  ShoppingCart,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 
 interface Sale {
@@ -155,6 +158,46 @@ export default function Sales() {
           <Plus className="w-5 h-5" />
           Add Sale
         </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-purple-600">
+              <ShoppingCart className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Sales</h3>
+          <p className="text-2xl font-bold text-gray-800">{sales.length}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-teal-600">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Total Revenue</h3>
+          <p className="text-2xl font-bold text-gray-800">MVR {sales.reduce((sum, s) => sum + (s.totalAmount || 0), 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-orange-500">
+              <Clock className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Pending</h3>
+          <p className="text-2xl font-bold text-gray-800">{sales.filter(s => s.status === 'pending' || s.status === 'partial').length}</p>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-green-500">
+              <CheckCircle className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <h3 className="text-gray-600 text-sm mb-1">Paid</h3>
+          <p className="text-2xl font-bold text-gray-800">{sales.filter(s => s.status === 'paid').length}</p>
+        </div>
       </div>
 
       {/* Search */}
