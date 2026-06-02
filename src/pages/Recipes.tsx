@@ -36,15 +36,17 @@ interface Recipe {
 export default function Recipes() {
   const { t, isRTL } = useLanguage();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [purchases, setPurchases] = useState<any[]>([]);
   const [batchCalculator, setBatchCalculator] = useState<{ recipeId: string; multiplier: number } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Load recipes from Firebase
+  // Load recipes and purchases from Firebase
   useEffect(() => {
     loadRecipes();
+    loadPurchases();
   }, []);
 
   const loadRecipes = async () => {
@@ -59,6 +61,19 @@ export default function Recipes() {
       console.error('Error loading recipes:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPurchases = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'purchases'));
+      const purchasesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setPurchases(purchasesData);
+    } catch (error) {
+      console.error('Error loading purchases:', error);
     }
   };
 
@@ -243,6 +258,7 @@ export default function Recipes() {
         <RecipeModal
           recipe={editingRecipe}
           categories={categories}
+          purchases={purchases}
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingRecipe(null); }}
           t={t}
@@ -267,6 +283,7 @@ export default function Recipes() {
 function RecipeModal({ 
   recipe, 
   categories, 
+  purchases,
   onSave, 
   onClose, 
   t,
@@ -274,6 +291,7 @@ function RecipeModal({
 }: { 
   recipe: Recipe | null;
   categories: { value: string; label: string }[];
+  purchases: any[];
   onSave: (data: Omit<Recipe, 'id'>) => void;
   onClose: () => void;
   t: any;
@@ -344,7 +362,7 @@ function RecipeModal({
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
             />
           </div>
@@ -356,7 +374,7 @@ function RecipeModal({
               type="text"
               value={formData.nameDv}
               onChange={(e) => setFormData({ ...formData, nameDv: e.target.value })}
-              className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${isRTL ? 'rtl' : ''}`}
+              className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isRTL ? 'rtl' : ''}`}
               required
             />
           </div>
@@ -367,7 +385,7 @@ function RecipeModal({
             <select
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
             >
               <option value="">Select category</option>
@@ -391,26 +409,40 @@ function RecipeModal({
             </div>
             {formData.ingredients.map((ingredient, index) => (
               <div key={index} className="flex gap-2 mb-2 items-center">
-                <input
-                  type="text"
-                  placeholder="Name"
+                <select
                   value={ingredient.name}
-                  onChange={(e) => updateIngredient(index, 'name', e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  onChange={(e) => {
+                    const selectedPurchase = purchases.find(p => p.itemName === e.target.value);
+                    if (selectedPurchase) {
+                      updateIngredient(index, 'name', e.target.value);
+                      updateIngredient(index, 'unit', selectedPurchase.usableUnit);
+                      updateIngredient(index, 'price', selectedPurchase.effectiveCostPerUnit);
+                    } else {
+                      updateIngredient(index, 'name', e.target.value);
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                   required
-                />
+                >
+                  <option value="">Select ingredient</option>
+                  {purchases.map((purchase) => (
+                    <option key={purchase.id} value={purchase.itemName}>
+                      {purchase.itemName} ({purchase.itemNameDv})
+                    </option>
+                  ))}
+                </select>
                 <input
                   type="number"
                   placeholder="Qty"
                   value={ingredient.quantity || ''}
                   onChange={(e) => updateIngredient(index, 'quantity', Number(e.target.value))}
-                  className="w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  className="w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                   required
                 />
                 <select
                   value={ingredient.unit}
                   onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
-                  className="w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  className="w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                 >
                   <option value="g">g</option>
                   <option value="kg">kg</option>
@@ -426,15 +458,15 @@ function RecipeModal({
                   placeholder="Price"
                   value={ingredient.price || ''}
                   onChange={(e) => updateIngredient(index, 'price', Number(e.target.value))}
-                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => removeIngredient(index)}
-                  className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-2 hover:bg-purple-50 rounded-lg transition-colors"
                 >
-                  <Trash2 className="w-4 h-4 text-red-600" />
+                  <Trash2 className="w-4 h-4 text-purple-600" />
                 </button>
               </div>
             ))}
@@ -448,7 +480,7 @@ function RecipeModal({
               onChange={(e) => setFormData({ ...formData, steps: e.target.value })}
               rows={4}
               placeholder="Enter each step on a new line"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               required
             />
           </div>
@@ -461,7 +493,7 @@ function RecipeModal({
                 type="number"
                 value={formData.cookingTime}
                 onChange={(e) => setFormData({ ...formData, cookingTime: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 required
               />
             </div>
@@ -473,7 +505,7 @@ function RecipeModal({
                 type="number"
                 value={formData.servingSize}
                 onChange={(e) => setFormData({ ...formData, servingSize: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 required
               />
             </div>
