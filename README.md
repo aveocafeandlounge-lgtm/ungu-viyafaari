@@ -1,17 +1,19 @@
 # Ungu Viyafaari 🍲
 
-A complete business management system for Maldivian home-based food entrepreneurs to manage products, shops, batches, collections, recipes, and reports.
+A complete business management system for Maldivian home-based food entrepreneurs to manage inventory, recipes, production batches, sales, collections, and reports.
 
 ## Features ✨
 
 - **Bilingual Support**: Full English and Dhivehi (RTL) language support
-- **Product Management**: Add, edit, delete products with image upload and categories
+- **Inventory Management**: Track purchases with cost calculation, suppliers, and usable quantities
+- **Recipe Management**: Store traditional Maldivian recipes with ingredients from inventory
+- **Batch Production**: Create production batches from recipes with automatic inventory deduction
+- **Sales Management**: Sell batches to shops with payment tracking
+- **Collections**: Record payments from shops and track outstanding balances
 - **Shop Management**: Manage retail partners and customer information
-- **Batch Tracking**: Track production batches with expiry dates and low stock alerts
-- **Collections**: Record payments and track outstanding balances
-- **Recipe Management**: Store traditional Maldivian recipes with ingredients and steps
 - **Dashboard**: Real-time analytics with charts for sales, collections, and performance
-- **Reports**: Generate sales, collection, inventory, and profit reports with PDF/CSV export
+- **Money Tracking**: Track inventory funds with top-up functionality
+- **Reports**: Generate sales, collection, inventory, and profit reports with real data
 - **PWA Support**: Installable mobile app with offline support
 - **Role-Based Access**: Admin and staff roles with different permissions
 
@@ -86,9 +88,29 @@ npm run dev
 3. Set up Storage rules
 4. Enable App Check (optional)
 
-#### Deploy Firebase Rules (Optional)
+#### Deploy Firestore Rules (Required)
 
-To deploy Firestore and Storage rules automatically:
+To deploy Firestore rules manually via Firebase Console:
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project
+3. Navigate to Firestore Database → Rules tab
+4. Copy the contents of `firestore.rules` file
+5. Paste and publish the rules
+
+The rules are defined in `firestore.rules` file and include:
+- Users collection (admin/staff roles)
+- Purchases collection (inventory)
+- Shops collection (retail partners)
+- Recipes collection (recipe database)
+- Batches collection (production batches)
+- Sales collection (sales records)
+- Collections collection (payment records)
+- Money collection (inventory funds)
+
+#### Deploy Firebase Rules via CLI (Optional)
+
+If you have Firebase CLI configured:
 
 1. Install Firebase CLI:
 ```bash
@@ -100,12 +122,15 @@ npm install -g firebase-tools
 firebase login
 ```
 
-3. Deploy rules:
+3. Add project:
 ```bash
-firebase deploy --only firestore:rules,storage:rules
+firebase use --add
 ```
 
-The rules are defined in `firestore.rules` and `storage.rules` files.
+4. Deploy rules:
+```bash
+firebase deploy --only firestore:rules
+```
 
 ## Project Structure 📁
 
@@ -125,11 +150,12 @@ src/
 │   └── registerSW.ts
 ├── pages/           # Page components
 │   ├── Dashboard.tsx
-│   ├── Products.tsx
 │   ├── Shops.tsx
-│   ├── Batches.tsx
-│   ├── Collections.tsx
+│   ├── Purchases.tsx
 │   ├── Recipes.tsx
+│   ├── Batches.tsx
+│   ├── Sales.tsx
+│   ├── Collections.tsx
 │   ├── Reports.tsx
 │   ├── Settings.tsx
 │   ├── Login.tsx
@@ -141,12 +167,13 @@ src/
 ## Firebase Collections 🔥
 
 - `users` - User accounts and roles
-- `products` - Product inventory
+- `purchases` - Inventory purchases with cost calculation
 - `shops` - Retail partners
-- `batches` - Production batches
-- `collections` - Payment records
-- `recipes` - Recipe database
-- `reports` - Generated reports
+- `recipes` - Recipe database with ingredients
+- `batches` - Production batches linked to recipes
+- `sales` - Sales records linked to batches
+- `collections` - Payment records linked to sales
+- `money` - Inventory funds tracking
 
 ## Usage 📖
 
@@ -156,13 +183,56 @@ src/
 2. Admin can assign roles (admin/staff)
 3. Staff have limited access to settings
 
-### Managing Products
+### Workflow Overview
 
-- Navigate to Products page
-- Click "Add Product" to create new products
-- Fill in product details in both English and Dhivehi
-- Upload product images
-- Set price, stock, and category
+The application follows this workflow:
+1. **Purchases** → Add inventory items with cost calculation
+2. **Recipes** → Create recipes using inventory ingredients
+3. **Batches** → Create production batches from recipes (auto-deducts inventory)
+4. **Sales** → Sell batches to shops
+5. **Collections** → Record payments from shops
+6. **Reports** → View comprehensive reports
+
+### Managing Purchases (Inventory)
+
+- Navigate to Purchases page
+- Add inventory items with supplier details
+- Set price per unit, cutting charges, and waste percentage
+- System automatically calculates usable quantity and effective cost per unit
+- Track inventory levels
+
+### Managing Recipes
+
+- Navigate to Recipes page
+- Create recipes using ingredients from your purchases
+- Select ingredients from dropdown (auto-fills unit and cost)
+- Set quantities with decimal support (e.g., 13g, 0.03kg)
+- System calculates total cost based on inventory prices
+
+### Managing Batches
+
+- Navigate to Batches page
+- Create production batches from recipes
+- Select recipe (auto-fills ingredients from recipe)
+- Set batch quantity and expiry date
+- System automatically deducts ingredients from inventory
+- Track remaining stock and receive low stock alerts
+
+### Managing Sales
+
+- Navigate to Sales page
+- Sell batches to shops
+- Select batch (linked to recipe)
+- Set quantity and unit price
+- Track payment status (pending, partial, paid)
+
+### Managing Collections
+
+- Navigate to Collections page
+- Record payments from shops
+- Link collections to specific sales
+- Track outstanding balances
+- System updates sale payment status automatically
 
 ### Managing Shops
 
@@ -170,23 +240,18 @@ src/
 - Add retail partners with contact details
 - Track total purchases and outstanding balances
 
-### Batch Management
+### Money Tracking
 
-- Create production batches for specific shops
-- Set production and expiry dates
-- Track remaining stock
-- Receive low stock alerts
-
-### Collections
-
-- Record payments from shops
-- Track outstanding balances
-- View payment history
+- Navigate to Dashboard
+- Track inventory funds
+- Top-up inventory funds with personal money
+- View available funds for purchases
 
 ### Reports
 
+- Navigate to Reports page
 - Generate sales, collection, inventory, and profit reports
-- Export reports as PDF or CSV
+- View real data from all operations
 - Filter by date range
 
 ## Language Support 🌐
