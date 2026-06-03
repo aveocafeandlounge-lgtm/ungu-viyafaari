@@ -20,6 +20,7 @@ interface Sale {
   saleNumber: string;
   batchId: string;
   batchNumber: string;
+  batchDate?: string;
   recipeId: string;
   recipeName: string;
   shopId: string;
@@ -53,10 +54,21 @@ export default function Sales() {
   const loadSales = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'sales'));
-      const salesData = querySnapshot.docs.map(doc => ({
+      const batchesSnapshot = await getDocs(collection(db, 'batches'));
+      const batchesData = batchesSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      })) as Sale[];
+      })) as any[];
+
+      const salesData = querySnapshot.docs.map(doc => {
+        const saleData = doc.data();
+        const batch = batchesData.find(b => b.id === saleData.batchId);
+        return {
+          id: doc.id,
+          ...saleData,
+          batchDate: batch?.productionDate || '',
+        } as Sale;
+      });
       setSales(salesData);
     } catch (error) {
       console.error('Error loading sales:', error);
@@ -186,8 +198,8 @@ export default function Sales() {
               <Clock className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Pending</h3>
-          <p className="text-2xl font-bold text-gray-800">{sales.filter(s => s.status === 'pending' || s.status === 'partial').length}</p>
+          <h3 className="text-gray-600 text-sm mb-1">Pending Amount</h3>
+          <p className="text-2xl font-bold text-gray-800">MVR {sales.reduce((sum, s) => sum + ((s.totalAmount || 0) - (s.paidAmount || 0)), 0).toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
@@ -195,8 +207,8 @@ export default function Sales() {
               <CheckCircle className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Paid</h3>
-          <p className="text-2xl font-bold text-gray-800">{sales.filter(s => s.status === 'paid').length}</p>
+          <h3 className="text-gray-600 text-sm mb-1">Received Amount</h3>
+          <p className="text-2xl font-bold text-gray-800">MVR {sales.reduce((sum, s) => sum + (s.paidAmount || 0), 0).toLocaleString()}</p>
         </div>
       </div>
 
@@ -225,6 +237,8 @@ export default function Sales() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sale #</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Batch</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Batch Date</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shop</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
@@ -238,6 +252,8 @@ export default function Sales() {
                 {filteredSales.map((sale) => (
                   <tr key={sale.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{sale.saleNumber}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.batchNumber}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.batchDate || '-'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.recipeName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.shopName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.quantity}</td>
@@ -296,6 +312,14 @@ export default function Sales() {
                   </span>
                 </div>
                 <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Batch</span>
+                    <span className="font-medium text-gray-900">{sale.batchNumber}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Batch Date</span>
+                    <span className="text-gray-900">{sale.batchDate || '-'}</span>
+                  </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Recipe</span>
                     <span className="font-medium text-gray-900">{sale.recipeName}</span>
