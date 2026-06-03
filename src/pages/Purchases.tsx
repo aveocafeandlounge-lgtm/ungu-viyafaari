@@ -30,6 +30,7 @@ interface Purchase {
   purchaseDate: string;
   supplier: string;
   notes: string;
+  remainingQuantity: number;
 }
 
 export default function Purchases() {
@@ -41,11 +42,28 @@ export default function Purchases() {
   const [loading, setLoading] = useState(true);
   const [suppliers, setSuppliers] = useState<string[]>([]);
   const [existingItemNames, setExistingItemNames] = useState<string[]>([]);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
+  const [batches, setBatches] = useState<any[]>([]);
 
   // Load purchases from Firebase
   useEffect(() => {
     loadPurchases();
+    loadBatches();
   }, []);
+
+  const loadBatches = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'batches'));
+      const batchesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setBatches(batchesData);
+    } catch (error) {
+      console.error('Error loading batches:', error);
+    }
+  };
 
   const loadPurchases = async () => {
     try {
@@ -102,7 +120,7 @@ export default function Purchases() {
     return totalCost / usableQuantity;
   };
 
-  const handleSave = async (purchaseData: Omit<Purchase, 'id' | 'usableQuantity' | 'effectiveCostPerUnit' | 'totalCost'>) => {
+  const handleSave = async (purchaseData: Omit<Purchase, 'id' | 'usableQuantity' | 'effectiveCostPerUnit' | 'totalCost' | 'remainingQuantity'>) => {
     setLoading(true);
     try {
       const usableQuantity = calculateUsableQuantity(purchaseData.rawQuantity, purchaseData.wastePercentage);
@@ -119,6 +137,7 @@ export default function Purchases() {
         usableQuantity,
         effectiveCostPerUnit,
         totalCost,
+        remainingQuantity: usableQuantity,
       };
 
       if (editingPurchase) {
@@ -286,7 +305,11 @@ export default function Purchases() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredPurchases.map((purchase) => (
-                  <tr key={purchase.id} className="hover:bg-gray-50">
+                  <tr
+                    key={purchase.id}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => { setSelectedPurchase(purchase); setShowDetailsModal(true); }}
+                  >
                     <td className="px-6 py-4">
                       <div>
                         <div className="font-medium text-gray-800">{purchase.itemName}</div>
@@ -311,7 +334,7 @@ export default function Purchases() {
                       MVR {purchase.totalCost.toFixed(2)}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex gap-2">
+                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => { setEditingPurchase(purchase); setShowModal(true); }}
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -412,6 +435,90 @@ export default function Purchases() {
           isRTL={isRTL}
         />
       )}
+
+      {/* Purchase Details Modal */}
+      {showDetailsModal && selectedPurchase && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-800">Purchase Details</h2>
+                <button
+                  onClick={() => setShowDetailsModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-6">
+              {/* Item Information */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">{selectedPurchase.itemName}</h3>
+                <p className="text-sm text-gray-500 mb-4">{selectedPurchase.itemNameDv}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 mb-1">Original Usable Quantity</p>
+                    <p className="text-2xl font-bold text-gray-800">{selectedPurchase.usableQuantity.toFixed(2)} {selectedPurchase.usableUnit}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 mb-1">Remaining Quantity</p>
+                    <p className="text-2xl font-bold text-green-600">{(selectedPurchase.remainingQuantity || selectedPurchase.usableQuantity).toFixed(2)} {selectedPurchase.usableUnit}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Deductions */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Usage History</h3>
+                <div className="space-y-2">
+                  {batches.filter(b => b.recipeName === selectedPurchase.itemName).length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">No batches have used this purchase yet</p>
+                  ) : (
+                    batches
+                      .filter(b => b.recipeName === selectedPurchase.itemName)
+                      .map((batch) => (
+                        <div key={batch.id} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-gray-800">{batch.batchNumber}</p>
+                            <p className="text-sm text-gray-500">{batch.recipeName}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-gray-800">{batch.quantity} portions</p>
+                            <p className="text-sm text-gray-500">{batch.productionDate}</p>
+                          </div>
+                        </div>
+                      ))
+                  )}
+                </div>
+              </div>
+
+              {/* Cost Information */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Cost Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 mb-1">Price Per Unit</p>
+                    <p className="text-xl font-bold text-gray-800">MVR {selectedPurchase.pricePerUnit.toFixed(2)}/{selectedPurchase.rawUnit}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 mb-1">Effective Cost</p>
+                    <p className="text-xl font-bold text-gray-800">MVR {selectedPurchase.effectiveCostPerUnit.toFixed(2)}/{selectedPurchase.usableUnit}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4 col-span-2">
+                    <p className="text-sm text-gray-600 mb-1">Total Cost</p>
+                    <p className="text-xl font-bold text-gray-800">MVR {selectedPurchase.totalCost.toFixed(2)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
@@ -429,7 +536,7 @@ function PurchaseModal({
   categories: { value: string; label: string }[];
   suppliers: string[];
   existingItemNames: string[];
-  onSave: (data: Omit<Purchase, 'id' | 'usableQuantity' | 'effectiveCostPerUnit' | 'totalCost'>) => void;
+  onSave: (data: Omit<Purchase, 'id' | 'usableQuantity' | 'effectiveCostPerUnit' | 'totalCost' | 'remainingQuantity'>) => void;
   onClose: () => void;
   isRTL: boolean;
 }) {
