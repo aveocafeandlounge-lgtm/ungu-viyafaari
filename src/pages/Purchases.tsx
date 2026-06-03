@@ -476,23 +476,26 @@ export default function Purchases() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Usage History</h3>
                 <div className="space-y-2">
-                  {batches.filter(b => b.recipeName === selectedPurchase.itemName).length === 0 ? (
+                  {batches.filter(b => b.ingredientsUsed?.some((i: any) => i.purchaseId === selectedPurchase.id)).length === 0 ? (
                     <p className="text-gray-500 text-center py-4">No batches have used this purchase yet</p>
                   ) : (
                     batches
-                      .filter(b => b.recipeName === selectedPurchase.itemName)
-                      .map((batch) => (
-                        <div key={batch.id} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-gray-800">{batch.batchNumber}</p>
-                            <p className="text-sm text-gray-500">{batch.recipeName}</p>
+                      .filter(b => b.ingredientsUsed?.some((i: any) => i.purchaseId === selectedPurchase.id))
+                      .map((batch) => {
+                        const ingredientUsed = batch.ingredientsUsed?.find((i: any) => i.purchaseId === selectedPurchase.id);
+                        return (
+                          <div key={batch.id} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                            <div>
+                              <p className="font-medium text-gray-800">{batch.batchNumber}</p>
+                              <p className="text-sm text-gray-500">{batch.recipeName}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-gray-800">{ingredientUsed?.quantityUsed || 0} {ingredientUsed?.unit || ''}</p>
+                              <p className="text-sm text-gray-500">{batch.productionDate}</p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-gray-800">{batch.quantity} portions</p>
-                            <p className="text-sm text-gray-500">{batch.productionDate}</p>
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                   )}
                 </div>
               </div>
