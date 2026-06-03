@@ -497,16 +497,32 @@ export default function Purchases() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">{selectedPurchase.itemName}</h3>
                 <p className="text-sm text-gray-500 mb-4">{selectedPurchase.itemNameDv}</p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Original Usable Quantity</p>
-                    <p className="text-2xl font-bold text-gray-800">{selectedPurchase.usableQuantity.toFixed(2)} {selectedPurchase.usableUnit}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Remaining Quantity</p>
-                    <p className="text-2xl font-bold text-green-600">{(selectedPurchase.remainingQuantity || selectedPurchase.usableQuantity).toFixed(2)} {selectedPurchase.usableUnit}</p>
-                  </div>
-                </div>
+                {(() => {
+                  const usedBatches = batches.filter(b => b.ingredientsUsed?.some((i: any) => i.itemName === selectedPurchase.itemName));
+                  const totalUsedQuantity = usedBatches.reduce((sum, batch) => {
+                    const ingredient = batch.ingredientsUsed?.find((i: any) => i.itemName === selectedPurchase.itemName);
+                    return sum + (ingredient?.quantityUsed || 0);
+                  }, 0);
+                  const purchasedQty = selectedPurchase.usableQuantity;
+                  const remainingQty = purchasedQty - totalUsedQuantity;
+
+                  return (
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 mb-1">Purchased Qty</p>
+                        <p className="text-2xl font-bold text-gray-800">{purchasedQty.toFixed(2)} {selectedPurchase.usableUnit}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 mb-1">Used Qty</p>
+                        <p className="text-2xl font-bold text-orange-600">{totalUsedQuantity.toFixed(2)} {selectedPurchase.usableUnit}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 mb-1">Remaining Qty</p>
+                        <p className="text-2xl font-bold text-green-600">{remainingQty.toFixed(2)} {selectedPurchase.usableUnit}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Deductions */}
