@@ -344,7 +344,14 @@ export default function Sales() {
       {showModal && (
         <SaleModal
           sale={editingSale}
-          batches={batches}
+          batches={batches.filter(batch => {
+            // If editing, include the current sale's batch
+            if (editingSale && editingSale.batchId === batch.id) {
+              return true;
+            }
+            // Otherwise, exclude batches that already have a sale
+            return !sales.some(sale => sale.batchId === batch.id);
+          })}
           shops={shops}
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingSale(null); }}
