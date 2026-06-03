@@ -78,6 +78,9 @@ export default function Recipes() {
     }
   };
 
+  // Extract unique units from purchases
+  const uniqueUnits = Array.from(new Set(purchases.map(p => p.usableUnit).filter(Boolean)));
+
   const categories = [
     { value: 'hedhika', label: t.hedhika },
     { value: 'meals', label: t.meals },
@@ -282,6 +285,7 @@ export default function Recipes() {
           recipe={editingRecipe}
           categories={categories}
           purchases={purchases}
+          uniqueUnits={uniqueUnits}
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingRecipe(null); }}
           t={t}
@@ -303,18 +307,20 @@ export default function Recipes() {
   );
 }
 
-function RecipeModal({ 
-  recipe, 
-  categories, 
+function RecipeModal({
+  recipe,
+  categories,
   purchases,
-  onSave, 
-  onClose, 
+  uniqueUnits,
+  onSave,
+  onClose,
   t,
-  isRTL 
-}: { 
+  isRTL
+}: {
   recipe: Recipe | null;
   categories: { value: string; label: string }[];
   purchases: any[];
+  uniqueUnits: string[];
   onSave: (data: Omit<Recipe, 'id'>) => void;
   onClose: () => void;
   t: any;
@@ -483,14 +489,22 @@ function RecipeModal({
                   onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
                   className="w-16 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                 >
-                  <option value="g">g</option>
-                  <option value="kg">kg</option>
-                  <option value="ml">ml</option>
-                  <option value="l">l</option>
-                  <option value="pc">pc</option>
-                  <option value="cup">cup</option>
-                  <option value="tbsp">tbsp</option>
-                  <option value="tsp">tsp</option>
+                  {uniqueUnits.length > 0 ? (
+                    uniqueUnits.map((unit) => (
+                      <option key={unit} value={unit}>{unit}</option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="g">g</option>
+                      <option value="kg">kg</option>
+                      <option value="ml">ml</option>
+                      <option value="l">l</option>
+                      <option value="pc">pc</option>
+                      <option value="cup">cup</option>
+                      <option value="tbsp">tbsp</option>
+                      <option value="tsp">tsp</option>
+                    </>
+                  )}
                 </select>
                 <input
                   type="number"
