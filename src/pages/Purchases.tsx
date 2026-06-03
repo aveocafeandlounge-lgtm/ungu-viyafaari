@@ -304,53 +304,70 @@ export default function Purchases() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredPurchases.map((purchase) => (
-                  <tr
-                    key={purchase.id}
-                    className="hover:bg-gray-50 cursor-pointer"
-                    onClick={() => { setSelectedPurchase(purchase); setShowDetailsModal(true); }}
-                  >
-                    <td className="px-6 py-4">
-                      <div>
-                        <div className="font-medium text-gray-800">{purchase.itemName}</div>
-                        <div className="text-sm text-gray-500">{purchase.itemNameDv}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {purchase.rawQuantity} {purchase.rawUnit}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      <span className="font-medium text-green-600">{purchase.usableQuantity.toFixed(2)} {purchase.usableUnit}</span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
-                        {purchase.wastePercentage}%
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      MVR {purchase.effectiveCostPerUnit.toFixed(2)}/{purchase.usableUnit}
-                    </td>
-                    <td className="px-6 py-4 font-medium text-gray-800">
-                      MVR {purchase.totalCost.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          onClick={() => { setEditingPurchase(purchase); setShowModal(true); }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          <Edit className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(purchase.id)}
-                          className="p-2 hover:bg-purple-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-purple-700" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredPurchases.map((purchase) => {
+                  const remainingPercentage = purchase.usableQuantity > 0
+                    ? ((purchase.remainingQuantity || purchase.usableQuantity) / purchase.usableQuantity) * 100
+                    : 0;
+                  const isLowStock = remainingPercentage < 2;
+
+                  return (
+                    <tr
+                      key={purchase.id}
+                      className={`hover:bg-gray-50 cursor-pointer ${isLowStock ? 'bg-red-50' : ''}`}
+                      onClick={() => { setSelectedPurchase(purchase); setShowDetailsModal(true); }}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <div className="font-medium text-gray-800">{purchase.itemName}</div>
+                            <div className="text-sm text-gray-500">{purchase.itemNameDv}</div>
+                          </div>
+                          {isLowStock && (
+                            <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                              Low Stock
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {purchase.rawQuantity} {purchase.rawUnit}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        <span className={`font-medium ${isLowStock ? 'text-red-600' : 'text-green-600'}`}>
+                          {(purchase.remainingQuantity || purchase.usableQuantity).toFixed(2)} {purchase.usableUnit}
+                        </span>
+                        <span className="text-xs text-gray-500 ml-1">({remainingPercentage.toFixed(1)}%)</span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                          {purchase.wastePercentage}%
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        MVR {purchase.effectiveCostPerUnit.toFixed(2)}/{purchase.usableUnit}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-gray-800">
+                        MVR {purchase.totalCost.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => { setEditingPurchase(purchase); setShowModal(true); }}
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          >
+                            <Edit className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(purchase.id)}
+                            className="p-2 hover:bg-purple-50 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4 text-purple-700" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
                 {filteredPurchases.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
@@ -364,56 +381,76 @@ export default function Purchases() {
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-4">
-            {filteredPurchases.map((purchase) => (
-              <motion.div key={purchase.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-5 h-5 text-gray-400" />
-                    <div>
-                      <span className="font-semibold text-gray-900">{purchase.itemName}</span>
-                      <span className="text-sm text-gray-500 ml-2">{purchase.itemNameDv}</span>
+            {filteredPurchases.map((purchase) => {
+              const remainingPercentage = purchase.usableQuantity > 0
+                ? ((purchase.remainingQuantity || purchase.usableQuantity) / purchase.usableQuantity) * 100
+                : 0;
+              const isLowStock = remainingPercentage < 2;
+
+              return (
+                <motion.div
+                  key={purchase.id}
+                  className={`bg-white rounded-xl shadow-sm border border-gray-100 p-4 ${isLowStock ? 'border-red-300' : ''}`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Package className="w-5 h-5 text-gray-400" />
+                      <div>
+                        <span className="font-semibold text-gray-900">{purchase.itemName}</span>
+                        <span className="text-sm text-gray-500 ml-2">{purchase.itemNameDv}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      {isLowStock && (
+                        <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                          Low Stock
+                        </span>
+                      )}
+                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                        {purchase.wastePercentage}% waste
+                      </span>
                     </div>
                   </div>
-                  <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
-                    {purchase.wastePercentage}% waste
-                  </span>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Raw Quantity</span>
-                    <span className="font-medium text-gray-800">{purchase.rawQuantity} {purchase.rawUnit}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Usable Quantity</span>
-                    <span className="font-medium text-green-600">{purchase.usableQuantity.toFixed(2)} {purchase.usableUnit}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Effective Cost</span>
-                    <span className="font-medium text-gray-800">MVR {purchase.effectiveCostPerUnit.toFixed(2)}/{purchase.usableUnit}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Total Cost</span>
-                    <span className="font-bold text-gray-900">MVR {purchase.totalCost.toFixed(2)}</span>
-                  </div>
-                </div>
 
-                <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                  <button 
-                    onClick={() => { setEditingPurchase(purchase); setShowModal(true); }} 
-                    className="flex-1 p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center gap-1"
-                  >
-                    <Edit className="w-4 h-4 text-gray-600" /> Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(purchase.id)} 
-                    className="flex-1 p-2 hover:bg-purple-50 rounded-lg transition-colors flex items-center justify-center gap-1"
-                  >
-                    <Trash2 className="w-4 h-4 text-purple-700" /> Delete
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Raw Quantity</span>
+                      <span className="font-medium text-gray-800">{purchase.rawQuantity} {purchase.rawUnit}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Usable Quantity</span>
+                      <span className={`font-medium ${isLowStock ? 'text-red-600' : 'text-green-600'}`}>
+                        {(purchase.remainingQuantity || purchase.usableQuantity).toFixed(2)} {purchase.usableUnit}
+                      </span>
+                      <span className="text-xs text-gray-500">({remainingPercentage.toFixed(1)}%)</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Effective Cost</span>
+                      <span className="font-medium text-gray-800">MVR {purchase.effectiveCostPerUnit.toFixed(2)}/{purchase.usableUnit}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Total Cost</span>
+                      <span className="font-bold text-gray-900">MVR {purchase.totalCost.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                    <button
+                      onClick={() => { setEditingPurchase(purchase); setShowModal(true); }}
+                      className="flex-1 p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center gap-1"
+                    >
+                      <Edit className="w-4 h-4 text-gray-600" /> Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(purchase.id)}
+                      className="flex-1 p-2 hover:bg-purple-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                    >
+                      <Trash2 className="w-4 h-4 text-purple-700" /> Delete
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
             {filteredPurchases.length === 0 && (
               <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-500">
                 No purchases found
