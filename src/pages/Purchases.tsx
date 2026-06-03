@@ -755,16 +755,22 @@ function PurchaseModal({
                 </label>
                 <select
                   value={formData.rawUnit}
-                  onChange={(e) => setFormData({ ...formData, rawUnit: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, rawUnit: e.target.value, usableUnit: e.target.value });
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   required
                 >
                   <option value="kg">kg</option>
                   <option value="g">g</option>
+                  <option value="mg">mg</option>
                   <option value="lb">lb</option>
+                  <option value="oz">oz</option>
                   <option value="pcs">pcs</option>
                   <option value="L">L</option>
                   <option value="mL">mL</option>
+                  <option value="ml">ml</option>
+                  <option value="kilo">kilo</option>
                 </select>
               </div>
             </div>
@@ -822,10 +828,14 @@ function PurchaseModal({
               >
                 <option value="kg">kg</option>
                 <option value="g">g</option>
+                <option value="mg">mg</option>
                 <option value="lb">lb</option>
+                <option value="oz">oz</option>
                 <option value="pcs">pcs</option>
                 <option value="L">L</option>
                 <option value="mL">mL</option>
+                <option value="ml">ml</option>
+                <option value="kilo">kilo</option>
               </select>
             </div>
             <div>
