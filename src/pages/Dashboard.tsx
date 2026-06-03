@@ -38,21 +38,29 @@ const getYTDDate = () => {
   return firstDayOfYear.toISOString().split('T')[0];
 };
 
+const getTodayDate = () => {
+  const now = new Date();
+  return now.toISOString().split('T')[0];
+};
+
 export default function Dashboard() {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
     totalSales: 0,
     salesMTD: 0,
     salesYTD: 0,
+    salesToday: 0,
     totalCollections: 0,
     collectionsMTD: 0,
     collectionsYTD: 0,
+    collectionsToday: 0,
     pendingPayments: 0,
     activeShops: 0,
     availableFunds: 0,
     totalPurchases: 0,
     purchasesMTD: 0,
     purchasesYTD: 0,
+    purchasesToday: 0,
     totalRecipeCost: 0,
     totalBatchCost: 0,
     totalBatchRevenue: 0,
@@ -61,10 +69,13 @@ export default function Dashboard() {
   });
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
+  const [dateFilter, setDateFilter] = useState<'today' | 'mtd' | 'ytd' | 'all' | 'custom'>('all');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [dateFilter, customStartDate, customEndDate]);
 
   const loadDashboardData = async () => {
     try {
@@ -134,19 +145,33 @@ export default function Dashboard() {
       const profit = totalBatchRevenue - totalBatchCost;
       const profitMargin = totalBatchRevenue > 0 ? (profit / totalBatchRevenue) * 100 : 0;
 
+      const todayDate = getTodayDate();
+      const salesToday = salesData
+        .filter(s => s.saleDate >= todayDate)
+        .reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+      const collectionsToday = collectionsData
+        .filter(c => c.collectionDate >= todayDate)
+        .reduce((sum, c) => sum + (c.amount || 0), 0);
+      const purchasesToday = purchasesData
+        .filter(p => p.purchaseDate >= todayDate)
+        .reduce((sum, p) => sum + (p.totalCost || 0), 0);
+
       setStats({
         totalSales,
         salesMTD,
         salesYTD,
+        salesToday,
         totalCollections,
         collectionsMTD,
         collectionsYTD,
+        collectionsToday,
         pendingPayments,
         activeShops,
         availableFunds,
         totalPurchases,
         purchasesMTD,
         purchasesYTD,
+        purchasesToday,
         totalRecipeCost,
         totalBatchCost,
         totalBatchRevenue,
@@ -191,21 +216,23 @@ export default function Dashboard() {
 
   const COLORS = ['#6B46C1', '#0F766E', '#eab308', '#22c55e', '#3b82f6'];
 
-  const StatCard = ({ 
-    title, 
-    value, 
-    mtd, 
+  const StatCard = ({
+    title,
+    value,
+    mtd,
     ytd,
-    icon: Icon, 
-    color, 
-    trend 
-  }: { 
-    title: string; 
-    value: string | number; 
+    today,
+    icon: Icon,
+    color,
+    trend
+  }: {
+    title: string;
+    value: string | number;
     mtd?: string | number;
     ytd?: string | number;
-    icon: any; 
-    color: string; 
+    today?: string | number;
+    icon: any;
+    color: string;
     trend?: string;
   }) => (
     <motion.div
@@ -226,8 +253,11 @@ export default function Dashboard() {
       </div>
       <h3 className="text-gray-600 text-sm mb-1">{title}</h3>
       <p className="text-2xl font-bold text-gray-800">{value}</p>
-      {(mtd !== undefined || ytd !== undefined) && (
+      {(mtd !== undefined || ytd !== undefined || today !== undefined) && (
         <div className="mt-2 space-y-1">
+          {today !== undefined && (
+            <p className="text-xs text-gray-500">Today: {typeof today === 'number' ? `MVR ${today.toLocaleString()}` : today}</p>
+          )}
           {mtd !== undefined && (
             <p className="text-xs text-gray-500">MTD: {typeof mtd === 'number' ? `MVR ${mtd.toLocaleString()}` : mtd}</p>
           )}
@@ -246,21 +276,99 @@ export default function Dashboard() {
         <p className="text-gray-600">Welcome back! Here's your business overview.</p>
       </div>
 
+      {/* Date Filter Selector */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-sm font-medium text-gray-700">Report Period:</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setDateFilter('today')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                dateFilter === 'today'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Today
+            </button>
+            <button
+              onClick={() => setDateFilter('mtd')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                dateFilter === 'mtd'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              MTD
+            </button>
+            <button
+              onClick={() => setDateFilter('ytd')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                dateFilter === 'ytd'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              YTD
+            </button>
+            <button
+              onClick={() => setDateFilter('all')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                dateFilter === 'all'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              All Time
+            </button>
+          </div>
+          {dateFilter === 'custom' && (
+            <div className="flex gap-2 items-center">
+              <input
+                type="date"
+                value={customStartDate}
+                onChange={(e) => setCustomStartDate(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+              <span className="text-gray-500">to</span>
+              <input
+                type="date"
+                value={customEndDate}
+                onChange={(e) => setCustomEndDate(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title={t.totalSales}
-          value={`MVR ${stats.totalSales.toLocaleString()}`}
+          value={`MVR ${
+            dateFilter === 'today' ? stats.salesToday :
+            dateFilter === 'mtd' ? stats.salesMTD :
+            dateFilter === 'ytd' ? stats.salesYTD :
+            stats.totalSales
+          }.toLocaleString()}`}
           mtd={stats.salesMTD}
           ytd={stats.salesYTD}
+          today={stats.salesToday}
           icon={DollarSign}
           color="bg-purple-600"
         />
         <StatCard
           title="Total Purchases"
-          value={`MVR ${stats.totalPurchases.toLocaleString()}`}
+          value={`MVR ${
+            dateFilter === 'today' ? stats.purchasesToday :
+            dateFilter === 'mtd' ? stats.purchasesMTD :
+            dateFilter === 'ytd' ? stats.purchasesYTD :
+            stats.totalPurchases
+          }.toLocaleString()}`}
           mtd={stats.purchasesMTD}
           ytd={stats.purchasesYTD}
+          today={stats.purchasesToday}
           icon={ShoppingCart}
           color="bg-blue-600"
         />
