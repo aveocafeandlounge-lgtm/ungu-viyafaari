@@ -43,6 +43,7 @@ export default function Sales() {
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<'date' | 'batch'>('date');
 
   // Load sales, batches, and shops from Firebase
   useEffect(() => {
@@ -103,12 +104,6 @@ export default function Sales() {
     }
   };
 
-  const filteredSales = sales.filter(sale =>
-    sale.saleNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sale.recipeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sale.shopName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const handleSave = async (saleData: Omit<Sale, 'id' | 'totalAmount'>) => {
     setLoading(true);
     try {
@@ -155,6 +150,21 @@ export default function Sales() {
       default: return 'bg-gray-100 text-gray-700';
     }
   };
+
+  const filteredSales = sales.filter(sale =>
+    sale.saleNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sale.batchNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sale.recipeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sale.shopName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const sortedSales = [...filteredSales].sort((a, b) => {
+    if (sortBy === 'batch') {
+      return a.batchNumber.localeCompare(b.batchNumber);
+    } else {
+      return new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime();
+    }
+  });
 
   return (
     <div className="space-y-6">
@@ -212,16 +222,32 @@ export default function Sales() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 ${isRTL ? 'left-auto right-3' : ''}`} />
-        <input
-          type="text"
-          placeholder="Search sales..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isRTL ? 'pr-10 pl-4' : ''}`}
-        />
+      {/* Search and Sort */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 ${isRTL ? 'left-auto right-3' : ''}`} />
+          <input
+            type="text"
+            placeholder="Search sales..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isRTL ? 'pr-10 pl-4' : ''}`}
+          />
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSortBy('date')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${sortBy === 'date' ? 'bg-purple-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            Sort by Date
+          </button>
+          <button
+            onClick={() => setSortBy('batch')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${sortBy === 'batch' ? 'bg-purple-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            Sort by Batch
+          </button>
+        </div>
       </div>
 
       {/* Sales List */}
@@ -232,8 +258,8 @@ export default function Sales() {
       ) : (
         <div className="space-y-4">
           {/* Desktop Table View */}
-          <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <table className="w-full">
+          <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+            <table className="w-full min-w-[1000px]">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sale #</th>
@@ -249,7 +275,7 @@ export default function Sales() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredSales.map((sale) => (
+                {sortedSales.map((sale) => (
                   <tr key={sale.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{sale.saleNumber}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">{sale.batchNumber}</td>
@@ -282,9 +308,9 @@ export default function Sales() {
                     </td>
                   </tr>
                 ))}
-                {filteredSales.length === 0 && (
+                {sortedSales.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={10} className="px-6 py-8 text-center text-gray-500">
                       No sales found
                     </td>
                   </tr>
@@ -295,7 +321,7 @@ export default function Sales() {
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-4">
-            {filteredSales.map((sale) => (
+            {sortedSales.map((sale) => (
               <motion.div
                 key={sale.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -355,7 +381,7 @@ export default function Sales() {
                 </div>
               </motion.div>
             ))}
-            {filteredSales.length === 0 && (
+            {sortedSales.length === 0 && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center text-gray-500">
                 No sales found
               </div>
