@@ -127,11 +127,11 @@ export default function Purchases() {
           p.id === editingPurchase.id ? { ...purchaseWithCalculations, id: editingPurchase.id } : p
         ));
       } else {
-        // Check if there's an existing purchase with same item name and same effective cost
-        const existingPurchase = purchases.find(p => 
-          p.itemName === purchaseData.itemName && 
-          p.usableUnit === purchaseData.usableUnit &&
-          Math.abs(p.effectiveCostPerUnit - effectiveCostPerUnit) < 0.01
+        // Check if there's an existing purchase with same item name and same price per unit
+        const existingPurchase = purchases.find(p =>
+          p.itemName === purchaseData.itemName &&
+          p.rawUnit === purchaseData.rawUnit &&
+          Math.abs(p.pricePerUnit - purchaseData.pricePerUnit) < 0.01
         );
 
         if (existingPurchase) {
@@ -139,15 +139,15 @@ export default function Purchases() {
           const updatedRawQuantity = existingPurchase.rawQuantity + purchaseData.rawQuantity;
           const updatedUsableQuantity = existingPurchase.usableQuantity + usableQuantity;
           const updatedTotalCost = existingPurchase.totalCost + totalCost;
-          
+
           await updateDoc(doc(db, 'purchases', existingPurchase.id), {
             rawQuantity: updatedRawQuantity,
             usableQuantity: updatedUsableQuantity,
             totalCost: updatedTotalCost,
           });
-          
+
           setPurchases(purchases.map(p =>
-            p.id === existingPurchase.id 
+            p.id === existingPurchase.id
               ? { ...p, rawQuantity: updatedRawQuantity, usableQuantity: updatedUsableQuantity, totalCost: updatedTotalCost }
               : p
           ));
