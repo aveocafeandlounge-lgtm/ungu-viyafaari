@@ -40,6 +40,7 @@ export default function Purchases() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [suppliers, setSuppliers] = useState<string[]>([]);
+  const [existingItemNames, setExistingItemNames] = useState<string[]>([]);
 
   // Load purchases from Firebase
   useEffect(() => {
@@ -54,10 +55,14 @@ export default function Purchases() {
         ...doc.data()
       })) as Purchase[];
       setPurchases(purchasesData);
-      
+
       // Extract unique suppliers
       const uniqueSuppliers = Array.from(new Set(purchasesData.map(p => p.supplier).filter(Boolean)));
       setSuppliers(uniqueSuppliers);
+
+      // Extract unique item names for autocomplete
+      const uniqueItemNames = Array.from(new Set(purchasesData.map(p => p.itemName).filter(Boolean)));
+      setExistingItemNames(uniqueItemNames);
     } catch (error) {
       console.error('Error loading purchases:', error);
     } finally {
@@ -401,6 +406,7 @@ export default function Purchases() {
           purchase={editingPurchase}
           categories={categories}
           suppliers={suppliers}
+          existingItemNames={existingItemNames}
           onSave={handleSave}
           onClose={() => { setShowModal(false); setEditingPurchase(null); }}
           isRTL={isRTL}
@@ -410,17 +416,19 @@ export default function Purchases() {
   );
 }
 
-function PurchaseModal({ 
-  purchase, 
-  categories, 
+function PurchaseModal({
+  purchase,
+  categories,
   suppliers,
-  onSave, 
-  onClose, 
-  isRTL 
-}: { 
+  existingItemNames,
+  onSave,
+  onClose,
+  isRTL
+}: {
   purchase: Purchase | null;
   categories: { value: string; label: string }[];
   suppliers: string[];
+  existingItemNames: string[];
   onSave: (data: Omit<Purchase, 'id' | 'usableQuantity' | 'effectiveCostPerUnit' | 'totalCost'>) => void;
   onClose: () => void;
   isRTL: boolean;
@@ -439,6 +447,8 @@ function PurchaseModal({
     supplier: purchase?.supplier || '',
     notes: purchase?.notes || '',
   });
+  const [showItemDropdown, setShowItemDropdown] = useState(false);
+  const [filteredItems, setFilteredItems] = useState<string[]>([]);
 
   const usableQuantity = calculateUsableQuantity(formData.rawQuantity, formData.wastePercentage);
   const totalCost = (formData.rawQuantity * formData.pricePerUnit) + formData.cuttingCharges;
@@ -466,6 +476,24 @@ function PurchaseModal({
     });
   };
 
+  const handleItemNameChange = (value: string) => {
+    setFormData({ ...formData, itemName: value });
+    if (value.length > 0) {
+      const filtered = existingItemNames.filter(item =>
+        item.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredItems(filtered);
+      setShowItemDropdown(true);
+    } else {
+      setShowItemDropdown(false);
+    }
+  };
+
+  const handleItemSelect = (itemName: string) => {
+    setFormData({ ...formData, itemName });
+    setShowItemDropdown(false);
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <motion.div
@@ -480,17 +508,41 @@ function PurchaseModal({
         </div>
         <div className="max-h-[70vh] overflow-y-auto">
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Item Name (English)
               </label>
               <input
                 type="text"
                 value={formData.itemName}
-                onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
+                onChange={(e) => handleItemNameChange(e.target.value)}
+                onFocus={() => {
+                  if (formData.itemName.length > 0) {
+                    const filtered = existingItemNames.filter(item =>
+                      item.toLowerCase().includes(formData.itemName.toLowerCase())
+                    );
+                    setFilteredItems(filtered);
+                    setShowItemDropdown(true);
+                  }
+                }}
+                onBlur={() => setTimeout(() => setShowItemDropdown(false), 200)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 required
+                autoComplete="off"
               />
+              {showItemDropdown && filteredItems.length > 0 && (
+                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {filteredItems.map((item, index) => (
+                    <div
+                      key={index}
+                      onClick={() => handleItemSelect(item)}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
