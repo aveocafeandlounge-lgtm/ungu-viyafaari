@@ -476,13 +476,13 @@ export default function Purchases() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">Usage History</h3>
                 <div className="space-y-2">
-                  {batches.filter(b => b.ingredientsUsed?.some((i: any) => i.purchaseId === selectedPurchase.id)).length === 0 ? (
+                  {batches.filter(b => b.ingredientsUsed?.some((i: any) => i.itemName === selectedPurchase.itemName)).length === 0 ? (
                     <p className="text-gray-500 text-center py-4">No batches have used this purchase yet</p>
                   ) : (
                     batches
-                      .filter(b => b.ingredientsUsed?.some((i: any) => i.purchaseId === selectedPurchase.id))
+                      .filter(b => b.ingredientsUsed?.some((i: any) => i.itemName === selectedPurchase.itemName))
                       .map((batch) => {
-                        const ingredientUsed = batch.ingredientsUsed?.find((i: any) => i.purchaseId === selectedPurchase.id);
+                        const ingredientUsed = batch.ingredientsUsed?.find((i: any) => i.itemName === selectedPurchase.itemName);
                         return (
                           <div key={batch.id} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
                             <div>
