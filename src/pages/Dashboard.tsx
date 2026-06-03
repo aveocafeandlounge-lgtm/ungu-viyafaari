@@ -347,11 +347,11 @@ export default function Dashboard() {
         <StatCard
           title={t.totalSales}
           value={`MVR ${
-            dateFilter === 'today' ? stats.salesToday :
+            (dateFilter === 'today' ? stats.salesToday :
             dateFilter === 'mtd' ? stats.salesMTD :
             dateFilter === 'ytd' ? stats.salesYTD :
-            stats.totalSales
-          }.toLocaleString()}`}
+            stats.totalSales).toLocaleString()
+          }`}
           mtd={stats.salesMTD}
           ytd={stats.salesYTD}
           today={stats.salesToday}
@@ -361,11 +361,11 @@ export default function Dashboard() {
         <StatCard
           title="Total Purchases"
           value={`MVR ${
-            dateFilter === 'today' ? stats.purchasesToday :
+            (dateFilter === 'today' ? stats.purchasesToday :
             dateFilter === 'mtd' ? stats.purchasesMTD :
             dateFilter === 'ytd' ? stats.purchasesYTD :
-            stats.totalPurchases
-          }.toLocaleString()}`}
+            stats.totalPurchases).toLocaleString()
+          }`}
           mtd={stats.purchasesMTD}
           ytd={stats.purchasesYTD}
           today={stats.purchasesToday}
