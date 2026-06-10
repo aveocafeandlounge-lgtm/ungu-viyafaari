@@ -70,6 +70,17 @@ export default function Sales() {
           batchDate: batch?.productionDate || '',
         } as Sale;
       });
+      // Ensure existing batches referenced by sales are marked inSales
+      try {
+        for (const sale of salesData) {
+          const batch = batchesData.find(b => b.id === sale.batchId);
+          if (batch && !batch.inSales) {
+            await updateDoc(doc(db, 'batches', batch.id), { inSales: true });
+          }
+        }
+      } catch (err) {
+        console.error('Error migrating batches inSales:', err);
+      }
       setSales(salesData);
     } catch (error) {
       console.error('Error loading sales:', error);
