@@ -482,11 +482,12 @@ function BatchModal({
   batch: Batch | null;
   recipes: any[];
   shops: any[];
-  onSave: (data: Omit<Batch, 'id' | 'status'>) => void;
+  onSave: (data: Omit<Batch, 'id' | 'status'>) => Promise<void>;
   onClose: () => void;
   t: any;
   existingBatches: Batch[];
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     batchNumber: batch?.batchNumber || `BATCH-${String(existingBatches.length + 1).padStart(3, '0')}`,
     recipeId: batch?.recipeId || '',
@@ -508,23 +509,31 @@ function BatchModal({
   const calculatedCost = recipeCost * Number(formData.quantity || 0);
   const calculatedRevenue = Number(formData.quantity || 0) * Number(formData.portionSellingPrice || 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      batchNumber: formData.batchNumber,
-      recipeId: formData.recipeId,
-      recipeName: formData.recipeName,
-      shopId: formData.shopId,
-      shopName: formData.shopName,
-      quantity: Number(formData.quantity),
-      remaining: Number(formData.quantity),
-      productionDate: formData.productionDate,
-      expiryDate: formData.expiryDate,
-      cost: calculatedCost,
-      portionSellingPrice: Number(formData.portionSellingPrice),
-      totalRevenue: calculatedRevenue,
-      ingredientsUsed: formData.ingredientsUsed,
-    });
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onSave({
+        batchNumber: formData.batchNumber,
+        recipeId: formData.recipeId,
+        recipeName: formData.recipeName,
+        shopId: formData.shopId,
+        shopName: formData.shopName,
+        quantity: Number(formData.quantity),
+        remaining: Number(formData.quantity),
+        productionDate: formData.productionDate,
+        expiryDate: formData.expiryDate,
+        cost: calculatedCost,
+        portionSellingPrice: Number(formData.portionSellingPrice),
+        totalRevenue: calculatedRevenue,
+        ingredientsUsed: formData.ingredientsUsed,
+      });
+    } catch (err) {
+      console.error('Error saving batch from modal:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -708,9 +717,10 @@ function BatchModal({
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors"
+              disabled={isSubmitting}
+              className={`flex-1 px-4 py-2 bg-purple-700 text-white rounded-lg transition-colors ${isSubmitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-purple-800'}`}
             >
-              Save
+              {isSubmitting ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>
