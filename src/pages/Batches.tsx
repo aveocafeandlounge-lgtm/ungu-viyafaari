@@ -63,6 +63,25 @@ export default function Batches() {
         ...doc.data()
       })) as Batch[];
       setBatches(batchesData);
+      // Also mark batches that already have sales as inSales (migrate existing data)
+      try {
+        const salesSnapshot = await getDocs(collection(db, 'sales'));
+        const soldBatchIds = new Set(salesSnapshot.docs.map(s => s.data().batchId));
+        const updated = await Promise.all(batchesData.map(async (b) => {
+          if (soldBatchIds.has(b.id) && !(b as any).inSales) {
+            try {
+              await updateDoc(doc(db, 'batches', b.id), { inSales: true });
+            } catch (err) {
+              console.error('Error updating batch inSales for', b.id, err);
+            }
+            return { ...b, inSales: true } as Batch & { inSales?: boolean };
+          }
+          return b;
+        }));
+        setBatches(updated as Batch[]);
+      } catch (err) {
+        console.error('Error migrating batches inSales during load:', err);
+      }
     } catch (error) {
       console.error('Error loading batches:', error);
     } finally {
