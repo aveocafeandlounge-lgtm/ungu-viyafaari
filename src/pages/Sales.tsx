@@ -117,6 +117,20 @@ export default function Sales() {
       } else {
         const docRef = await addDoc(collection(db, 'sales'), { ...saleData, totalAmount });
         setSales([...sales, { ...saleData, id: docRef.id, totalAmount }]);
+        // Mark the related batch as added to sales and update remaining quantity/status
+        try {
+          const batch = batches.find(b => b.id === saleData.batchId);
+          if (batch) {
+            const currentRemaining = Number(batch.remaining ?? batch.quantity ?? 0);
+            const newRemaining = Math.max(0, currentRemaining - Number(saleData.quantity || 0));
+            const newStatus = newRemaining === 0 ? 'expired' : (newRemaining < (batch.quantity || 0) * 0.2 ? 'low-stock' : 'active');
+            await updateDoc(doc(db, 'batches', batch.id), { remaining: newRemaining, inSales: true, status: newStatus });
+            // Update local state
+            setBatches(prev => prev.map(b => b.id === batch.id ? { ...b, remaining: newRemaining, inSales: true, status: newStatus } : b));
+          }
+        } catch (err) {
+          console.error('Error updating batch after sale:', err);
+        }
       }
       
       setShowModal(false);
@@ -160,6 +174,12 @@ export default function Sales() {
 
   const sortedSales = [...filteredSales].sort((a, b) => {
     if (sortBy === 'batch') {
+      // Sort by batch date, then by batch number
+      const dateA = a.batchDate ? new Date(a.batchDate).getTime() : 0;
+      const dateB = b.batchDate ? new Date(b.batchDate).getTime() : 0;
+      if (dateA !== dateB) {
+        return dateB - dateA; // Newest batch date first
+      }
       return a.batchNumber.localeCompare(b.batchNumber);
     } else {
       return new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime();
