@@ -532,9 +532,11 @@ function SaleModal({
                   batchNumber: selectedBatch?.batchNumber || '',
                   recipeId: selectedBatch?.recipeId || '',
                   recipeName: selectedBatch?.recipeName || '',
+                  shopId: selectedBatch?.shopId || formData.shopId,
+                  shopName: selectedBatch?.shopName || formData.shopName,
                   saleDate: selectedBatch?.productionDate || formData.saleDate,
                   unitPrice: (selectedBatch?.portionSellingPrice != null) ? String(selectedBatch.portionSellingPrice) : formData.unitPrice,
-                  quantity: formData.quantity || '1',
+                  quantity: formData.quantity || String(selectedBatch?.remaining ?? 1),
                 });
               }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
