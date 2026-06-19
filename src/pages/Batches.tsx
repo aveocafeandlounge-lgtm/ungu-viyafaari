@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Plus, 
   Search, 
@@ -48,16 +49,20 @@ export default function Batches() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const { user, isAdmin, isSuperAdmin } = useAuth();
+
   // Load batches, recipes, and shops from Firebase
   useEffect(() => {
     loadBatches();
     loadRecipes();
     loadShops();
-  }, []);
+  }, [user, isAdmin, isSuperAdmin]);
 
   const loadBatches = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'batches'));
+      if (!user) return;
+      const batchesRef = isAdmin || isSuperAdmin ? collection(db, 'batches') : query(collection(db, 'batches'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(batchesRef);
       const batchesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -65,7 +70,8 @@ export default function Batches() {
       setBatches(batchesData);
       // Also mark batches that already have sales as inSales (migrate existing data)
       try {
-        const salesSnapshot = await getDocs(collection(db, 'sales'));
+        const salesRef = isAdmin || isSuperAdmin ? collection(db, 'sales') : query(collection(db, 'sales'), where('owner', '==', user.uid));
+        const salesSnapshot = await getDocs(salesRef);
         const soldBatchIds = new Set(salesSnapshot.docs.map(s => s.data().batchId));
         const updated = await Promise.all(batchesData.map(async (b) => {
           if (soldBatchIds.has(b.id) && !(b as any).inSales) {
@@ -91,7 +97,9 @@ export default function Batches() {
 
   const loadRecipes = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'recipes'));
+      if (!user) return;
+      const recipesRef = isAdmin || isSuperAdmin ? collection(db, 'recipes') : query(collection(db, 'recipes'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(recipesRef);
       const recipesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -104,7 +112,9 @@ export default function Batches() {
 
   const loadShops = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'shops'));
+      if (!user) return;
+      const shopsRef = isAdmin || isSuperAdmin ? collection(db, 'shops') : query(collection(db, 'shops'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(shopsRef);
       const shopsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -129,7 +139,9 @@ export default function Batches() {
       // Deduct inventory from purchases when creating a new batch
       if (!editingBatch && batchData.ingredientsUsed && batchData.ingredientsUsed.length > 0) {
         for (const ingredient of batchData.ingredientsUsed) {
-          const purchaseQuery = query(collection(db, 'purchases'), where('itemName', '==', ingredient.itemName));
+          const purchaseQuery = isAdmin || isSuperAdmin
+            ? query(collection(db, 'purchases'), where('itemName', '==', ingredient.itemName))
+            : query(collection(db, 'purchases'), where('itemName', '==', ingredient.itemName), where('owner', '==', user?.uid));
           const purchaseSnapshot = await getDocs(purchaseQuery);
           
           if (!purchaseSnapshot.empty) {
@@ -155,7 +167,7 @@ export default function Batches() {
           b.id === editingBatch.id ? { ...batchData, id: editingBatch.id, status } : b
         ));
       } else {
-        const docRef = await addDoc(collection(db, 'batches'), { ...batchData, status });
+        const docRef = await addDoc(collection(db, 'batches'), { ...batchData, status, owner: user?.uid });
         setBatches([...batches, { ...batchData, id: docRef.id, status }]);
       }
       

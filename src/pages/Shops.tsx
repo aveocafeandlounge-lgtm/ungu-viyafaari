@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Plus, 
   Search, 
@@ -36,14 +37,18 @@ export default function Shops() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const { user, isAdmin, isSuperAdmin } = useAuth();
+
   // Load shops from Firebase
   useEffect(() => {
     loadShops();
-  }, []);
+  }, [user]);
 
   const loadShops = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'shops'));
+      if (!user) return;
+      const shopsRef = isAdmin || isSuperAdmin ? collection(db, 'shops') : query(collection(db, 'shops'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(shopsRef);
       const shopsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -71,7 +76,7 @@ export default function Shops() {
             : s
         ));
       } else {
-        const docRef = await addDoc(collection(db, 'shops'), { ...shopData, totalPurchases: 0, outstandingBalance: 0 });
+        const docRef = await addDoc(collection(db, 'shops'), { ...shopData, totalPurchases: 0, outstandingBalance: 0, owner: user?.uid });
         setShops([...shops, { ...shopData, id: docRef.id, totalPurchases: 0, outstandingBalance: 0 }]);
       }
       

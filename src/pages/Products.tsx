@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Plus, 
   Search, 
@@ -43,16 +44,20 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const { user, isAdmin, isSuperAdmin } = useAuth();
+
   // Load products, purchases, and recipes from Firebase
   useEffect(() => {
     loadProducts();
     loadPurchases();
     loadRecipes();
-  }, []);
+  }, [user]);
 
   const loadProducts = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'products'));
+      if (!user) return;
+      const productsRef = isAdmin || isSuperAdmin ? collection(db, 'products') : query(collection(db, 'products'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(productsRef);
       const productsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -67,7 +72,9 @@ export default function Products() {
 
   const loadPurchases = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'purchases'));
+      if (!user) return;
+      const purchasesRef = isAdmin || isSuperAdmin ? collection(db, 'purchases') : query(collection(db, 'purchases'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(purchasesRef);
       const purchasesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -80,7 +87,9 @@ export default function Products() {
 
   const loadRecipes = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'recipes'));
+      if (!user) return;
+      const recipesRef = isAdmin || isSuperAdmin ? collection(db, 'recipes') : query(collection(db, 'recipes'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(recipesRef);
       const recipesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -113,7 +122,7 @@ export default function Products() {
           p.id === editingProduct.id ? { ...productData, id: editingProduct.id } : p
         ));
       } else {
-        const docRef = await addDoc(collection(db, 'products'), productData);
+        const docRef = await addDoc(collection(db, 'products'), { ...productData, owner: user?.uid });
         setProducts([...products, { ...productData, id: docRef.id }]);
       }
       

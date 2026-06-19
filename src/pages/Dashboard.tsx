@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   DollarSign, 
   ShoppingCart, 
@@ -72,18 +73,25 @@ export default function Dashboard() {
   const [dateFilter, setDateFilter] = useState<'today' | 'mtd' | 'ytd' | 'all' | 'custom'>('all');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
+  const [usersSummary, setUsersSummary] = useState<any[]>([]);
+
+  const { user, loading: authLoading, isAdmin, isSuperAdmin } = useAuth();
 
   useEffect(() => {
     loadDashboardData();
-  }, [dateFilter, customStartDate, customEndDate]);
+  }, [dateFilter, customStartDate, customEndDate, user]);
 
   const loadDashboardData = async () => {
     try {
       const mtdDate = getMTDDate();
       const ytdDate = getYTDDate();
 
+      if (!user) return;
+      const canViewAll = isAdmin || isSuperAdmin;
+
       // Load sales
-      const salesSnapshot = await getDocs(collection(db, 'sales'));
+      const salesRef = canViewAll ? collection(db, 'sales') : query(collection(db, 'sales'), where('owner', '==', user.uid));
+      const salesSnapshot = await getDocs(salesRef);
       const salesData = salesSnapshot.docs.map(doc => doc.data());
       const totalSales = salesData.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
       const salesMTD = salesData
@@ -97,7 +105,8 @@ export default function Dashboard() {
         .reduce((sum, s) => sum + ((s.totalAmount || 0) - (s.paidAmount || 0)), 0);
 
       // Load collections
-      const collectionsSnapshot = await getDocs(collection(db, 'collections'));
+      const collectionsRef = canViewAll ? collection(db, 'collections') : query(collection(db, 'collections'), where('owner', '==', user.uid));
+      const collectionsSnapshot = await getDocs(collectionsRef);
       const collectionsData = collectionsSnapshot.docs.map(doc => doc.data());
       const totalCollections = collectionsData.reduce((sum, c) => sum + (c.amount || 0), 0);
       const collectionsMTD = collectionsData
@@ -108,16 +117,19 @@ export default function Dashboard() {
         .reduce((sum, c) => sum + (c.amount || 0), 0);
 
       // Load shops
-      const shopsSnapshot = await getDocs(collection(db, 'shops'));
+      const shopsRef = canViewAll ? collection(db, 'shops') : query(collection(db, 'shops'), where('owner', '==', user.uid));
+      const shopsSnapshot = await getDocs(shopsRef);
       const activeShops = shopsSnapshot.size;
 
       // Load money transactions
-      const moneySnapshot = await getDocs(collection(db, 'money'));
+      const moneyRef = canViewAll ? collection(db, 'money') : query(collection(db, 'money'), where('owner', '==', user.uid));
+      const moneySnapshot = await getDocs(moneyRef);
       const moneyData = moneySnapshot.docs.map(doc => doc.data());
       const availableFunds = moneyData.reduce((sum, m) => sum + (m.amount || 0), 0);
 
       // Load purchases
-      const purchasesSnapshot = await getDocs(collection(db, 'purchases'));
+      const purchasesRef = canViewAll ? collection(db, 'purchases') : query(collection(db, 'purchases'), where('owner', '==', user.uid));
+      const purchasesSnapshot = await getDocs(purchasesRef);
       const purchasesData = purchasesSnapshot.docs.map(doc => doc.data());
       const totalPurchases = purchasesData.reduce((sum, p) => sum + (p.totalCost || 0), 0);
       const purchasesMTD = purchasesData
@@ -128,7 +140,8 @@ export default function Dashboard() {
         .reduce((sum, p) => sum + (p.totalCost || 0), 0);
 
       // Load recipes
-      const recipesSnapshot = await getDocs(collection(db, 'recipes'));
+      const recipesRef = canViewAll ? collection(db, 'recipes') : query(collection(db, 'recipes'), where('owner', '==', user.uid));
+      const recipesSnapshot = await getDocs(recipesRef);
       const recipesData = recipesSnapshot.docs.map(doc => doc.data());
       const totalRecipeCost = recipesData.reduce((sum, r) => {
         const ingredientsCost = r.ingredients?.reduce((is: number, i: any) => is + (i.price || 0), 0) || 0;
@@ -136,7 +149,8 @@ export default function Dashboard() {
       }, 0);
 
       // Load batches
-      const batchesSnapshot = await getDocs(collection(db, 'batches'));
+      const batchesRef = canViewAll ? collection(db, 'batches') : query(collection(db, 'batches'), where('owner', '==', user.uid));
+      const batchesSnapshot = await getDocs(batchesRef);
       const batchesData = batchesSnapshot.docs.map(doc => doc.data());
       const totalBatchCost = batchesData.reduce((sum, b) => sum + (b.cost || 0), 0);
       const totalBatchRevenue = batchesData.reduce((sum, b) => sum + (b.totalRevenue || 0), 0);
@@ -178,6 +192,49 @@ export default function Dashboard() {
         profit,
         profitMargin,
       });
+
+      // If admin, load per-user summaries
+      if (canViewAll) {
+        try {
+          const usersSnap = await getDocs(collection(db, 'users'));
+          const users = usersSnap.docs.map(d => ({ uid: d.id, ...(d.data() || {}) }));
+
+          const summaries = await Promise.all(users.map(async (u) => {
+            const [productsSnap, purchasesSnap, recipesSnap, batchesSnap, salesSnap, shopsSnap, collectionsSnap, moneySnap] = await Promise.all([
+              getDocs(query(collection(db, 'products'), where('owner', '==', u.uid))),
+              getDocs(query(collection(db, 'purchases'), where('owner', '==', u.uid))),
+              getDocs(query(collection(db, 'recipes'), where('owner', '==', u.uid))),
+              getDocs(query(collection(db, 'batches'), where('owner', '==', u.uid))),
+              getDocs(query(collection(db, 'sales'), where('owner', '==', u.uid))),
+              getDocs(query(collection(db, 'shops'), where('owner', '==', u.uid))),
+              getDocs(query(collection(db, 'collections'), where('owner', '==', u.uid))),
+              getDocs(query(collection(db, 'money'), where('owner', '==', u.uid))),
+            ]);
+
+            return {
+              uid: u.uid,
+              email: u.email || '',
+              displayName: u.fullName || u.displayName || '',
+              counts: {
+                products: productsSnap.size,
+                purchases: purchasesSnap.size,
+                recipes: recipesSnap.size,
+                batches: batchesSnap.size,
+                sales: salesSnap.size,
+                shops: shopsSnap.size,
+                collections: collectionsSnap.size,
+                money: moneySnap.size,
+              }
+            };
+          }));
+
+          setUsersSummary(summaries);
+        } catch (err) {
+          console.error('Error loading users summary:', err);
+        }
+      } else {
+        setUsersSummary([]);
+      }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     }
@@ -186,11 +243,13 @@ export default function Dashboard() {
   const handleTopUp = async () => {
     if (!topUpAmount) return;
     try {
+      if (!user) return;
       await addDoc(collection(db, 'money'), {
         amount: Number(topUpAmount),
         type: 'top-up',
         date: new Date().toISOString(),
         notes: 'Personal money top-up for inventory',
+        owner: user.uid,
       });
       setTopUpAmount('');
       setShowTopUpModal(false);
@@ -542,6 +601,45 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </motion.div>
       </div>
+
+      {/* Per-user summary for admins */}
+      {(isAdmin || isSuperAdmin) && usersSummary.length > 0 && (
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Users Summary</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="text-xs text-gray-500 uppercase">
+                <tr>
+                  <th className="px-3 py-2">User</th>
+                  <th className="px-3 py-2">Products</th>
+                  <th className="px-3 py-2">Purchases</th>
+                  <th className="px-3 py-2">Recipes</th>
+                  <th className="px-3 py-2">Batches</th>
+                  <th className="px-3 py-2">Sales</th>
+                  <th className="px-3 py-2">Shops</th>
+                  <th className="px-3 py-2">Collections</th>
+                  <th className="px-3 py-2">Money Txns</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usersSummary.map((u) => (
+                  <tr key={u.uid} className="border-t">
+                    <td className="px-3 py-2">{u.displayName || u.email}</td>
+                    <td className="px-3 py-2">{u.counts.products}</td>
+                    <td className="px-3 py-2">{u.counts.purchases}</td>
+                    <td className="px-3 py-2">{u.counts.recipes}</td>
+                    <td className="px-3 py-2">{u.counts.batches}</td>
+                    <td className="px-3 py-2">{u.counts.sales}</td>
+                    <td className="px-3 py-2">{u.counts.shops}</td>
+                    <td className="px-3 py-2">{u.counts.collections}</td>
+                    <td className="px-3 py-2">{u.counts.money}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Top Up Modal */}
       {showTopUpModal && (

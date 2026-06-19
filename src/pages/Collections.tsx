@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Plus, 
   Search, 
@@ -49,15 +50,19 @@ export default function Collections() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const { user, isAdmin, isSuperAdmin } = useAuth();
+
   // Load collections and sales from Firebase
   useEffect(() => {
     loadCollections();
     loadSales();
-  }, []);
+  }, [user]);
 
   const loadCollections = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'collections'));
+      if (!user) return;
+      const collectionsRef = isAdmin || isSuperAdmin ? collection(db, 'collections') : query(collection(db, 'collections'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(collectionsRef);
       const collectionsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -72,7 +77,9 @@ export default function Collections() {
 
   const loadSales = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'sales'));
+      if (!user) return;
+      const salesRef = isAdmin || isSuperAdmin ? collection(db, 'sales') : query(collection(db, 'sales'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(salesRef);
       const salesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -97,7 +104,7 @@ export default function Collections() {
           c.id === editingCollection.id ? { ...collectionData, id: editingCollection.id } : c
         ));
       } else {
-        const docRef = await addDoc(collection(db, 'collections'), collectionData);
+        const docRef = await addDoc(collection(db, 'collections'), { ...collectionData, owner: user?.uid });
         setCollections([...collections, { ...collectionData, id: docRef.id }]);
       }
 

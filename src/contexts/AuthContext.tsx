@@ -25,6 +25,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<void>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,9 +85,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const isAdmin = user?.role === 'admin';
+  const isSuperAdmin = user?.email === 'retey.ay@hotmail.com';
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, isAdmin, isSuperAdmin }}>
       {children}
     </AuthContext.Provider>
   );

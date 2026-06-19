@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Plus, 
   Search, 
@@ -44,15 +45,20 @@ export default function Recipes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const { user, isAdmin, isSuperAdmin } = useAuth();
+
   // Load recipes and purchases from Firebase
   useEffect(() => {
     loadRecipes();
     loadPurchases();
-  }, []);
+  }, [user]);
 
   const loadRecipes = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'recipes'));
+      if (!user) return;
+      const canViewAll = isAdmin || isSuperAdmin;
+      const recipesRef = canViewAll ? collection(db, 'recipes') : query(collection(db, 'recipes'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(recipesRef);
       const recipesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -67,7 +73,9 @@ export default function Recipes() {
 
   const loadPurchases = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'purchases'));
+      if (!user) return;
+      const purchasesRef = isAdmin || isSuperAdmin ? collection(db, 'purchases') : query(collection(db, 'purchases'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(purchasesRef);
       const purchasesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -116,8 +124,8 @@ export default function Recipes() {
           r.id === editingRecipe.id ? { ...recipeData, id: editingRecipe.id } : r
         ));
       } else {
-        const docRef = await addDoc(collection(db, 'recipes'), recipeData);
-        setRecipes([...recipes, { ...recipeData, id: docRef.id }]);
+          const docRef = await addDoc(collection(db, 'recipes'), { ...recipeData, owner: user?.uid });
+          setRecipes([...recipes, { ...recipeData, id: docRef.id }]);
       }
       
       setShowModal(false);

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   FileText, 
   Download, 
@@ -20,17 +21,23 @@ export default function Reports() {
   const [reportData, setReportData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
+  const { user, isAdmin, isSuperAdmin } = useAuth();
+
   useEffect(() => {
     loadReportData();
-  }, [selectedReport, dateRange]);
+  }, [selectedReport, dateRange, user]);
 
   const loadReportData = async () => {
     setLoading(true);
     try {
       let data = null;
       
+      if (!user) return setReportData(null);
+      const canViewAll = isAdmin || isSuperAdmin;
+
       if (selectedReport === 'sales') {
-        const salesSnapshot = await getDocs(collection(db, 'sales'));
+        const salesRef = canViewAll ? collection(db, 'sales') : query(collection(db, 'sales'), where('owner', '==', user.uid));
+        const salesSnapshot = await getDocs(salesRef);
         const salesData = salesSnapshot.docs.map(doc => doc.data());
         data = {
           totalSales: salesData.reduce((sum, s) => sum + (s.totalAmount || 0), 0),
@@ -40,7 +47,8 @@ export default function Reports() {
           sales: salesData,
         };
       } else if (selectedReport === 'collections') {
-        const collectionsSnapshot = await getDocs(collection(db, 'collections'));
+        const collectionsRef = canViewAll ? collection(db, 'collections') : query(collection(db, 'collections'), where('owner', '==', user.uid));
+        const collectionsSnapshot = await getDocs(collectionsRef);
         const collectionsData = collectionsSnapshot.docs.map(doc => doc.data());
         data = {
           totalCollected: collectionsData.reduce((sum, c) => sum + (c.amount || 0), 0),
@@ -48,7 +56,8 @@ export default function Reports() {
           collections: collectionsData,
         };
       } else if (selectedReport === 'inventory') {
-        const purchasesSnapshot = await getDocs(collection(db, 'purchases'));
+        const purchasesRef = canViewAll ? collection(db, 'purchases') : query(collection(db, 'purchases'), where('owner', '==', user.uid));
+        const purchasesSnapshot = await getDocs(purchasesRef);
         const purchasesData = purchasesSnapshot.docs.map(doc => doc.data());
         data = {
           totalInventory: purchasesData.reduce((sum, p) => sum + (p.usableQuantity || 0), 0),
@@ -57,9 +66,13 @@ export default function Reports() {
           purchases: purchasesData,
         };
       } else if (selectedReport === 'profit') {
-        const salesSnapshot = await getDocs(collection(db, 'sales'));
-        const collectionsSnapshot = await getDocs(collection(db, 'collections'));
-        const purchasesSnapshot = await getDocs(collection(db, 'purchases'));
+        const salesRef = canViewAll ? collection(db, 'sales') : query(collection(db, 'sales'), where('owner', '==', user.uid));
+        const collectionsRef = canViewAll ? collection(db, 'collections') : query(collection(db, 'collections'), where('owner', '==', user.uid));
+        const purchasesRef = canViewAll ? collection(db, 'purchases') : query(collection(db, 'purchases'), where('owner', '==', user.uid));
+        
+        const salesSnapshot = await getDocs(salesRef);
+        const collectionsSnapshot = await getDocs(collectionsRef);
+        const purchasesSnapshot = await getDocs(purchasesRef);
         
         const salesData = salesSnapshot.docs.map(doc => doc.data());
         const collectionsData = collectionsSnapshot.docs.map(doc => doc.data());

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Plus, 
   Search, 
@@ -45,17 +46,23 @@ export default function Sales() {
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'date' | 'batch'>('date');
 
+  const { user, isAdmin, isSuperAdmin } = useAuth();
+
   // Load sales, batches, and shops from Firebase
   useEffect(() => {
     loadSales();
     loadBatches();
     loadShops();
-  }, []);
+  }, [user]);
 
   const loadSales = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'sales'));
-      const batchesSnapshot = await getDocs(collection(db, 'batches'));
+      if (!user) return;
+      const canViewAll = isAdmin || isSuperAdmin;
+      const salesRef = canViewAll ? collection(db, 'sales') : query(collection(db, 'sales'), where('owner', '==', user.uid));
+      const batchesRef = canViewAll ? collection(db, 'batches') : query(collection(db, 'batches'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(salesRef);
+      const batchesSnapshot = await getDocs(batchesRef);
       const batchesData = batchesSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -92,7 +99,9 @@ export default function Sales() {
 
   const loadBatches = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'batches'));
+      if (!user) return;
+      const batchesRef = isAdmin || isSuperAdmin ? collection(db, 'batches') : query(collection(db, 'batches'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(batchesRef);
       const batchesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -105,7 +114,9 @@ export default function Sales() {
 
   const loadShops = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'shops'));
+      if (!user) return;
+      const shopsRef = isAdmin || isSuperAdmin ? collection(db, 'shops') : query(collection(db, 'shops'), where('owner', '==', user.uid));
+      const querySnapshot = await getDocs(shopsRef);
       const shopsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -127,7 +138,7 @@ export default function Sales() {
           s.id === editingSale.id ? { ...saleData, id: editingSale.id, totalAmount } : s
         ));
       } else {
-        const docRef = await addDoc(collection(db, 'sales'), { ...saleData, totalAmount });
+        const docRef = await addDoc(collection(db, 'sales'), { ...saleData, totalAmount, owner: user?.uid });
         setSales([...sales, { ...saleData, id: docRef.id, totalAmount }]);
         // Mark the related batch as added to sales and update remaining quantity/status
         try {
