@@ -8,8 +8,10 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   process.exit(1);
 }
 
+const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+const saJson = JSON.parse(fs.readFileSync(saPath, 'utf8'));
 admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
+  credential: admin.credential.cert(saJson),
 });
 
 const db = admin.firestore();

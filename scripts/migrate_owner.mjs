@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import admin from 'firebase-admin';
+import fs from 'fs';
 
 function getArg(name) {
   const idx = process.argv.indexOf(name);
@@ -27,8 +28,10 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   process.exit(1);
 }
 
+const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+const saJson = JSON.parse(fs.readFileSync(saPath, 'utf8'));
 admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
+  credential: admin.credential.cert(saJson),
 });
 
 const auth = admin.auth();
