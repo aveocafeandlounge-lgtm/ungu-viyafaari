@@ -11,6 +11,7 @@ const fromUid = getArg('--fromUid');
 const toUid = getArg('--toUid');
 const fromEmail = getArg('--fromEmail');
 const toEmail = getArg('--toEmail');
+const dryRun = process.argv.includes('--dry-run') || process.argv.includes('-n');
 
 if (!fromUid && !fromEmail) {
   console.error('Provide --fromUid <UID> or --fromEmail <email>');
@@ -51,25 +52,28 @@ if (!from || !to) {
 }
 
 console.log(`Migrating owner from ${from} -> ${to}`);
+if (dryRun) console.log('Running in dry-run mode: no documents will be updated.');
 
 const collections = [
   'products','purchases','recipes','batches','sales','shops','collections','money','reports','visitors'
 ];
 
 for (const col of collections) {
-  try {
-    const snap = await db.collection(col).where('owner', '==', from).get();
-    console.log(`Collection ${col}: found ${snap.size} documents to migrate`);
-    let i = 0;
-    for (const doc of snap.docs) {
-      await doc.ref.update({ owner: to });
-      i++;
-      if (i % 200 === 0) console.log(`  migrated ${i} docs in ${col}`);
+    try {
+      const snap = await db.collection(col).where('owner', '==', from).get();
+      console.log(`Collection ${col}: found ${snap.size} documents to migrate`);
+      let i = 0;
+      for (const doc of snap.docs) {
+        if (!dryRun) {
+          await doc.ref.update({ owner: to });
+        }
+        i++;
+        if (i % 200 === 0) console.log(`  processed ${i} docs in ${col}`);
+      }
+      console.log(`  processed ${i} docs in ${col}`);
+    } catch (err) {
+      console.error(`Error migrating collection ${col}:`, err.message || err);
     }
-    console.log(`  migrated ${i} docs in ${col}`);
-  } catch (err) {
-    console.error(`Error migrating collection ${col}:`, err.message || err);
-  }
 }
 
 console.log('Migration complete.');
