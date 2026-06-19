@@ -1,5 +1,8 @@
 #!/usr/bin/env node
-import admin from 'firebase-admin';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import * as adminNS from 'firebase-admin';
+const admin = adminNS.default || adminNS;
 import fs from 'fs';
 import path from 'path';
 
@@ -10,11 +13,11 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 
 const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 const saJson = JSON.parse(fs.readFileSync(saPath, 'utf8'));
-admin.initializeApp({
-  credential: admin.credential.cert(saJson),
+initializeApp({
+  credential: cert(saJson),
 });
 
-const db = admin.firestore();
+const db = getFirestore();
 const outDir = path.resolve(process.cwd(), 'exports');
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 

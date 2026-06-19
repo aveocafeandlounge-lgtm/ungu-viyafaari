@@ -1,5 +1,9 @@
 #!/usr/bin/env node
-import admin from 'firebase-admin';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
+import * as adminNS from 'firebase-admin';
+const admin = adminNS.default || adminNS;
 import fs from 'fs';
 
 function getArg(name) {
@@ -30,12 +34,12 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 
 const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 const saJson = JSON.parse(fs.readFileSync(saPath, 'utf8'));
-admin.initializeApp({
-  credential: admin.credential.cert(saJson),
+initializeApp({
+  credential: cert(saJson),
 });
 
-const auth = admin.auth();
-const db = admin.firestore();
+const auth = getAuth();
+const db = getFirestore();
 
 async function resolveUid({ uid, email }) {
   if (uid) return uid;
