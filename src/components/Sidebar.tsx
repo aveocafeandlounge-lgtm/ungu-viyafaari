@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -35,6 +36,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  const { isSuperAdmin } = useAuth();
+
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: t.dashboard },
     { path: '/shops', icon: Store, label: t.shops },
@@ -46,6 +49,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     { path: '/reports', icon: BarChart3, label: t.reports },
     { path: '/settings', icon: Settings, label: t.settings },
   ];
+
+  // Add admin-only pages for super-admin
+  if (isSuperAdmin) {
+    navItems.splice(navItems.length - 1, 0, { path: '/users', icon: BarChart3, label: 'Users' });
+    navItems.splice(navItems.length - 1, 0, { path: '/visitors', icon: BarChart3, label: 'Visitors' });
+  }
 
   return (
     <>
