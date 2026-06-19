@@ -15,7 +15,7 @@ export default function Users() {
       setLoading(true);
       try {
         const usersSnap = await getDocs(collection(db, 'users'));
-        const docs = usersSnap.docs.map(d => ({ uid: d.id, ...(d.data() || {}) }));
+        const docs = usersSnap.docs.map(d => ({ uid: d.id, ...((d.data() as any) || {}) }));
 
         // For each user compute basic counts
         const summaries = await Promise.all(docs.map(async (u) => {

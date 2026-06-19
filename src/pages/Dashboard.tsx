@@ -75,7 +75,7 @@ export default function Dashboard() {
   const [customEndDate, setCustomEndDate] = useState('');
   const [usersSummary, setUsersSummary] = useState<any[]>([]);
 
-  const { user, loading: authLoading, isAdmin, isSuperAdmin } = useAuth();
+  const { user, isAdmin, isSuperAdmin } = useAuth();
 
   useEffect(() => {
     loadDashboardData();
@@ -197,7 +197,7 @@ export default function Dashboard() {
       if (canViewAll) {
         try {
           const usersSnap = await getDocs(collection(db, 'users'));
-          const users = usersSnap.docs.map(d => ({ uid: d.id, ...(d.data() || {}) }));
+          const users = usersSnap.docs.map(d => ({ uid: d.id, ...((d.data() as any) || {}) }));
 
           const summaries = await Promise.all(users.map(async (u) => {
             const [productsSnap, purchasesSnap, recipesSnap, batchesSnap, salesSnap, shopsSnap, collectionsSnap, moneySnap] = await Promise.all([
