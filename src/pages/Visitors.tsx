@@ -9,7 +9,7 @@ export default function Visitors() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAdmin && !isSuperAdmin) return;
+    if (!isSuperAdmin) return;
 
     const load = async () => {
       setLoading(true);
@@ -29,7 +29,7 @@ export default function Visitors() {
     load();
   }, [isAdmin, isSuperAdmin]);
 
-  if (!isAdmin && !isSuperAdmin) {
+  if (!isSuperAdmin) {
     return <div className="p-6">You do not have permission to view this page.</div>;
   }
 
