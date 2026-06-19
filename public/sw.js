@@ -3,6 +3,7 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/offline.html',
 ];
 
 self.addEventListener('install', (event) => {
@@ -19,7 +20,13 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           return response;
         }
-        return fetch(event.request);
+        return fetch(event.request).catch(() => {
+          // If request fails (network error), return a fallback for navigations
+          if (event.request.mode === 'navigate') {
+            return caches.match('/offline.html');
+          }
+          return new Response('Network error', { status: 408, statusText: 'Network error' });
+        });
       })
   );
 });
