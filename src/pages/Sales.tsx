@@ -211,18 +211,29 @@ export default function Sales() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Sales</h1>
-          <p className="text-gray-600">Track sales to shops</p>
+      <div className="flex flex-col lg:flex-row items-start gap-8">
+        <div className="flex-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800 mb-2">Sales</h1>
+              <p className="text-gray-600">Track sales to shops</p>
+            </div>
+            <button
+              onClick={() => { setEditingSale(null); setShowModal(true); }}
+              className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
+            >
+              <Plus className="w-5 h-5" />
+              Add Sale
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => { setEditingSale(null); setShowModal(true); }}
-          className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="hidden lg:block w-80"
         >
-          <Plus className="w-5 h-5" />
-          Add Sale
-        </button>
+          <img src="/storyset/Eco%20shopping-pana.svg" alt="Sales Illustration" className="w-full" />
+        </motion.div>
       </div>
 
       {/* Stats Cards */}

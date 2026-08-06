@@ -330,9 +330,18 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.dashboard}</h1>
-        <p className="text-gray-600">Welcome back! Here's your business overview.</p>
+      <div className="flex flex-col lg:flex-row items-start gap-8">
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.dashboard}</h1>
+          <p className="text-gray-600">Welcome back! Here's your business overview.</p>
+        </div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="hidden lg:block w-80"
+        >
+          <img src="/storyset/Grocery%20shopping-pana.svg" alt="Business Overview Illustration" className="w-full" />
+        </motion.div>
       </div>
 
       {/* Date Filter Selector */}

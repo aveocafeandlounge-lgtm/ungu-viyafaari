@@ -1,5 +1,6 @@
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
 import { 
   User, 
   Bell, 
@@ -13,9 +14,18 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.settings}</h1>
-        <p className="text-gray-600">Manage your account and app preferences</p>
+      <div className="flex flex-col lg:flex-row items-start gap-8">
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.settings}</h1>
+          <p className="text-gray-600">Manage your account and app preferences</p>
+        </div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="hidden lg:block w-80"
+        >
+          <img src="/storyset/Eco%20shopping-amico.svg" alt="Settings Illustration" className="w-full" />
+        </motion.div>
       </div>
 
       {/* Profile Section */}

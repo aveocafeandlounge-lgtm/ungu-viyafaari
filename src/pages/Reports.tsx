@@ -119,9 +119,18 @@ export default function Reports() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.reports}</h1>
-        <p className="text-gray-600">Generate and export business reports</p>
+      <div className="flex flex-col lg:flex-row items-start gap-8">
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.reports}</h1>
+          <p className="text-gray-600">Generate and export business reports</p>
+        </div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="hidden lg:block w-80"
+        >
+          <img src="/storyset/Farmers%20market-rafiki.svg" alt="Reports Illustration" className="w-full" />
+        </motion.div>
       </div>
 
       {/* Report Type Selection */}

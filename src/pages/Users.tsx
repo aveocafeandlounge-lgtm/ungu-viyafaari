@@ -97,7 +97,18 @@ export default function Users() {
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Users</h1>
+      <div className="flex flex-col lg:flex-row items-start gap-8">
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold">Users</h1>
+        </div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="hidden lg:block w-80"
+        >
+          <img src="/storyset/Farmers%20market-amico.svg" alt="Users Illustration" className="w-full" />
+        </motion.div>
+      </div>
       {loading ? (
         <div>Loading...</div>
       ) : (
