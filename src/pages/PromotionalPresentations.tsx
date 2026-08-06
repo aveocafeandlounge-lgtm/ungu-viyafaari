@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Video, 
@@ -129,7 +128,6 @@ Text overlay: "Shop Now!"
 ];
 
 export default function PromotionalPresentations() {
-  const { t } = useLanguage();
   const { user } = useAuth();
   const [presentations, setPresentations] = useState<Presentation[]>([]);
   const [selectedPresentation, setSelectedPresentation] = useState<Presentation | null>(null);
