@@ -10,7 +10,8 @@ import {
   BarChart3,
   Settings,
   X,
-  Receipt
+  Receipt,
+  Video
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -47,6 +48,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     { path: '/sales', icon: Receipt, label: 'Sales' },
     { path: '/collections', icon: DollarSign, label: t.collections },
     { path: '/reports', icon: BarChart3, label: t.reports },
+    { path: '/promotional-presentations', icon: Video, label: t.promotionalVideos },
     { path: '/settings', icon: Settings, label: t.settings },
   ];
 

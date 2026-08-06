@@ -1,12 +1,42 @@
 import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
+import { Check, X, Clock } from 'lucide-react';
 
 export default function Users() {
   const { isAdmin, isSuperAdmin } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const handleApprove = async (uid: string) => {
+    try {
+      await updateDoc(doc(db, 'users', uid), { status: 'approved' });
+      setUsers(users.map(u => u.uid === uid ? { ...u, status: 'approved' } : u));
+    } catch (error) {
+      console.error('Error approving user:', error);
+    }
+  };
+
+  const handleReject = async (uid: string) => {
+    try {
+      await updateDoc(doc(db, 'users', uid), { status: 'rejected' });
+      setUsers(users.map(u => u.uid === uid ? { ...u, status: 'rejected' } : u));
+    } catch (error) {
+      console.error('Error rejecting user:', error);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full"><Check className="w-3 h-3" />Approved</span>;
+      case 'rejected':
+        return <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full"><X className="w-3 h-3" />Rejected</span>;
+      default:
+        return <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-orange-100 text-orange-700 rounded-full"><Clock className="w-3 h-3" />Pending</span>;
+    }
+  };
 
   useEffect(() => {
     if (!isSuperAdmin) return;
@@ -35,6 +65,7 @@ export default function Users() {
             email: u.email || '',
             displayName: u.fullName || u.displayName || '',
             role: u.role || '',
+            status: u.status || 'pending',
             createdAt: u.createdAt || '',
             counts: {
               products: products.size,
@@ -75,6 +106,7 @@ export default function Users() {
             <thead className="text-xs text-gray-500 uppercase">
               <tr>
                 <th className="px-3 py-2">User</th>
+                <th className="px-3 py-2">Status</th>
                 <th className="px-3 py-2">Role</th>
                 <th className="px-3 py-2">Products</th>
                 <th className="px-3 py-2">Purchases</th>
@@ -84,12 +116,14 @@ export default function Users() {
                 <th className="px-3 py-2">Shops</th>
                 <th className="px-3 py-2">Collections</th>
                 <th className="px-3 py-2">Money</th>
+                <th className="px-3 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map(u => (
                 <tr key={u.uid} className="border-t">
                   <td className="px-3 py-2">{u.displayName || u.email}</td>
+                  <td className="px-3 py-2">{getStatusBadge(u.status)}</td>
                   <td className="px-3 py-2">{u.role}</td>
                   <td className="px-3 py-2">{u.counts.products}</td>
                   <td className="px-3 py-2">{u.counts.purchases}</td>
@@ -99,6 +133,26 @@ export default function Users() {
                   <td className="px-3 py-2">{u.counts.shops}</td>
                   <td className="px-3 py-2">{u.counts.collections}</td>
                   <td className="px-3 py-2">{u.counts.money}</td>
+                  <td className="px-3 py-2">
+                    {u.status === 'pending' && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleApprove(u.uid)}
+                          className="p-1 bg-green-500 text-white rounded hover:bg-green-600"
+                          title="Approve"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleReject(u.uid)}
+                          className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
+                          title="Reject"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

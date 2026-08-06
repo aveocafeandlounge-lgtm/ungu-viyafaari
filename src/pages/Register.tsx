@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { UserPlus, Mail, Lock, Loader2, Shield } from 'lucide-react';
-import type { UserRole } from '../contexts/AuthContext';
+import { UserPlus, Mail, Lock, Loader2 } from 'lucide-react';
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [role, setRole] = useState<UserRole>('staff');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
@@ -23,8 +21,9 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await signUp(email, password, fullName, role);
-      navigate('/dashboard');
+      // All new registrations default to staff role
+      await signUp(email, password, fullName, 'staff');
+      navigate('/pending-approval');
     } catch (err: any) {
       setError(err.message || t.error);
     } finally {
@@ -104,23 +103,6 @@ export default function Register() {
                 required
                 minLength={6}
               />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.role}
-            </label>
-            <div className="relative">
-              <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
-                className={`w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${isRTL ? 'rtl' : ''}`}
-              >
-                <option value="staff">{t.staff}</option>
-                <option value="admin">{t.admin}</option>
-              </select>
             </div>
           </div>
 

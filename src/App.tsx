@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import PendingApproval from './pages/PendingApproval';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
@@ -16,9 +17,10 @@ import Purchases from './pages/Purchases';
 import Sales from './pages/Sales';
 import Users from './pages/Users';
 import Visitors from './pages/Visitors';
+import PromotionalPresentations from './pages/PromotionalPresentations';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, isSuperAdmin } = useAuth();
   
   if (loading) {
     return (
@@ -29,6 +31,16 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
   
   if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Check if user is pending approval (super-admin bypasses this check)
+  if (user.status === 'pending' && !isSuperAdmin) {
+    return <Navigate to="/pending-approval" replace />;
+  }
+  
+  // Check if user is rejected
+  if (user.status === 'rejected' && !isSuperAdmin) {
     return <Navigate to="/login" replace />;
   }
   
@@ -43,6 +55,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/pending-approval" element={<PendingApproval />} />
             <Route
               path="/"
               element={
@@ -63,6 +76,7 @@ function App() {
               <Route path="reports" element={<Reports />} />
               <Route path="users" element={<Users />} />
               <Route path="visitors" element={<Visitors />} />
+              <Route path="promotional-presentations" element={<PromotionalPresentations />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>

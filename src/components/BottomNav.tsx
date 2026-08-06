@@ -8,7 +8,8 @@ import {
   DollarSign, 
   BookOpen, 
   BarChart3,
-  Receipt
+  Receipt,
+  Video
 } from 'lucide-react';
 
 export default function BottomNav() {
@@ -23,6 +24,7 @@ export default function BottomNav() {
     { path: '/sales', icon: Receipt, label: 'Sales' },
     { path: '/collections', icon: DollarSign, label: t.collections },
     { path: '/reports', icon: BarChart3, label: t.reports },
+    { path: '/promotional-presentations', icon: Video, label: t.promotionalVideos },
   ];
 
   return (

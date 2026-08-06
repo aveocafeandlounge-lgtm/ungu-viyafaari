@@ -7,73 +7,90 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
         || (request.auth != null && request.auth.token.email == 'retey.ay@hotmail.com');
     }
-    
+
+    // Helper function to check if user is approved
+    function isApproved() {
+      // Allow super-admin, approved users, or users checking their own status
+      return request.auth != null && (
+        request.auth.token.email == 'retey.ay@hotmail.com' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved'
+      );
+    }
+
     // Users collection - admins can read/write, users can read/write their own data
     match /users/{userId} {
       allow read, write: if isAdmin() || request.auth.uid == userId;
     }
     
-    // Products collection - authenticated users can read/write
+    // Products collection - approved users can read/write their own data
     match /products/{docId} {
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow read: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
-      allow update, delete: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if isApproved() && request.resource.data.owner == request.auth.uid;
+      allow read: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow update, delete: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
     }
-    
-    // Shops collection - authenticated users can read/write
+
+    // Shops collection - approved users can read/write their own data
     match /shops/{docId} {
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow read: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
-      allow update, delete: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if isApproved() && request.resource.data.owner == request.auth.uid;
+      allow read: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow update, delete: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
     }
-    
-    // Batches collection - authenticated users can read/write
+
+    // Batches collection - approved users can read/write their own data
     match /batches/{docId} {
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow read: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
-      allow update, delete: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if isApproved() && request.resource.data.owner == request.auth.uid;
+      allow read: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow update, delete: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
     }
-    
-    // Collections (payments) collection - authenticated users can read/write
+
+    // Collections (payments) collection - approved users can read/write their own data
     match /collections/{docId} {
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow read: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
-      allow update, delete: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if isApproved() && request.resource.data.owner == request.auth.uid;
+      allow read: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow update, delete: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
     }
-    
-    // Recipes collection - authenticated users can read/write
+
+    // Recipes collection - approved users can read/write their own data
     match /recipes/{docId} {
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow read: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
-      allow update, delete: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if isApproved() && request.resource.data.owner == request.auth.uid;
+      allow read: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow update, delete: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
     }
-    
-    // Purchases collection - authenticated users can read/write
+
+    // Purchases collection - approved users can read/write their own data
     match /purchases/{docId} {
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow read: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
-      allow update, delete: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if isApproved() && request.resource.data.owner == request.auth.uid;
+      allow read: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow update, delete: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
     }
 
-    // Sales collection - authenticated users can read/write
+    // Sales collection - approved users can read/write their own data
     match /sales/{docId} {
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow read: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
-      allow update, delete: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if isApproved() && request.resource.data.owner == request.auth.uid;
+      allow read: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow update, delete: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
     }
 
-    // Money collection - authenticated users can read/write
+    // Money collection - approved users can read/write their own data
     match /money/{docId} {
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow read: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
-      allow update, delete: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if isApproved() && request.resource.data.owner == request.auth.uid;
+      allow read: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow update, delete: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
     }
-    
-    // Reports collection - authenticated users can read/write
+
+    // Reports collection - approved users can read/write their own data
     match /reports/{docId} {
-      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-      allow read: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
-      allow update, delete: if request.auth != null && (resource.data.owner == request.auth.uid || isAdmin());
+      allow create: if isApproved() && request.resource.data.owner == request.auth.uid;
+      allow read: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+      allow update, delete: if isApproved() && (resource.data.owner == request.auth.uid || isAdmin());
+    }
+
+    // Visitors collection - allow any client to create visitor records (for tracking),
+    // but only admins/super-admin can read or modify them.
+    match /visitors/{docId} {
+      allow create: if true;
+      allow read: if request.auth != null && isAdmin();
+      allow update, delete: if request.auth != null && isAdmin();
     }
   }
 }

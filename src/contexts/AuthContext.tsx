@@ -10,12 +10,14 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 
 export type UserRole = 'admin' | 'staff';
+export type UserStatus = 'pending' | 'approved' | 'rejected';
 
 export interface User {
   uid: string;
   email: string | null;
   displayName: string | null;
   role?: UserRole;
+  status?: UserStatus;
 }
 
 interface AuthContextType {
@@ -45,6 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             email: firebaseUser.email,
             displayName: firebaseUser.displayName,
             role: userData?.role as UserRole,
+            status: userData?.status as UserStatus,
           };
           setUser(userWithRole);
         } catch (error) {
@@ -54,6 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             email: firebaseUser.email,
             displayName: firebaseUser.displayName,
             role: undefined,
+            status: undefined,
           };
           setUser(userWithRole);
         }
@@ -76,6 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       fullName,
       email,
       role,
+      status: 'pending',
       createdAt: new Date().toISOString(),
     });
   };

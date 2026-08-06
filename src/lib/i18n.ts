@@ -11,6 +11,8 @@ export const translations = {
     collections: 'Collections',
     recipes: 'Recipes',
     reports: 'Reports',
+    promotionalPresentations: 'Promotional Presentations',
+    promotionalVideos: 'Promotional Videos',
     settings: 'Settings',
     logout: 'Logout',
     login: 'Login',
@@ -123,6 +125,15 @@ export const translations = {
     role: 'Role',
     admin: 'Admin',
     staff: 'Staff',
+    
+    // Pending Approval
+    pendingApproval: 'Account Pending Approval',
+    pendingApprovalMessage: 'Your account is waiting for admin approval. Please contact the administrator to activate your account.',
+    contactAdmin: 'Contact Administrator:',
+    checkStatus: 'Check Approval Status',
+    checking: 'Checking...',
+    userEmail: 'Email',
+    registeredOn: 'Registered on',
   },
   dv: {
     // Common
@@ -134,6 +145,8 @@ export const translations = {
     collections: 'ކަލެކްޝަންތައް',
     recipes: 'ރެސިޕީތައް',
     reports: 'ރިޕޯޓްތައް',
+    promotionalPresentations: 'ޕްރޮމޯޝަނަލް ޕްރެޒެންޓޭޝަންތައް',
+    promotionalVideos: 'ޕްރޮމޯޝަނަލް ވީޑިއޯތައް',
     settings: 'ސެޓިންގަތް',
     logout: 'ލޮގައުޓް',
     login: 'ލޮގިން',
@@ -246,6 +259,15 @@ export const translations = {
     role: 'ރޯލް',
     admin: 'އެޑްމިން',
     staff: 'ސްޓާފް',
+    
+    // Pending Approval
+    pendingApproval: 'އެކައުންޓް އެޕްރޫވަލް ބާރުތައް ހުރިއިރު',
+    pendingApprovalMessage: 'ތިބާގެ އެކައުންޓް އެޑްމިންގެ އެޕްރޫވަލަށް ބާރުތައް ހުރެއެވެ. އެކައުންޓް އެކްޓިވޭޓް ކުރުމަށް އެޑްމިންގެ އިން ގުޅުން ހޯދާށެވެ.',
+    contactAdmin: 'އެޑްމިންގެ އިން ގުޅުން ހޯދާ:',
+    checkStatus: 'އެޕްރޫވަލް ހާލަތު ބައ޼ވެރިވާ',
+    checking: 'ބައ޼ވެރިވަމުން...',
+    userEmail: 'އީމެއިލް',
+    registeredOn: 'ރެޖިސްޓަރީ ކުރި ދުވަހު',
   },
 };
 
