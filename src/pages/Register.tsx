@@ -39,7 +39,7 @@ export default function Register() {
           animate={{ opacity: 1, x: 0 }}
           className="hidden lg:block flex-1"
         >
-          <img src="/storyset/candy shop-cuate.svg" alt="Candy Shop Illustration" className="w-full max-w-md mx-auto" />
+          <img src="/storyset/candy%20shop-cuate.svg" alt="Candy Shop Illustration" className="w-full max-w-md mx-auto" />
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

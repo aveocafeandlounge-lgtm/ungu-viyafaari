@@ -43,7 +43,7 @@ export default function Login() {
           animate={{ opacity: 1, x: 0 }}
           className="hidden lg:block flex-1"
         >
-          <img src="/storyset/cake shop-amico.svg" alt="Cake Shop Illustration" className="w-full max-w-md mx-auto" />
+          <img src="/storyset/cake%20shop-amico.svg" alt="Cake Shop Illustration" className="w-full max-w-md mx-auto" />
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

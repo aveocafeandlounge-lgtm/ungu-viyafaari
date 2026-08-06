@@ -64,7 +64,7 @@ export default function PendingApproval() {
             animate={{ opacity: 1, x: 0 }}
             className="hidden lg:block flex-1"
           >
-            <img src="/storyset/fruit shop-cuate.svg" alt="Fruit Shop Illustration" className="w-full max-w-md mx-auto" />
+            <img src="/storyset/fruit%20shop-cuate.svg" alt="Fruit Shop Illustration" className="w-full max-w-md mx-auto" />
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -119,7 +119,7 @@ export default function PendingApproval() {
             animate={{ opacity: 1, x: 0 }}
             className="hidden lg:block flex-1"
           >
-            <img src="/storyset/Coffee shop-bro.svg" alt="Coffee Shop Illustration" className="w-full max-w-md mx-auto" />
+            <img src="/storyset/Coffee%20shop-bro.svg" alt="Coffee Shop Illustration" className="w-full max-w-md mx-auto" />
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -165,7 +165,7 @@ export default function PendingApproval() {
           animate={{ opacity: 1, x: 0 }}
           className="hidden lg:block flex-1"
         >
-          <img src="/storyset/Farmers market-rafiki.svg" alt="Farmers Market Illustration" className="w-full max-w-md mx-auto" />
+          <img src="/storyset/Farmers%20market-rafiki.svg" alt="Farmers Market Illustration" className="w-full max-w-md mx-auto" />
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
