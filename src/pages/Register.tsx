@@ -33,15 +33,23 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md"
-      >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">{t.appName}</h1>
-          <p className="text-gray-600">{t.register}</p>
-        </div>
+      <div className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-4xl">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="hidden lg:block flex-1"
+        >
+          <img src="/storyset/candy shop-cuate.svg" alt="Candy Shop Illustration" className="w-full max-w-md mx-auto" />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md flex-1"
+        >
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t.appName}</h1>
+            <p className="text-gray-600">{t.register}</p>
+          </div>
 
         {error && (
           <motion.div
@@ -134,6 +142,7 @@ export default function Register() {
           </button>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }

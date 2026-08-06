@@ -37,15 +37,23 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md"
-      >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">{t.appName}</h1>
-          <p className="text-gray-600">{t.login}</p>
-        </div>
+      <div className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-4xl">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="hidden lg:block flex-1"
+        >
+          <img src="/storyset/cake shop-amico.svg" alt="Cake Shop Illustration" className="w-full max-w-md mx-auto" />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md flex-1"
+        >
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">{t.appName}</h1>
+            <p className="text-gray-600">{t.login}</p>
+          </div>
 
         {error && (
           <motion.div
@@ -125,6 +133,7 @@ export default function Login() {
           <p className="text-xs text-gray-500">© 2024 Ungu Viyafaari. All rights reserved.</p>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }
