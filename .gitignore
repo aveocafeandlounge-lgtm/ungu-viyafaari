@@ -17,6 +17,12 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Firebase service account key
+serviceAccountKey.json
+
+# Export files
+exports/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
