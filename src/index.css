@@ -3,7 +3,7 @@
 /* Dhivehi Font Support */
 @font-face {
   font-family: 'Dhivehi';
-  src: url('/fonts/Dhivehi.ttf') format('truetype');
+  src: url('/fonts/MV_Faseyha.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
