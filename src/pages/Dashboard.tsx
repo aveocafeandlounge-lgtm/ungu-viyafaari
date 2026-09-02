@@ -333,7 +333,7 @@ export default function Dashboard() {
       <div className="flex flex-col lg:flex-row items-start gap-8">
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.dashboard}</h1>
-          <p className="text-gray-600">Welcome back! Here's your business overview.</p>
+          <p className="text-gray-600">{t.welcomeBack || 'Welcome back! Here\'s your business overview.'}</p>
         </div>
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -347,7 +347,7 @@ export default function Dashboard() {
       {/* Date Filter Selector */}
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
         <div className="flex flex-wrap items-center gap-4">
-          <span className="text-sm font-medium text-gray-700">Report Period:</span>
+          <span className="text-sm font-medium text-gray-700">{t.reportPeriod || 'Report Period:'}</span>
           <div className="flex gap-2">
             <button
               onClick={() => setDateFilter('today')}
@@ -357,7 +357,7 @@ export default function Dashboard() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Today
+              {t.today || 'Today'}
             </button>
             <button
               onClick={() => setDateFilter('mtd')}
@@ -367,7 +367,7 @@ export default function Dashboard() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              MTD
+              {t.mtd || 'MTD'}
             </button>
             <button
               onClick={() => setDateFilter('ytd')}
@@ -377,7 +377,7 @@ export default function Dashboard() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              YTD
+              {t.ytd || 'YTD'}
             </button>
             <button
               onClick={() => setDateFilter('all')}
@@ -387,7 +387,7 @@ export default function Dashboard() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              All Time
+              {t.allTime || 'All Time'}
             </button>
           </div>
           {dateFilter === 'custom' && (
@@ -427,7 +427,7 @@ export default function Dashboard() {
           color="bg-purple-600"
         />
         <StatCard
-          title="Total Purchases"
+          title={t.totalPurchases || 'Total Purchases'}
           value={`MVR ${
             (dateFilter === 'today' ? stats.purchasesToday :
             dateFilter === 'mtd' ? stats.purchasesMTD :
@@ -441,13 +441,13 @@ export default function Dashboard() {
           color="bg-blue-600"
         />
         <StatCard
-          title="Total Recipe Cost"
+          title={t.totalRecipeCost || 'Total Recipe Cost'}
           value={`MVR ${stats.totalRecipeCost.toLocaleString()}`}
           icon={Wallet}
           color="bg-orange-500"
         />
         <StatCard
-          title="Total Batch Revenue"
+          title={t.totalBatchRevenue || 'Total Batch Revenue'}
           value={`MVR ${stats.totalBatchRevenue.toLocaleString()}`}
           icon={TrendingUp}
           color="bg-green-600"
@@ -457,30 +457,30 @@ export default function Dashboard() {
       {/* Comparison Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-gray-600 text-sm mb-2">Sales vs Purchases</h3>
+          <h3 className="text-gray-600 text-sm mb-2">{t.salesVsPurchases || 'Sales vs Purchases'}</h3>
           <p className="text-2xl font-bold text-gray-800 mb-2">
             {stats.totalSales > stats.totalPurchases ? '+' : ''}MVR {(stats.totalSales - stats.totalPurchases).toLocaleString()}
           </p>
           <p className={`text-sm ${stats.totalSales > stats.totalPurchases ? 'text-green-600' : 'text-red-600'}`}>
-            {stats.totalPurchases > 0 ? ((stats.totalSales - stats.totalPurchases) / stats.totalPurchases * 100).toFixed(1) : 0}% difference
+            {stats.totalPurchases > 0 ? ((stats.totalSales - stats.totalPurchases) / stats.totalPurchases * 100).toFixed(1) : 0}% {t.difference || 'difference'}
           </p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-gray-600 text-sm mb-2">Sales vs Recipe Cost</h3>
+          <h3 className="text-gray-600 text-sm mb-2">{t.salesVsRecipeCost || 'Sales vs Recipe Cost'}</h3>
           <p className="text-2xl font-bold text-gray-800 mb-2">
             {stats.totalSales > stats.totalRecipeCost ? '+' : ''}MVR {(stats.totalSales - stats.totalRecipeCost).toLocaleString()}
           </p>
           <p className={`text-sm ${stats.totalSales > stats.totalRecipeCost ? 'text-green-600' : 'text-red-600'}`}>
-            {stats.totalRecipeCost > 0 ? ((stats.totalSales - stats.totalRecipeCost) / stats.totalRecipeCost * 100).toFixed(1) : 0}% difference
+            {stats.totalRecipeCost > 0 ? ((stats.totalSales - stats.totalRecipeCost) / stats.totalRecipeCost * 100).toFixed(1) : 0}% {t.difference || 'difference'}
           </p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-gray-600 text-sm mb-2">Profit Margin</h3>
+          <h3 className="text-gray-600 text-sm mb-2">{t.profitMargin || 'Profit Margin'}</h3>
           <p className="text-2xl font-bold text-gray-800 mb-2">
             {stats.profitMargin.toFixed(1)}%
           </p>
           <p className={`text-sm ${stats.profitMargin > 0 ? 'text-green-600' : 'text-red-600'}`}>
-            MVR {stats.profit.toLocaleString()} profit
+            MVR {stats.profit.toLocaleString()} {t.profitLabel || 'profit'}
           </p>
         </div>
       </div>
@@ -508,7 +508,7 @@ export default function Dashboard() {
           color="bg-blue-500"
         />
         <StatCard
-          title="Available Funds"
+          title={t.availableFunds || 'Available Funds'}
           value={`MVR ${stats.availableFunds.toLocaleString()}`}
           icon={Wallet}
           color="bg-green-600"
@@ -522,7 +522,7 @@ export default function Dashboard() {
           className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
-          Top Up Inventory Funds
+          {t.topUpInventoryFunds || 'Top Up Inventory Funds'}
         </button>
       </div>
 
@@ -534,7 +534,7 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Sales vs Purchases</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.salesVsPurchases || 'Sales vs Purchases'}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={comparisonData.slice(0, 2)}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -552,7 +552,7 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Profit Analysis</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.profitAnalysis || 'Profit Analysis'}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={profitData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -570,7 +570,7 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Cost Breakdown</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.costBreakdown || 'Cost Breakdown'}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -598,7 +598,7 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Revenue vs Cost</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.revenueVsCost || 'Revenue vs Cost'}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={comparisonData.slice(3, 5)}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -614,20 +614,20 @@ export default function Dashboard() {
       {/* Per-user summary for admins */}
       {(isAdmin || isSuperAdmin) && usersSummary.length > 0 && (
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Users Summary</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.usersSummary || 'Users Summary'}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="text-xs text-gray-500 uppercase">
                 <tr>
-                  <th className="px-3 py-2">User</th>
-                  <th className="px-3 py-2">Products</th>
-                  <th className="px-3 py-2">Purchases</th>
-                  <th className="px-3 py-2">Recipes</th>
-                  <th className="px-3 py-2">Batches</th>
-                  <th className="px-3 py-2">Sales</th>
-                  <th className="px-3 py-2">Shops</th>
-                  <th className="px-3 py-2">Collections</th>
-                  <th className="px-3 py-2">Money Txns</th>
+                  <th className="px-3 py-2">{t.user || 'User'}</th>
+                  <th className="px-3 py-2">{t.products || 'Products'}</th>
+                  <th className="px-3 py-2">{t.purchases || 'Purchases'}</th>
+                  <th className="px-3 py-2">{t.recipes || 'Recipes'}</th>
+                  <th className="px-3 py-2">{t.batches || 'Batches'}</th>
+                  <th className="px-3 py-2">{t.sales || 'Sales'}</th>
+                  <th className="px-3 py-2">{t.shops || 'Shops'}</th>
+                  <th className="px-3 py-2">{t.collections || 'Collections'}</th>
+                  <th className="px-3 py-2">{t.moneyTxns || 'Money Txns'}</th>
                 </tr>
               </thead>
               <tbody>
