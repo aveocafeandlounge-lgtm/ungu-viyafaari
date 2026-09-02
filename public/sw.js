@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ungu-viyafaari-v1';
+const CACHE_NAME = 'ungu-viyafaari-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -14,21 +14,47 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
+  // Use network-first for HTML pages to ensure fresh content
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Clone the response before caching
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
           return response;
-        }
-        return fetch(event.request).catch(() => {
-          // If request fails (network error), return a fallback for navigations
-          if (event.request.mode === 'navigate') {
+        })
+        .catch(() => {
+          // If network fails, try cache
+          return caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
             return caches.match('/offline.html');
+          });
+        })
+    );
+  } else {
+    // Use cache-first for static assets
+    event.respondWith(
+      caches.match(event.request)
+        .then((response) => {
+          if (response) {
+            return response;
           }
-          return new Response('Network error', { status: 408, statusText: 'Network error' });
-        });
-      })
-  );
+          return fetch(event.request).then((response) => {
+            // Clone the response before caching
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+            return response;
+          });
+        })
+    );
+  }
 });
 
 self.addEventListener('activate', (event) => {
