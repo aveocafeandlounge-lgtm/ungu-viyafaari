@@ -6,8 +6,10 @@
   src: url('/fonts/Dhivehi.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
-[dir="rtl"] {
-  font-family: 'Dhivehi', sans-serif;
+[dir="rtl"],
+[dir="rtl"] * {
+  font-family: 'Dhivehi', sans-serif !important;
 }
