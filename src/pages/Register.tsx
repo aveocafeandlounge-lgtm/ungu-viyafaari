@@ -23,10 +23,12 @@ export default function Register() {
     try {
       // All new registrations default to staff role
       await signUp(email, password, fullName, 'staff');
-      navigate('/pending-approval');
+      // Show success message briefly before redirecting
+      setTimeout(() => {
+        navigate('/pending-approval');
+      }, 500);
     } catch (err: any) {
       setError(err.message || t.error);
-    } finally {
       setLoading(false);
     }
   };

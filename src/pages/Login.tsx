@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LogIn, Mail, Lock, Loader2 } from 'lucide-react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -14,11 +16,34 @@ export default function Login() {
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
 
-  // Navigate to dashboard when user is authenticated
+  // Check user status and navigate accordingly
   useEffect(() => {
-    if (user && !authLoading) {
-      navigate('/dashboard');
-    }
+    const checkUserStatus = async () => {
+      if (user && !authLoading) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          const userData = userDoc.data();
+          const status = userData?.status;
+
+          if (status === 'pending') {
+            navigate('/pending-approval');
+          } else if (status === 'rejected') {
+            setError('Your account has been rejected. Please contact the administrator.');
+          } else if (status === 'approved' || user.email === 'retey.ay@hotmail.com') {
+            navigate('/dashboard');
+          } else {
+            // If no status, treat as pending
+            navigate('/pending-approval');
+          }
+        } catch (err) {
+          // If we can't read the user document, try to navigate to dashboard
+          // This might happen if Firestore rules block the read
+          navigate('/dashboard');
+        }
+      }
+    };
+
+    checkUserStatus();
   }, [user, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
