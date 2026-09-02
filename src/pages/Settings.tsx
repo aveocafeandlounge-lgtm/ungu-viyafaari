@@ -17,7 +17,7 @@ export default function Settings() {
       <div className="flex flex-col lg:flex-row items-start gap-8">
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.settings}</h1>
-          <p className="text-gray-600">Manage your account and app preferences</p>
+          <p className="text-gray-600">{t.manageAccountPreferences || 'Manage your account and app preferences'}</p>
         </div>
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -32,7 +32,7 @@ export default function Settings() {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <User className="w-5 h-5" />
-          Profile
+          {t.profile || 'Profile'}
         </h3>
         <div className="space-y-3">
           <div>
@@ -50,7 +50,7 @@ export default function Settings() {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <Globe className="w-5 h-5" />
-          Language
+          {t.language || 'Language'}
         </h3>
         <div className="flex gap-4">
           <button
@@ -78,19 +78,19 @@ export default function Settings() {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <Bell className="w-5 h-5" />
-          Notifications
+          {t.notifications || 'Notifications'}
         </h3>
         <div className="space-y-4">
           <label className="flex items-center justify-between cursor-pointer">
-            <span className="text-gray-700">Low stock alerts</span>
+            <span className="text-gray-700">{t.lowStockAlerts || 'Low stock alerts'}</span>
             <input type="checkbox" defaultChecked className="w-5 h-5 text-purple-600 rounded" />
           </label>
           <label className="flex items-center justify-between cursor-pointer">
-            <span className="text-gray-700">Payment reminders</span>
+            <span className="text-gray-700">{t.paymentReminders || 'Payment reminders'}</span>
             <input type="checkbox" defaultChecked className="w-5 h-5 text-purple-600 rounded" />
           </label>
           <label className="flex items-center justify-between cursor-pointer">
-            <span className="text-gray-700">Batch expiry alerts</span>
+            <span className="text-gray-700">{t.batchExpiryAlerts || 'Batch expiry alerts'}</span>
             <input type="checkbox" defaultChecked className="w-5 h-5 text-purple-600 rounded" />
           </label>
         </div>
@@ -101,7 +101,7 @@ export default function Settings() {
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <Shield className="w-5 h-5" />
-            Security (Admin Only)
+            {t.security || 'Security'} (Admin Only)
           </h3>
           <div className="space-y-4">
             <button className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors">

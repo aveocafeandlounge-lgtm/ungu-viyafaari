@@ -134,6 +134,25 @@ export const translations = {
     batch: 'batch',
     recipe: 'recipe',
     collection: 'collection',
+    
+    // Settings
+    manageAccountPreferences: 'Manage your account and app preferences',
+    profile: 'Profile',
+    language: 'Language',
+    notifications: 'Notifications',
+    lowStockAlerts: 'Low stock alerts',
+    paymentReminders: 'Payment reminders',
+    batchExpiryAlerts: 'Batch expiry alerts',
+    security: 'Security',
+    
+    // Users
+    approved: 'Approved',
+    rejected: 'Rejected',
+    pending: 'Pending',
+    noPermission: 'You do not have permission to view this page',
+    
+    // Visitors
+    noVisitorData: 'No visitor data found. Add visitor tracking to record sessions into the `visitors` collection.',
     questionMark: '?',
     
     // Batches
@@ -369,6 +388,25 @@ export const translations = {
     batch: 'ބެޗް',
     recipe: 'ރެސިޕީ',
     collection: 'ނެގުން',
+    
+    // Settings
+    manageAccountPreferences: 'ތިބާގެ އެކައުންޓާއި އެޕްގެ ޕްރެފަރެންސްތައް މެނޭޖް ކުރުން',
+    profile: 'ޕްރޮފައިލް',
+    language: 'ބަސް',
+    notifications: 'ނޮޓިފިކޭޝަންތައް',
+    lowStockAlerts: 'ސްޓޮކް ދަށްކޮށްވާ އެލާޓްތައް',
+    paymentReminders: 'ފައިސާ ދޫކުރުމުގެ ރިމައިންޑަރުން',
+    batchExpiryAlerts: 'ބެޗް ހަމަވާގޮތުގެ އެލާޓްތައް',
+    security: 'ސިކިއުރިޓީ',
+    
+    // Users
+    approved: 'އެންގީވީ',
+    rejected: 'ރެޖެކްޓް ކުރެވި',
+    pending: 'މުއްދަތުޖެހިފައިވާ',
+    noPermission: 'މި ޕޭޖް ބެލުމުގެ ހައްހަން ތިބާއަށް ނެތް',
+    
+    // Visitors
+    noVisitorData: 'ވިސިޓަރުގެ ޑޭޓާ ނުފެނުނު. ވިސިޓަރު ޓްރެކިންގ އިތުރުކޮށް `visitors` ކޮލެކްޝަންގައި ސެޝަންތައް ރިކޯޑް ކުރާށެވެ.',
     questionMark: '?',
     
     // Batches

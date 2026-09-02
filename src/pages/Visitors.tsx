@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'framer-motion';
 
 export default function Visitors() {
   const { isAdmin, isSuperAdmin } = useAuth();
+  const { t } = useLanguage();
   const [visitors, setVisitors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,14 +33,14 @@ export default function Visitors() {
   }, [isAdmin, isSuperAdmin]);
 
   if (!isSuperAdmin) {
-    return <div className="p-6">You do not have permission to view this page.</div>;
+    return <div className="p-6">{t.noPermission || 'You do not have permission to view this page'}</div>;
   }
 
   return (
     <div className="space-y-6 p-6">
       <div className="flex flex-col lg:flex-row items-start gap-8">
         <div className="flex-1">
-          <h1 className="text-2xl font-bold">Visitors</h1>
+          <h1 className="text-2xl font-bold">{t.visitors || 'Visitors'}</h1>
         </div>
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -51,7 +53,7 @@ export default function Visitors() {
       {loading ? (
         <div>Loading...</div>
       ) : visitors.length === 0 ? (
-        <div>No visitor data found. Add visitor tracking to record sessions into the `visitors` collection.</div>
+        <div>{t.noVisitorData || 'No visitor data found. Add visitor tracking to record sessions into the `visitors` collection.'}</div>
       ) : (
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 overflow-x-auto">
           <table className="w-full text-left">

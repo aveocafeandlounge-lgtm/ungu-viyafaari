@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { db } from '../lib/firebase';
 import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Check, X, Clock } from 'lucide-react';
 
 export default function Users() {
@@ -28,14 +29,16 @@ export default function Users() {
     }
   };
 
+  const { t } = useLanguage();
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full"><Check className="w-3 h-3" />Approved</span>;
+        return <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full"><Check className="w-3 h-3" />{t.approved || 'Approved'}</span>;
       case 'rejected':
-        return <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full"><X className="w-3 h-3" />Rejected</span>;
+        return <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full"><X className="w-3 h-3" />{t.rejected || 'Rejected'}</span>;
       default:
-        return <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-orange-100 text-orange-700 rounded-full"><Clock className="w-3 h-3" />Pending</span>;
+        return <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-orange-100 text-orange-700 rounded-full"><Clock className="w-3 h-3" />{t.pending || 'Pending'}</span>;
     }
   };
 
@@ -93,7 +96,7 @@ export default function Users() {
   }, [isAdmin, isSuperAdmin]);
 
   if (!isSuperAdmin) {
-    return <div className="p-6">You do not have permission to view this page.</div>;
+    return <div className="p-6">{t.noPermission || 'You do not have permission to view this page'}</div>;
   }
 
   return (
