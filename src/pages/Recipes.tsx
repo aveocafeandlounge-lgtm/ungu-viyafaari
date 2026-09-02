@@ -138,7 +138,7 @@ export default function Recipes() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this recipe?')) {
+    if (window.confirm(`${t.deleteConfirm || 'Are you sure you want to delete this'} ${t.recipe || 'recipe'}${t.questionMark || '?'}`)) {
       setLoading(true);
       try {
         await deleteDoc(doc(db, 'recipes', id));
@@ -158,7 +158,7 @@ export default function Recipes() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.recipes}</h1>
-              <p className="text-gray-600">Store and manage traditional Maldivian recipes</p>
+              <p className="text-gray-600">{t.storeTraditionalRecipes || 'Store and manage traditional Maldivian recipes'}</p>
             </div>
             <button
               onClick={() => { setEditingRecipe(null); setShowModal(true); }}
@@ -186,7 +186,7 @@ export default function Recipes() {
               <BookOpen className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Total Recipes</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.totalRecipes || 'Total Recipes'}</h3>
           <p className="text-2xl font-bold text-gray-800">{recipes.length}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -195,7 +195,7 @@ export default function Recipes() {
               <Calculator className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Total Recipe Cost</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.totalRecipeCost || 'Total Recipe Cost'}</h3>
           <p className="text-2xl font-bold text-gray-800">MVR {recipes.reduce((sum, r) => sum + (r.ingredients?.reduce((is: number, i: any) => is + (i.price || 0), 0) || 0), 0).toLocaleString()}</p>
         </div>
       </div>

@@ -101,20 +101,20 @@ export default function Reports() {
   };
 
   const reports = [
-    { id: 'sales', name: t.salesSummary, icon: DollarSign, description: 'View total sales and revenue' },
-    { id: 'collections', name: t.collectionReport, icon: FileText, description: 'Track payment collections' },
-    { id: 'inventory', name: t.inventoryReport, icon: BarChart3, description: 'Monitor stock levels' },
-    { id: 'profit', name: t.profitAnalysis, icon: TrendingUp, description: 'Analyze profit margins' },
+    { id: 'sales', name: t.salesSummary || 'Sales Summary', icon: DollarSign, description: t.viewTotalSalesRevenue || 'View total sales and revenue' },
+    { id: 'collections', name: t.collectionReport || 'Collection Report', icon: FileText, description: t.trackPaymentCollections || 'Track payment collections' },
+    { id: 'inventory', name: t.inventoryReport || 'Inventory Report', icon: BarChart3, description: t.monitorStockLevels || 'Monitor stock levels' },
+    { id: 'profit', name: t.profitAnalysis || 'Profit Analysis', icon: TrendingUp, description: t.analyzeProfitMargins || 'Analyze profit margins' },
   ];
 
   const handleExportPDF = () => {
     // Simulate PDF export
-    alert('PDF export would be generated here');
+    alert(t.pdfExportAlert || 'PDF export would be generated here');
   };
 
   const handleExportCSV = () => {
     // Simulate CSV export
-    alert('CSV export would be generated here');
+    alert(t.csvExportAlert || 'CSV export would be generated here');
   };
 
   return (
@@ -122,7 +122,7 @@ export default function Reports() {
       <div className="flex flex-col lg:flex-row items-start gap-8">
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.reports}</h1>
-          <p className="text-gray-600">Generate and export business reports</p>
+          <p className="text-gray-600">{t.generateExportReports || 'Generate and export business reports'}</p>
         </div>
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -160,11 +160,11 @@ export default function Reports() {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <Calendar className="w-5 h-5" />
-          Date Range
+          {t.dateRange || 'Date Range'}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t.startDate || 'Start Date'}</label>
             <input
               type="date"
               value={dateRange.start}
@@ -173,7 +173,7 @@ export default function Reports() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t.endDate || 'End Date'}</label>
             <input
               type="date"
               value={dateRange.end}

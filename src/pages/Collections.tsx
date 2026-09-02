@@ -141,7 +141,7 @@ export default function Collections() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this collection?')) {
+    if (window.confirm(`${t.deleteConfirm || 'Are you sure you want to delete this'} ${t.collection || 'collection'}${t.questionMark || '?'}`)) {
       setLoading(true);
       try {
         await deleteDoc(doc(db, 'collections', id));
@@ -161,7 +161,7 @@ export default function Collections() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.collections}</h1>
-              <p className="text-gray-600">Track payments and collections from shops</p>
+              <p className="text-gray-600">{t.trackPaymentsCollections || 'Track payments and collections from shops'}</p>
             </div>
             <button
               onClick={() => { setEditingCollection(null); setShowModal(true); }}
@@ -193,9 +193,9 @@ export default function Collections() {
               <DollarSign className="w-6 h-6 text-white" />
             </div>
           </div>
-          <p className="text-sm text-gray-600 mb-1">Total Collected</p>
+          <p className="text-sm text-gray-600 mb-1">{t.totalCollected || 'Total Collected'}</p>
           <p className="text-2xl font-bold text-gray-800">MVR {totalCollected.toLocaleString()}</p>
-          <p className="text-xs text-gray-500 mt-2">MTD: MVR {collections.filter(c => c.date >= getMTDDate()).reduce((sum, c) => sum + (c.amount || 0), 0).toLocaleString()} | YTD: MVR {collections.filter(c => c.date >= getYTDDate()).reduce((sum, c) => sum + (c.amount || 0), 0).toLocaleString()}</p>
+          <p className="text-xs text-gray-500 mt-2">{t.mtdLabel || 'MTD'}: MVR {collections.filter(c => c.date >= getMTDDate()).reduce((sum, c) => sum + (c.amount || 0), 0).toLocaleString()} | {t.ytdLabel || 'YTD'}: MVR {collections.filter(c => c.date >= getYTDDate()).reduce((sum, c) => sum + (c.amount || 0), 0).toLocaleString()}</p>
         </motion.div>
 
         <motion.div

@@ -97,12 +97,33 @@ export const translations = {
     
     // Recipes
     manageRecipes: 'Manage your recipes',
+    storeTraditionalRecipes: 'Store and manage traditional Maldivian recipes',
+    totalRecipes: 'Total Recipes',
+    totalRecipeCost: 'Total Recipe Cost',
     
     // Collections
     manageCollections: 'Manage your collections',
+    trackPaymentsCollections: 'Track payments and collections from shops',
+    totalCollected: 'Total Collected',
+    mtdLabel: 'MTD',
+    ytdLabel: 'YTD',
     
     // Reports
     manageReports: 'View your reports',
+    generateExportReports: 'Generate and export business reports',
+    salesSummary: 'Sales Summary',
+    viewTotalSalesRevenue: 'View total sales and revenue',
+    collectionReport: 'Collection Report',
+    trackPaymentCollections: 'Track payment collections',
+    inventoryReport: 'Inventory Report',
+    monitorStockLevels: 'Monitor stock levels',
+    profitAnalysis: 'Profit Analysis',
+    analyzeProfitMargins: 'Analyze profit margins',
+    dateRange: 'Date Range',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    pdfExportAlert: 'PDF export would be generated here',
+    csvExportAlert: 'CSV export would be generated here',
     
     // Common confirmations
     deleteConfirm: 'Are you sure you want to delete this',
@@ -151,10 +172,6 @@ export const translations = {
     servingSize: 'Serving Size',
     
     // Reports
-    salesSummary: 'Sales Summary',
-    collectionReport: 'Collection Report',
-    inventoryReport: 'Inventory Report',
-    profitAnalysis: 'Profit Analysis',
     exportPDF: 'Export PDF',
     exportCSV: 'Export CSV',
     
@@ -203,7 +220,6 @@ export const translations = {
     ytd: 'YTD',
     allTime: 'All Time',
     totalPurchases: 'Total Purchases',
-    totalRecipeCost: 'Total Recipe Cost',
     totalBatchRevenue: 'Total Batch Revenue',
     salesVsPurchases: 'Sales vs Purchases',
     salesVsRecipeCost: 'Sales vs Recipe Cost',
@@ -316,12 +332,33 @@ export const translations = {
     
     // Recipes
     manageRecipes: 'ތިބާގެ ރެސިޕީތައް މެނޭޖް ކުރުން',
+    storeTraditionalRecipes: 'ދިވެހި ރެސިޕީތައް ސައްތާކުރާއި މެނޭޖް ކުރުން',
+    totalRecipes: 'ޖުމްލަ ރެސިޕީތައް',
+    totalRecipeCost: 'ޖުމްލަ ރެސިޕީގެ ޚަރަދު',
     
     // Collections
     manageCollections: 'ތިބާގެ ނެގުންތައް މެނޭޖް ކުރުން',
+    trackPaymentsCollections: 'ފިހާރަތަކުން ނަގާއި ނެގުންތައް ޓްރެކް ކުރުން',
+    totalCollected: 'ޖުމްލަ ނެގި',
+    mtdLabel: 'މިމަހު',
+    ytdLabel: 'މިއަހަރު',
     
     // Reports
     manageReports: 'ތިބާގެ ރިޕޯޓްތައް ބެލުން',
+    generateExportReports: 'ވިޔަފާރީގެ ރިޕޯޓްތައް އުފައްދާއި އެކްސްޕޯޓް ކުރުން',
+    salesSummary: 'ވިއްކުމުގެ ހުކުމަތު',
+    viewTotalSalesRevenue: 'ޖުމްލަ ވިއްކުމާއި އާމްދަނީ ބެލުން',
+    collectionReport: 'ނެގުމުގެ ރިޕޯޓު',
+    trackPaymentCollections: 'ފައިސާ ނަގުމުގެ ރިކޯޑްތައް ޓްރެކް ކުރުން',
+    inventoryReport: 'އިންވެންޓަރީގެ ރިޕޯޓު',
+    monitorStockLevels: 'ސްޓޮކް ލެވެލްސް މޮނިޓަރ ކުރުން',
+    profitAnalysis: 'ފައިދާގެ އެނަލިސިސް',
+    analyzeProfitMargins: 'ފައިދާގެ އަދަދު އެނަލިސިސް ކުރުން',
+    dateRange: 'ތާރީޚުގެ ދިގުމިން',
+    startDate: 'ފެށުނު ތާރީޚު',
+    endDate: 'ނިމުނު ތާރީޚު',
+    pdfExportAlert: 'PDF އެކްސްޕޯޓް އުފައްދާނެ',
+    csvExportAlert: 'CSV އެކްސްޕޯޓް އުފައްދާނެ',
     
     // Common confirmations
     deleteConfirm: 'އެއްވެސް ފޮހެލަން ބޭނުމޭ',
@@ -370,10 +407,6 @@ export const translations = {
     servingSize: 'ކާވޭނެ މީހުންގެ އަދަދު',
     
     // Reports
-    salesSummary: 'ވިއްކުމުގެ ޚުލާސާ',
-    collectionReport: 'ފައިސާ ނެގުމުގެ ރިޕޯޓް',
-    inventoryReport: 'އިންވެންޓްރީ ރިޕޯޓް',
-    profitAnalysis: 'ފައިދާގެ ތަޙުލީލު',
     exportPDF: 'ޕީ.ޑީ.އެފ୍ އަށް ބަދަލުކުރުން',
     exportCSV: 'ސީ.އެސް.ވީ އަށް ބަދަލުކުރުން',
     
@@ -422,7 +455,6 @@ export const translations = {
     ytd: 'މިއަހަރު',
     allTime: 'ހުރިހާ',
     totalPurchases: 'ޖުމްލަ އަމްދަނީ ކުރުން',
-    totalRecipeCost: 'ޖުމްލަ ރެސިޕީގެ ޚަރަދު',
     totalBatchRevenue: 'ޖުމްލަ ބެޗުގެ އާމްދަނީ',
     salesVsPurchases: 'ވިއްކުން vs އަމްދަނީ ކުރުން',
     salesVsRecipeCost: 'ވިއްކުން vs ރެސިޕީގެ ޚަރަދު',
