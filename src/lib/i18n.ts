@@ -48,6 +48,7 @@ export const translations = {
     meals: 'Meals',
     drinks: 'Drinks',
     snacks: 'Snacks',
+    manageProducts: 'Manage your product inventory',
     
     // Shops
     addShop: 'Add Shop',
@@ -58,6 +59,49 @@ export const translations = {
     contact: 'Contact',
     phone: 'Phone',
     shopEmail: 'Email',
+    manageShops: 'Manage your shop information',
+    totalShops: 'Total Shops',
+    totalPurchasesLabel: 'Total Purchases',
+    outstandingBalanceLabel: 'Outstanding Balance',
+    activeShopsLabel: 'Active Shops',
+    manageRetailPartners: 'Manage your retail partners and customers',
+    
+    // Purchases
+    fish: 'Fish',
+    vegetables: 'Vegetables',
+    meat: 'Meat',
+    dairy: 'Dairy',
+    grains: 'Grains',
+    spices: 'Spices',
+    flour: 'Flour',
+    other: 'Other',
+    managePurchases: 'Manage your purchase records',
+    
+    // Sales
+    manageSales: 'Manage your sales records',
+    
+    // Batches
+    manageBatches: 'Manage your production batches',
+    
+    // Recipes
+    manageRecipes: 'Manage your recipes',
+    
+    // Collections
+    manageCollections: 'Manage your collections',
+    
+    // Reports
+    manageReports: 'View your reports',
+    
+    // Common confirmations
+    deleteConfirm: 'Are you sure you want to delete this',
+    product: 'product',
+    shop: 'shop',
+    purchase: 'purchase',
+    sale: 'sale',
+    batch: 'batch',
+    recipe: 'recipe',
+    collection: 'collection',
+    questionMark: '?',
     
     // Batches
     addBatch: 'Add Batch',
@@ -211,6 +255,7 @@ export const translations = {
     meals: 'ކެއުންތައް',
     drinks: 'ބުއިންތައް',
     snacks: 'ސްނެކްސް',
+    manageProducts: 'ތިބާގެ މުދާ އިންވެންޓަރީ މެނޭޖް ކުރުން',
     
     // Shops
     addShop: 'ފިހާރައެއް އިތުރުކުރުން',
@@ -221,6 +266,49 @@ export const translations = {
     contact: 'ގުޅޭނެ ނަންބަރު',
     phone: 'ފޯނު',
     shopEmail: 'އީމެއިލް',
+    manageShops: 'ތިބާގެ ފިހާރަގެ މައުލޫމާތު މެނޭޖް ކުރުން',
+    totalShops: 'ޖުމްލަ ފިހާރަތައް',
+    totalPurchasesLabel: 'ޖުމްލަ އަމްދަނީ ކުރުން',
+    outstandingBalanceLabel: 'ބާކީވާ ބަލަންސް',
+    activeShopsLabel: 'ހަރަކާތްތެރިވާ ފިހާރަތައް',
+    manageRetailPartners: 'ތިބާގެ ރިޓޭލް ޕާޓްނަރުންނާއި ކަސްޓަމަރުން މެނޭޖް ކުރުން',
+    
+    // Purchases
+    fish: 'މަސް',
+    vegetables: 'ފޮނިމަސް',
+    meat: 'ގޮތް',
+    dairy: 'ދިވެހި އަތަރުބާސް',
+    grains: 'ދޮންމަސް',
+    spices: 'މުގަލު',
+    flour: 'ފުންދޫ',
+    other: 'އެހެން',
+    managePurchases: 'ތިބާގެ އަމްދަނީ ކުރުގެ ރިކޯޑްތައް މެނޭޖް ކުރުން',
+    
+    // Sales
+    manageSales: 'ތިބާގެ ވިއްކުމުގެ ރިކޯޑްތައް މެނޭޖް ކުރުން',
+    
+    // Batches
+    manageBatches: 'ތިބާގެ އުފެއްދުމުގެ ބެޗްތައް މެނޭޖް ކުރުން',
+    
+    // Recipes
+    manageRecipes: 'ތިބާގެ ރެސިޕީތައް މެނޭޖް ކުރުން',
+    
+    // Collections
+    manageCollections: 'ތިބާގެ ނެގުންތައް މެނޭޖް ކުރުން',
+    
+    // Reports
+    manageReports: 'ތިބާގެ ރިޕޯޓްތައް ބެލުން',
+    
+    // Common confirmations
+    deleteConfirm: 'އެއްވެސް ފޮހެލަން ބޭނުމޭ',
+    product: 'މުދާ',
+    shop: 'ފިހާރަ',
+    purchase: 'އަމްދަނީ ކުރުން',
+    sale: 'ވިއްކުން',
+    batch: 'ބެޗް',
+    recipe: 'ރެސިޕީ',
+    collection: 'ނެގުން',
+    questionMark: '?',
     
     // Batches
     addBatch: 'ބެޗެއް އިތުރުކުރުން',

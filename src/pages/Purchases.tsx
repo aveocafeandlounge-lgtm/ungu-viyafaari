@@ -96,12 +96,12 @@ export default function Purchases() {
   };
 
   const categories = [
-    { value: 'fish', label: 'Fish' },
-    { value: 'vegetables', label: 'Vegetables' },
-    { value: 'flour', label: 'Flour' },
-    { value: 'spices', label: 'Spices' },
-    { value: 'dairy', label: 'Dairy' },
-    { value: 'other', label: 'Other' },
+    { value: 'fish', label: t.fish || 'Fish' },
+    { value: 'vegetables', label: t.vegetables || 'Vegetables' },
+    { value: 'flour', label: t.flour || 'Flour' },
+    { value: 'spices', label: t.spices || 'Spices' },
+    { value: 'dairy', label: t.dairy || 'Dairy' },
+    { value: 'other', label: t.other || 'Other' },
   ];
 
   const filteredPurchases = purchases.filter(purchase =>

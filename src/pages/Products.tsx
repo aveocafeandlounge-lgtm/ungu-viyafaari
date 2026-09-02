@@ -136,7 +136,7 @@ export default function Products() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm(`${t.deleteConfirm || 'Are you sure you want to delete this'} ${t.product || 'product'}${t.questionMark || '?'}`)) {
       setLoading(true);
       try {
         await deleteDoc(doc(db, 'products', id));
@@ -156,7 +156,7 @@ export default function Products() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.products}</h1>
-              <p className="text-gray-600">Manage your product inventory</p>
+              <p className="text-gray-600">{t.manageProducts || 'Manage your product inventory'}</p>
             </div>
             <button
               onClick={() => { setEditingProduct(null); setShowModal(true); }}

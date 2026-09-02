@@ -90,7 +90,7 @@ export default function Shops() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this shop?')) {
+    if (window.confirm(`${t.deleteConfirm || 'Are you sure you want to delete this'} ${t.shop || 'shop'}${t.questionMark || '?'}`)) {
       setLoading(true);
       try {
         await deleteDoc(doc(db, 'shops', id));
@@ -110,7 +110,7 @@ export default function Shops() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.shops}</h1>
-              <p className="text-gray-600">Manage your retail partners and customers</p>
+              <p className="text-gray-600">{t.manageRetailPartners || 'Manage your retail partners and customers'}</p>
             </div>
             <button
               onClick={() => { setEditingShop(null); setShowModal(true); }}
@@ -138,7 +138,7 @@ export default function Shops() {
               <Store className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Total Shops</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.totalShops || 'Total Shops'}</h3>
           <p className="text-2xl font-bold text-gray-800">{shops.length}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -147,7 +147,7 @@ export default function Shops() {
               <DollarSign className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Total Purchases</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.totalPurchasesLabel || 'Total Purchases'}</h3>
           <p className="text-2xl font-bold text-gray-800">MVR {shops.reduce((sum, s) => sum + (s.totalPurchases || 0), 0).toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -156,7 +156,7 @@ export default function Shops() {
               <Clock className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Outstanding Balance</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.outstandingBalanceLabel || 'Outstanding Balance'}</h3>
           <p className="text-2xl font-bold text-gray-800">MVR {shops.reduce((sum, s) => sum + (s.outstandingBalance || 0), 0).toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -165,7 +165,7 @@ export default function Shops() {
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Active Shops</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.activeShopsLabel || 'Active Shops'}</h3>
           <p className="text-2xl font-bold text-gray-800">{shops.length}</p>
         </div>
       </div>
