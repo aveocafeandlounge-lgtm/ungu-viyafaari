@@ -42,10 +42,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: t.dashboard },
     { path: '/shops', icon: Store, label: t.shops },
-    { path: '/purchases', icon: ShoppingCart, label: 'Purchases' },
+    { path: '/purchases', icon: ShoppingCart, label: t.purchases || 'Purchases' },
     { path: '/recipes', icon: BookOpen, label: t.recipes },
     { path: '/batches', icon: Box, label: t.batches },
-    { path: '/sales', icon: Receipt, label: 'Sales' },
+    { path: '/sales', icon: Receipt, label: t.sales || 'Sales' },
     { path: '/collections', icon: DollarSign, label: t.collections },
     { path: '/reports', icon: BarChart3, label: t.reports },
     { path: '/promotional-presentations', icon: Video, label: t.promotionalVideos },
@@ -54,8 +54,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   // Add admin-only pages for super-admin
   if (isSuperAdmin) {
-    navItems.splice(navItems.length - 1, 0, { path: '/users', icon: BarChart3, label: 'Users' });
-    navItems.splice(navItems.length - 1, 0, { path: '/visitors', icon: BarChart3, label: 'Visitors' });
+    navItems.splice(navItems.length - 1, 0, { path: '/users', icon: BarChart3, label: t.users || 'Users' });
+    navItems.splice(navItems.length - 1, 0, { path: '/visitors', icon: BarChart3, label: t.visitors || 'Visitors' });
   }
 
   return (
