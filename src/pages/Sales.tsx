@@ -36,7 +36,7 @@ interface Sale {
 }
 
 export default function Sales() {
-  const { isRTL } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const [sales, setSales] = useState<Sale[]>([]);
   const [batches, setBatches] = useState<any[]>([]);
   const [shops, setShops] = useState<any[]>([]);
@@ -166,7 +166,7 @@ export default function Sales() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this sale?')) {
+    if (window.confirm(`${t.deleteConfirm || 'Are you sure you want to delete this'} ${t.sale || 'sale'}${t.questionMark || '?'}`)) {
       setLoading(true);
       try {
         await deleteDoc(doc(db, 'sales', id));
@@ -215,15 +215,15 @@ export default function Sales() {
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800 mb-2">Sales</h1>
-              <p className="text-gray-600">Track sales to shops</p>
+              <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.sales || 'Sales'}</h1>
+              <p className="text-gray-600">{t.trackSalesToShops || 'Track sales to shops'}</p>
             </div>
             <button
               onClick={() => { setEditingSale(null); setShowModal(true); }}
               className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
             >
               <Plus className="w-5 h-5" />
-              Add Sale
+              {t.addSale || 'Add Sale'}
             </button>
           </div>
         </div>
@@ -244,7 +244,7 @@ export default function Sales() {
               <ShoppingCart className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Total Sales</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.totalSalesLabel || 'Total Sales'}</h3>
           <p className="text-2xl font-bold text-gray-800">{sales.length}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -253,7 +253,7 @@ export default function Sales() {
               <DollarSign className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Total Revenue</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.totalRevenue || 'Total Revenue'}</h3>
           <p className="text-2xl font-bold text-gray-800">MVR {sales.reduce((sum, s) => sum + (s.totalAmount || 0), 0).toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -262,7 +262,7 @@ export default function Sales() {
               <Clock className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Pending Amount</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.pendingAmount || 'Pending Amount'}</h3>
           <p className="text-2xl font-bold text-gray-800">MVR {sales.reduce((sum, s) => sum + ((s.totalAmount || 0) - (s.paidAmount || 0)), 0).toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -271,7 +271,7 @@ export default function Sales() {
               <CheckCircle className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Received Amount</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.receivedAmount || 'Received Amount'}</h3>
           <p className="text-2xl font-bold text-gray-800">MVR {sales.reduce((sum, s) => sum + (s.paidAmount || 0), 0).toLocaleString()}</p>
         </div>
       </div>

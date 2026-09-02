@@ -79,9 +79,21 @@ export const translations = {
     
     // Sales
     manageSales: 'Manage your sales records',
+    trackSalesToShops: 'Track sales to shops',
+    addSale: 'Add Sale',
+    totalSalesLabel: 'Total Sales',
+    totalRevenue: 'Total Revenue',
+    pendingAmount: 'Pending Amount',
+    receivedAmount: 'Received Amount',
     
     // Batches
     manageBatches: 'Manage your production batches',
+    trackProductionBatches: 'Track production batches and inventory',
+    totalBatches: 'Total Batches',
+    totalBatchCostLabel: 'Total Batch Cost',
+    totalBatchRevenueLabel: 'Total Batch Revenue',
+    lowStockBatches: 'Low Stock Batches',
+    expiredBatches: 'Expired Batches',
     
     // Recipes
     manageRecipes: 'Manage your recipes',
@@ -286,9 +298,21 @@ export const translations = {
     
     // Sales
     manageSales: 'ތިބާގެ ވިއްކުމުގެ ރިކޯޑްތައް މެނޭޖް ކުރުން',
+    trackSalesToShops: 'ފިހާރަތަކަށް ވިއްކުން ޓްރެކް ކުރުން',
+    addSale: 'ވިއްކުމެއް އިތުރުކުރުން',
+    totalSalesLabel: 'ޖުމްލަ ވިއްކުން',
+    totalRevenue: 'ޖުމްލަ އާމްދަނީ',
+    pendingAmount: 'މުއްދަތުޖެހިފައިވާ ފައިސާ',
+    receivedAmount: 'ލިބިފައިވާ ފައިސާ',
     
     // Batches
     manageBatches: 'ތިބާގެ އުފެއްދުމުގެ ބެޗްތައް މެނޭޖް ކުރުން',
+    trackProductionBatches: 'އުފެއްދުމުގެ ބެޗްތައާއި އިންވެންޓަރީ ޓްރެކް ކުރުން',
+    totalBatches: 'ޖުމްލަ ބެޗްތައް',
+    totalBatchCostLabel: 'ޖުމްލަ ބެޗުގެ ޚަރަދު',
+    totalBatchRevenueLabel: 'ޖުމްލަ ބެޗުގެ އާމްދަނީ',
+    lowStockBatches: 'ސްޓޮކް ދަށްކޮށްވާ ބެޗްތައް',
+    expiredBatches: 'ހަމަވެފައިވާ ބެޗްތައް',
     
     // Recipes
     manageRecipes: 'ތިބާގެ ރެސިޕީތައް މެނޭޖް ކުރުން',

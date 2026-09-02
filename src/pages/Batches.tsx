@@ -181,7 +181,7 @@ export default function Batches() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this batch?')) {
+    if (window.confirm(`${t.deleteConfirm || 'Are you sure you want to delete this'} ${t.batch || 'batch'}${t.questionMark || '?'}`)) {
       setLoading(true);
       try {
         await deleteDoc(doc(db, 'batches', id));
@@ -210,7 +210,7 @@ export default function Batches() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.batches}</h1>
-              <p className="text-gray-600">Track production batches and inventory</p>
+              <p className="text-gray-600">{t.trackProductionBatches || 'Track production batches and inventory'}</p>
             </div>
             <button
               onClick={() => { setEditingBatch(null); setShowModal(true); }}
@@ -238,7 +238,7 @@ export default function Batches() {
               <Box className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Total Batches</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.totalBatches || 'Total Batches'}</h3>
           <p className="text-2xl font-bold text-gray-800">{batches.length}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -247,7 +247,7 @@ export default function Batches() {
               <DollarSign className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Total Revenue</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.totalRevenue || 'Total Revenue'}</h3>
           <p className="text-2xl font-bold text-gray-800">MVR {batches.reduce((sum, b) => sum + (b.totalRevenue || 0), 0).toLocaleString()}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -256,7 +256,7 @@ export default function Batches() {
               <AlertTriangle className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Low Stock</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.lowStockBatches || 'Low Stock'}</h3>
           <p className="text-2xl font-bold text-gray-800">{batches.filter(b => b.status === 'low-stock').length}</p>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -265,7 +265,7 @@ export default function Batches() {
               <AlertTriangle className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h3 className="text-gray-600 text-sm mb-1">Expired</h3>
+          <h3 className="text-gray-600 text-sm mb-1">{t.expiredBatches || 'Expired'}</h3>
           <p className="text-2xl font-bold text-gray-800">{batches.filter(b => b.status === 'expired').length}</p>
         </div>
       </div>
