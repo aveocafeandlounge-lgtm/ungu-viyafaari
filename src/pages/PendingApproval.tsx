@@ -50,9 +50,9 @@ export default function PendingApproval() {
     navigate('/login');
   };
 
-  const contactNumber = '+9609795529';
-  const whatsappUrl = `https://wa.me/${contactNumber.replace('+', '')}`;
-  const viberUrl = `viber://chat?number=${contactNumber}`;
+  const contactNumber = '+9607786629/+9609944177';
+  const whatsappUrl = `https://wa.me/9607786629`;
+  const viberUrl = `viber://chat?number=9607786629`;
 
   // If approved, show approved screen
   if (currentStatus === 'approved') {
