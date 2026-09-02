@@ -2,10 +2,12 @@
 
 /* Dhivehi Font Support */
 @font-face {
-  font-family: 'Faseyha';
-  src: url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thaana&display=swap');
+  font-family: 'Dhivehi';
+  src: url('/fonts/Dhivehi.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
 
 [dir="rtl"] {
-  font-family: 'Faseyha', 'Noto Sans Thaana', sans-serif;
+  font-family: 'Dhivehi', sans-serif;
 }
