@@ -13,8 +13,8 @@ export default function Settings() {
   const { user, isAdmin } = useAuth();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row items-start gap-8">
+    <div className="space-y-6 px-4 py-4 lg:px-8">
+      <div className="flex flex-col lg:flex-row items-start gap-8 mt-14 lg:mt-0">
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.settings}</h1>
           <p className="text-gray-600">{t.manageAccountPreferences || 'Manage your account and app preferences'}</p>

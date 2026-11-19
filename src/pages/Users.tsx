@@ -100,8 +100,8 @@ export default function Users() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex flex-col lg:flex-row items-start gap-8">
+    <div className="space-y-6 px-4 py-4 lg:px-8">
+      <div className="flex flex-col lg:flex-row items-start gap-8 mt-14 lg:mt-0">
         <div className="flex-1">
           <h1 className="text-2xl font-bold">Users</h1>
         </div>

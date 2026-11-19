@@ -454,7 +454,7 @@ Text overlay: "Next text"
               className="px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors flex items-center gap-2"
             >
               <Download className="w-5 h-5" />
-              Export Video
+              <span className="hidden sm:inline">Export Video</span>
             </button>
           </div>
         </div>
@@ -641,23 +641,23 @@ Text overlay: "Next text"
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 px-4 py-4 lg:px-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-14 lg:mt-0">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Promotional Presentations</h1>
           <p className="text-gray-600">Create engaging videos for TikTok and social media</p>
         </div>
         <button
           onClick={() => setShowTemplateModal(true)}
-          className="px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
         >
           <Plus className="w-5 h-5" />
-          Create New
+          <span className="hidden sm:inline">Create New</span>
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-purple-100 rounded-lg">

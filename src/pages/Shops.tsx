@@ -104,8 +104,8 @@ export default function Shops() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row items-start gap-8">
+    <div className="space-y-6 px-4 py-4 lg:px-8">
+      <div className="flex flex-col lg:flex-row items-start gap-8 mt-14 lg:mt-0">
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -117,7 +117,7 @@ export default function Shops() {
               className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
             >
               <Plus className="w-5 h-5" />
-              {t.addShop}
+              <span className="hidden sm:inline">{t.addShop}</span>
             </button>
           </div>
         </div>

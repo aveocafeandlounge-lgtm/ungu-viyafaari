@@ -118,8 +118,8 @@ export default function Reports() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row items-start gap-8">
+    <div className="space-y-6 px-4 py-4 lg:px-8">
+      <div className="flex flex-col lg:flex-row items-start gap-8 mt-14 lg:mt-0">
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.reports}</h1>
           <p className="text-gray-600">{t.generateExportReports || 'Generate and export business reports'}</p>

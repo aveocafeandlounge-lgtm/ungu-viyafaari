@@ -238,8 +238,8 @@ export default function Purchases() {
   const costYTD = purchases.filter(p => p.purchaseDate >= ytdDate).reduce((sum, p) => sum + (p.totalCost || 0), 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row items-start gap-8">
+    <div className="space-y-6 px-4 py-4 lg:px-8">
+      <div className="flex flex-col lg:flex-row items-start gap-8 mt-14 lg:mt-0">
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -251,7 +251,7 @@ export default function Purchases() {
               className="bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors flex items-center gap-2 self-start"
             >
               <Plus className="w-5 h-5" />
-              Add Purchase
+              <span className="hidden sm:inline">Add Purchase</span>
             </button>
           </div>
         </div>
@@ -308,7 +308,7 @@ export default function Purchases() {
       ) : (
         <div className="space-y-4">
           {/* Desktop Table View */}
-          <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>

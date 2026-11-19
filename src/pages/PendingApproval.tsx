@@ -57,7 +57,7 @@ export default function PendingApproval() {
   // If approved, show approved screen
   if (currentStatus === 'approved') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center px-4 py-4 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-4xl">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -112,7 +112,7 @@ export default function PendingApproval() {
   // If rejected, show rejected screen
   if (currentStatus === 'rejected') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50 flex items-center justify-center px-4 py-4 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-4xl">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -158,7 +158,7 @@ export default function PendingApproval() {
 
   // Pending screen
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 flex items-center justify-center px-4 py-4 lg:px-8">
       <div className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-4xl">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
